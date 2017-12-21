@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Esperanta Vortaro</string>
+    <string name="init_search_text">Search...</string>
+</resources>
