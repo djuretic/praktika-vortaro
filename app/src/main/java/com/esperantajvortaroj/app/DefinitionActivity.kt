@@ -1,7 +1,11 @@
 package com.esperantajvortaroj.app
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.StyleSpan
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
@@ -24,7 +28,20 @@ class DefinitionActivity : AppCompatActivity() {
         val wordResult = databaseHelper.wordById(articleId)
         val textView = TextView(this)
         if(wordResult != null){
-            textView.text = wordResult.word + "\n" + wordResult.definition
+            val def = SpannableString(wordResult.definition)
+            if(wordResult.format?.bold!!.isNotEmpty()){
+                for(pair in wordResult.format.bold){
+                    def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
+                }
+            }
+            if(wordResult.format?.italic!!.isNotEmpty()){
+                for(pair in wordResult.format.italic){
+                    def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
+                }
+            }
+            val word = SpannableString(wordResult.word)
+            word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
+            textView.text = TextUtils.concat(word, "\n", def)
         }
         layout.addView(textView)
         return layout

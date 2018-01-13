@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.support.v7.widget.SearchView
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -71,8 +74,20 @@ class SearchActivity : AppCompatActivity() {
             var entryId = 0
             if(foundEntry is SearchResult){
                 mainWord.text = foundEntry.word
-                definition.text = foundEntry.definition
                 entryId = foundEntry.id
+
+                val def = SpannableString(foundEntry.definition)
+                if(foundEntry.format?.bold!!.isNotEmpty()){
+                    for(pair in foundEntry.format.bold){
+                        def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
+                    }
+                }
+                if(foundEntry.format?.italic!!.isNotEmpty()){
+                    for(pair in foundEntry.format.italic){
+                        def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
+                    }
+                }
+                definition.text = def
             }
 
             resultRow.setOnClickListener(object : View.OnClickListener {
