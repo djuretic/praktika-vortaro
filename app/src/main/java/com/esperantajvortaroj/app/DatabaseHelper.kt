@@ -45,10 +45,30 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    fun translationsByWordId(wordId: Int): List<TranslationResult> {
+        val results = mutableListOf<TranslationResult>()
+        val db = writableDatabase
+        // TODO: filter by more languages
+        val cursor = db.rawQuery("SELECT word, lng, translation FROM translations WHERE word_id = ? and lng = 'es'", arrayOf(""+wordId))
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val word = cursor.getString(cursor.getColumnIndex("word"))
+            val lng = cursor.getString(cursor.getColumnIndex("lng"))
+            val translation = cursor.getString(cursor.getColumnIndex("translation"))
+            val res = TranslationResult(word, lng, translation)
+            results.add(res)
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return results
+    }
+
+
     private fun parseFormat(string: String): StringFormat{
         val sections = string.split("\n")
 
-        val format = StringFormat(emptyList(), emptyList())
+        var bold = emptyList<Pair<Int, Int>>()
+        var italic = emptyList<Pair<Int, Int>>()
         for (line in sections){
             if(line.isEmpty()){
                 continue
@@ -59,14 +79,16 @@ class DatabaseHelper : SQLiteAssetHelper {
                 Pair(coords[0].toInt(), coords[1].toInt())
             }
             if(parts[0] == "italic"){
-                format.italic = list
+                italic = list
             } else if (parts[0] == "bold"){
-                format.bold = list
+                bold = list
             }
         }
-        return format
+
+        return StringFormat(italic, bold)
     }
 }
 
-data class StringFormat(var italic: List<Pair<Int, Int>>, var bold: List<Pair<Int, Int>>)
+data class StringFormat(val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>)
 data class SearchResult(val id: Int, val word: String, val definition: String, val format: StringFormat?)
+data class TranslationResult(val word: String, val lng: String, val translation: String)

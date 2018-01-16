@@ -22,10 +22,12 @@ class DefinitionActivity : AppCompatActivity() {
     }
 
     private fun loadArticle(articleId: Int): LinearLayout {
+        var content : CharSequence = ""
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         val databaseHelper = DatabaseHelper(this)
         val wordResult = databaseHelper.wordById(articleId)
+        val translations = databaseHelper.translationsByWordId(articleId)
         val textView = TextView(this)
         if(wordResult != null){
             val def = SpannableString(wordResult.definition)
@@ -41,8 +43,16 @@ class DefinitionActivity : AppCompatActivity() {
             }
             val word = SpannableString(wordResult.word)
             word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
-            textView.text = TextUtils.concat(word, "\n", def)
+            content = TextUtils.concat(word, "\n", def)
         }
+
+        if(translations.isNotEmpty()){
+            for(trad in translations){
+                content = TextUtils.concat(content, "\n\n ", trad.lng, ": ", trad.translation)
+            }
+        }
+        textView.text = content
+
         layout.addView(textView)
         return layout
     }

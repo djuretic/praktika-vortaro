@@ -77,12 +77,12 @@ class SearchActivity : AppCompatActivity() {
                 entryId = foundEntry.id
 
                 val def = SpannableString(foundEntry.definition)
-                if(foundEntry.format?.bold!!.isNotEmpty()){
+                if(foundEntry.format?.bold != null){
                     for(pair in foundEntry.format.bold){
                         def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
                     }
                 }
-                if(foundEntry.format?.italic!!.isNotEmpty()){
+                if(foundEntry.format?.italic != null){
                     for(pair in foundEntry.format.italic){
                         def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
                     }
