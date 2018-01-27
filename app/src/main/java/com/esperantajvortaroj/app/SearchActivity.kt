@@ -5,13 +5,11 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.support.v7.widget.SearchView
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.view.*
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -21,6 +19,7 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(appToolbar)
 
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
@@ -32,6 +31,24 @@ class SearchActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(p0: String?) = true
         })
         searchResults.adapter = searchAdapter
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                this.startActivity(intent)
+                return true
+            }
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     private class SearchResultAdapter(context: Context): BaseAdapter() {

@@ -17,6 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.esperantajvortaroj.app.DefinitionActivity"></activity>
+        <activity android:name="com.esperantajvortaroj.app.SettingsActivity"></activity>
     </application>
 
 </manifest>
