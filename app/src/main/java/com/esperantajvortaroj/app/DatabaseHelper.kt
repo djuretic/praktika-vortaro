@@ -45,11 +45,17 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
-    fun translationsByWordId(wordId: Int): List<TranslationResult> {
+    fun translationsByWordId(wordId: Int, langPrefs: MutableSet<String>): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
         val db = writableDatabase
-        // TODO: filter by more languages
-        val cursor = db.rawQuery("SELECT word, lng, translation FROM translations WHERE word_id = ? and lng = 'es'", arrayOf(""+wordId))
+        if(langPrefs.isEmpty()){
+            return results
+        }
+        var sql = "SELECT word, lng, translation FROM translations WHERE word_id = ? and lng IN ("
+        sql += langPrefs.joinToString(transform= {a -> "?"})
+        sql += ")"
+
+        val cursor = db.rawQuery(sql, arrayOf(""+wordId) + langPrefs)
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val word = cursor.getString(cursor.getColumnIndex("word"))

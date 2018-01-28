@@ -3,10 +3,12 @@ package com.esperantajvortaroj.app
 import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.StyleSpan
+import android.util.TypedValue
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
@@ -38,8 +40,13 @@ class DefinitionActivity : AppCompatActivity() {
         layout.orientation = LinearLayout.VERTICAL
         val databaseHelper = DatabaseHelper(this)
         val wordResult = databaseHelper.wordById(articleId)
-        val translations = databaseHelper.translationsByWordId(articleId)
+
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val langPrefs = sharedPref.getStringSet("languages_preference", null)
+
+        val translations = databaseHelper.translationsByWordId(articleId, langPrefs)
         val textView = TextView(this)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         if(wordResult != null){
             val def = SpannableString(wordResult.definition)
             if(wordResult.format?.bold!!.isNotEmpty()){
