@@ -5,7 +5,7 @@
 
         <MultiSelectListPreference
             android:defaultValue="@array/default_languages"
-            android:entries="@array/languages"
+            android:entries="@array/languages_names"
             android:entryValues="@array/languages"
             android:key="languages_preference"
             android:title="Languages" />
