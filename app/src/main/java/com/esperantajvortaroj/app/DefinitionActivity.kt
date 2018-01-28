@@ -1,5 +1,6 @@
 package com.esperantajvortaroj.app
 
+import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,13 +13,23 @@ import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity() {
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_definition)
+        setSupportActionBar(appToolbar)
+        supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val articleId = intent.getIntExtra(ENTRY_DATA, 0)
         val articleView = loadArticle(articleId)
         definitionScrollView.addView(articleView)
+
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 
     private fun loadArticle(articleId: Int): LinearLayout {

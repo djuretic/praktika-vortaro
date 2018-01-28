@@ -16,7 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.esperantajvortaroj.app.DefinitionActivity"></activity>
+        <activity android:name="com.esperantajvortaroj.app.DefinitionActivity"
+            android:parentActivityName="com.esperantajvortaroj.app.SearchActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.esperantajvortaroj.app.SearchActivity" />
+        </activity>
         <activity android:name="com.esperantajvortaroj.app.SettingsActivity"></activity>
     </application>
 
