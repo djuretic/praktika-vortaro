@@ -24,7 +24,7 @@ class SearchActivity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
                 if(query == null) return true
-                searchAdapter.filter(query.trim())
+                searchAdapter.filter(Utils.addHats(query.trim()))
                 return true
             }
 
