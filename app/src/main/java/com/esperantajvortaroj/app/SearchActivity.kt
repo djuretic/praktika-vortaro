@@ -34,6 +34,8 @@ class SearchActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(p0: String?) = true
         })
         searchResults.adapter = searchAdapter
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
