@@ -8,6 +8,6 @@
             android:entries="@array/languages_names"
             android:entryValues="@array/languages"
             android:key="languages_preference"
-            android:title="Languages" />
+            android:title="@string/preference_select_languages" />
     </PreferenceCategory>
 </PreferenceScreen>
