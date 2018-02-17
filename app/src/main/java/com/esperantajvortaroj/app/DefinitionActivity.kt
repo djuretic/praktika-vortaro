@@ -42,7 +42,7 @@ class DefinitionActivity : AppCompatActivity() {
         val wordResult = databaseHelper.wordById(articleId)
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val langPrefs = sharedPref.getStringSet("languages_preference", null)
+        val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
 
         val translations = databaseHelper.translationsByWordId(articleId, langPrefs)
         val textView = TextView(this)

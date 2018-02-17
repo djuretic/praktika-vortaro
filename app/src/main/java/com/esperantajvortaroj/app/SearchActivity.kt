@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.widget.BaseAdapter
 import android.support.v7.widget.SearchView
 import android.text.SpannableString
@@ -15,6 +16,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter = SearchResultAdapter(this)
+    private val ESPERANTO = "eo"
+    private var activeLanguage = ESPERANTO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +27,7 @@ class SearchActivity : AppCompatActivity() {
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
                 if(query == null) return true
-                searchAdapter.filter(Utils.addHats(query.trim()))
+                searchAdapter.filter(Utils.addHats(query.trim()), activeLanguage)
                 return true
             }
 
@@ -45,6 +48,28 @@ class SearchActivity : AppCompatActivity() {
                 this.startActivity(intent)
                 return true
             }
+            R.id.change_search_language -> {
+                val ESPERANTO = "eo"
+                val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+                val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+
+                if(activeLanguage == ESPERANTO && !langPrefs.isEmpty()){
+                    activeLanguage = langPrefs.elementAt(0)
+                } else if (activeLanguage != ESPERANTO){
+                    val currentIndex = langPrefs.indexOf(activeLanguage)
+                    if(currentIndex < 0 || currentIndex >= langPrefs.size - 1){
+                        activeLanguage = ESPERANTO
+                    } else {
+                        activeLanguage = langPrefs.elementAt(currentIndex+1)
+                    }
+                }
+                else activeLanguage = ESPERANTO
+                item.title = activeLanguage
+                val originalQuery = searchView.query
+                searchView.setQuery("", true)
+                searchView.setQuery(originalQuery, true)
+                return true
+            }
             else -> {
                 return super.onOptionsItemSelected(item)
             }
@@ -55,13 +80,17 @@ class SearchActivity : AppCompatActivity() {
         private val context: Context = context
         private var results = ArrayList<SearchResult>()
 
-        fun filter(searchString: String){
+        fun filter(searchString: String, language: String){
             if(searchString == ""){
                 results.clear()
             } else {
                 val databaseHelper = DatabaseHelper(context)
                 //TODO not on main thread
-                results = databaseHelper.searchWords(searchString)
+                if(language == "eo"){
+                    results = databaseHelper.searchWords(searchString)
+                } else {
+                    results = databaseHelper.searchTranslations(searchString, language)
+                }
             }
             if(results.count() > 0)
                 notifyDataSetChanged()

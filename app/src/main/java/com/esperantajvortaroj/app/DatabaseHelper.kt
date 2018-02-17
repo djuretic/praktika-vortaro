@@ -14,7 +14,12 @@ class DatabaseHelper : SQLiteAssetHelper {
 
     fun searchWords(searchString: String) : ArrayList<SearchResult> {
         val db = writableDatabase
-        val cursor = db.rawQuery("SELECT id, word, definition, format FROM words WHERE word LIKE ? ORDER BY word COLLATE NOCASE LIMIT 50", arrayOf(searchString+"%"))
+        val cursor = db.rawQuery("""
+            SELECT id, word, definition, format
+            FROM words
+            WHERE word LIKE ?
+            ORDER BY word COLLATE NOCASE
+            LIMIT 50""", arrayOf(searchString+"%"))
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
@@ -22,6 +27,29 @@ class DatabaseHelper : SQLiteAssetHelper {
             val word = cursor.getString(cursor.getColumnIndex("word"))
             val id = cursor.getInt(cursor.getColumnIndex("id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
+            result.add(SearchResult(id, word, definition, format))
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return result
+    }
+
+    fun searchTranslations(searchString: String, language: String): ArrayList<SearchResult> {
+        val db = writableDatabase
+        val cursor = db.rawQuery("""
+            SELECT word_id, word, translation
+            FROM translations
+            WHERE lng = ?
+            AND translation LIKE ?
+            ORDER BY word COLLATE NOCASE
+            LIMIT 50""", arrayOf(language, searchString+"%"))
+        val result = arrayListOf<SearchResult>()
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val definition = cursor.getString(cursor.getColumnIndex("word"))
+            val word = cursor.getString(cursor.getColumnIndex("translation"))
+            val id = cursor.getInt(cursor.getColumnIndex("word_id"))
+            val format = StringFormat(emptyList(), emptyList())
             result.add(SearchResult(id, word, definition, format))
             cursor.moveToNext()
         }
@@ -93,6 +121,7 @@ class DatabaseHelper : SQLiteAssetHelper {
 
         return StringFormat(italic, bold)
     }
+
 }
 
 data class StringFormat(val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>)
