@@ -15,7 +15,7 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class SearchActivity : AppCompatActivity() {
-    private var searchAdapter = SearchResultAdapter(this)
+    private var searchAdapter : SearchResultAdapter? = null
     private val ESPERANTO = "eo"
     private var activeLanguage = ESPERANTO
 
@@ -24,10 +24,16 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(appToolbar)
 
+        searchAdapter = SearchResultAdapter(this)
+
         searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String?): Boolean {
                 if(query == null) return true
-                searchAdapter.filter(Utils.addHats(query.trim()), activeLanguage)
+                var text = query.trim()
+                if(activeLanguage == ESPERANTO){
+                    text = Utils.addHats(text)
+                }
+                searchAdapter?.filter(text, activeLanguage)
                 return true
             }
 
@@ -78,15 +84,16 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private class SearchResultAdapter(context: Context): BaseAdapter() {
-        private val context: Context = context
+    private class SearchResultAdapter(val context: Context): BaseAdapter() {
         private var results = ArrayList<SearchResult>()
+        private val databaseHelper = DatabaseHelper(context)
 
-        fun filter(searchString: String, language: String){
+         fun filter(searchString: String, language: String){
+            if(databaseHelper == null)
+                return
             if(searchString == ""){
                 results.clear()
             } else {
-                val databaseHelper = DatabaseHelper(context)
                 //TODO not on main thread
                 if(language == "eo"){
                     results = databaseHelper.searchWords(searchString)
