@@ -18,7 +18,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             SELECT id, word, definition, format
             FROM words
             WHERE word LIKE ?
-            ORDER BY word COLLATE NOCASE
+            ORDER BY id
             LIMIT 50""", arrayOf(searchString+"%"))
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
@@ -38,11 +38,10 @@ class DatabaseHelper : SQLiteAssetHelper {
         val db = writableDatabase
         val cursor = db.rawQuery("""
             SELECT word_id, word, translation
-            FROM translations
-            WHERE lng = ?
-            AND translation LIKE ?
-            ORDER BY word COLLATE NOCASE
-            LIMIT 50""", arrayOf(language, searchString+"%"))
+            FROM translations_$language
+            WHERE translation LIKE ?
+            ORDER BY id
+            LIMIT 50""", arrayOf(searchString+"%"))
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
@@ -79,15 +78,15 @@ class DatabaseHelper : SQLiteAssetHelper {
         if(langPrefs.isEmpty()){
             return results
         }
-        var sql = "SELECT word, lng, translation FROM translations WHERE word_id = ? and lng IN ("
-        sql += langPrefs.joinToString(transform= {a -> "?"})
-        sql += ")"
+        assert(langPrefs.size == 1)
+        val lng = langPrefs.elementAt(0)
+        var sql = "SELECT word, translation FROM translations_$lng WHERE word_id = ?"
+        //sql += langPrefs.joinToString(transform= {a -> "?"})
 
-        val cursor = db.rawQuery(sql, arrayOf(""+wordId) + langPrefs)
+        val cursor = db.rawQuery(sql, arrayOf(""+wordId))
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val word = cursor.getString(cursor.getColumnIndex("word"))
-            val lng = cursor.getString(cursor.getColumnIndex("lng"))
             val translation = cursor.getString(cursor.getColumnIndex("translation"))
             val res = TranslationResult(word, lng, translation)
             results.add(res)
