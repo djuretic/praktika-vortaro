@@ -5,8 +5,8 @@
 
         <MultiSelectListPreference
             android:defaultValue="@array/default_languages"
-            android:entries="@array/languages_names"
-            android:entryValues="@array/languages"
+            android:entries="@array/empty"
+            android:entryValues="@array/empty"
             android:key="languages_preference"
             android:title="@string/preference_select_languages" />
     </PreferenceCategory>

@@ -96,6 +96,23 @@ class DatabaseHelper : SQLiteAssetHelper {
         return results
     }
 
+    fun getLanguages(): ArrayList<Language>{
+        val cursor = readableDatabase.query(
+                "languages", arrayOf("code", "name"),
+                null, null, null, null, null)
+        val result = arrayListOf<Language>()
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val code = cursor.getString(cursor.getColumnIndex("code"))
+            val name = cursor.getString(cursor.getColumnIndex("name"))
+
+            result.add(Language(code, name))
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return result
+    }
+
 
     private fun parseFormat(string: String): StringFormat{
         val sections = string.split("\n")
@@ -123,6 +140,7 @@ class DatabaseHelper : SQLiteAssetHelper {
 
 }
 
+data class Language(val code: String, val name: String)
 data class StringFormat(val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>)
 data class SearchResult(val id: Int, val word: String, val definition: String, val format: StringFormat?)
 data class TranslationResult(val word: String, val lng: String, val translation: String)
