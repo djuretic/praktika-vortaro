@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceCategory android:title="@string/preference_cat_translations">
-
-        <MultiSelectListPreference
-            android:defaultValue="@array/default_languages"
-            android:entries="@array/empty"
-            android:entryValues="@array/empty"
-            android:key="languages_preference"
-            android:title="@string/preference_select_languages" />
-    </PreferenceCategory>
+    <MultiSelectListPreference
+        android:defaultValue="@array/default_languages"
+        android:entries="@array/empty"
+        android:entryValues="@array/empty"
+        android:key="languages_preference"
+        android:title="@string/preference_shown_translations" />
 </PreferenceScreen>

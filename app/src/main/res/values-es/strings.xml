@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="init_search_text">Buscar...</string>
-    <string name="settings">Preferencias</string>
-    <string name="preference_cat_translations">Traducciones a mostrar</string>
-    <string name="preference_select_languages">Idiomas</string>
-</resources>
