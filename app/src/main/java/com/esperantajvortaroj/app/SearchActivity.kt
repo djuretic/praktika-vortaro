@@ -1,5 +1,7 @@
 package com.esperantajvortaroj.app
 
+import android.app.AlertDialog
+import android.app.FragmentManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
@@ -9,7 +11,9 @@ import android.preference.PreferenceManager
 import android.widget.BaseAdapter
 import android.support.v7.widget.SearchView
 import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
+import android.text.util.Linkify
 import android.view.*
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -78,10 +82,34 @@ class SearchActivity : AppCompatActivity() {
                 searchView.setQuery(originalQuery, true)
                 return true
             }
+            R.id.about_the_app -> {
+                showAboutDialog()
+                /*val fragment = AboutDialogFragment()
+                fragment.show(fragmentManager, "about")*/
+                return true
+            }
             else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    fun showAboutDialog(){
+        val builder = AlertDialog.Builder(this)
+        val title = resources.getString(R.string.app_name)
+        val message = SpannableString("""@ 2018 Dušan Juretić
+            |
+            |Datumbazo: Reta Vortaro - http://www.reta-vortaro.de/revo
+            |
+            |Inspirita de Prevo - https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo
+        """.trimMargin())
+        Linkify.addLinks(message, Linkify.ALL)
+
+        val dialog = builder.setMessage(message).setTitle("Pri $title")
+                .setPositiveButton(R.string.close_dialog, null)
+                .create()
+        dialog.show()
+        dialog.findViewById<TextView>(android.R.id.message).movementMethod = LinkMovementMethod.getInstance()
     }
 
     private class SearchResultAdapter(val context: Context): BaseAdapter() {
