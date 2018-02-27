@@ -1,7 +1,6 @@
 package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
-import android.app.FragmentManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
@@ -84,8 +83,6 @@ class SearchActivity : AppCompatActivity() {
             }
             R.id.about_the_app -> {
                 showAboutDialog()
-                /*val fragment = AboutDialogFragment()
-                fragment.show(fragmentManager, "about")*/
                 return true
             }
             else -> {
@@ -176,8 +173,18 @@ class SearchActivity : AppCompatActivity() {
             resultRow.setOnClickListener(object : View.OnClickListener {
                 override fun onClick(v: View?) {
                     val randomIntent = Intent(context, DefinitionActivity::class.java)
-                    if(entryId > 0) randomIntent.putExtra(DefinitionActivity.ENTRY_DATA, entryId)
-                    context.startActivity(randomIntent)
+                    if(entryId > 0) {
+                        randomIntent.putExtra(DefinitionActivity.ENTRY_DATA, entryId)
+                        randomIntent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
+
+                        val bundle = Bundle()
+                        bundle.putIntegerArrayList(
+                                DefinitionActivity.ENTRIES_LIST,
+                                ArrayList(results.map { x -> x.id }))
+                        randomIntent.putExtras(bundle)
+                        context.startActivity(randomIntent)
+                    }
+
                 }
             })
 

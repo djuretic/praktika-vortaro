@@ -9,11 +9,15 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.StyleSpan
 import android.util.TypedValue
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity() {
+    private var entriesList: ArrayList<Int> = arrayListOf()
+    private var entryPosition = 0
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,14 +28,65 @@ class DefinitionActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val articleId = intent.getIntExtra(ENTRY_DATA, 0)
+        val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
+        val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
+        this.entryPosition = entryPosition
+        this.entriesList = entriesList
+
         val articleView = loadArticle(articleId)
         definitionScrollView.addView(articleView)
+        invalidateOptionsMenu()
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.entry_menu, menu)
+        return true
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if(menu != null){
+            val prevButton = menu.findItem(R.id.prev_entry)
+            val nextButton = menu.findItem(R.id.next_entry)
+
+            prevButton.isEnabled = entryPosition != 0
+            nextButton.isEnabled = entryPosition < entriesList.size - 1
+            prevButton.icon.alpha = if(prevButton.isEnabled) 255 else 130
+            nextButton.icon.alpha = if(nextButton.isEnabled) 255 else 130
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.prev_entry -> {
+                if(entryPosition == 0){
+                    return true
+                }
+                entryPosition--
+                definitionScrollView.removeAllViews()
+                definitionScrollView.addView(loadArticle(entriesList[entryPosition]))
+                invalidateOptionsMenu()
+                return true
+            }
+            R.id.next_entry -> {
+                if(entryPosition >= entriesList.size - 1){
+                    return true
+                }
+                entryPosition++
+                definitionScrollView.removeAllViews()
+                definitionScrollView.addView(loadArticle(entriesList[entryPosition]))
+                invalidateOptionsMenu()
+                return true
+            }
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     private fun loadArticle(articleId: Int): LinearLayout {
@@ -77,6 +132,8 @@ class DefinitionActivity : AppCompatActivity() {
 
     companion object {
         const val ENTRY_DATA = "entry_data"
+        const val ENTRY_POSITION = "entry_position"
+        const val ENTRIES_LIST = "entries_list"
     }
 }
 
