@@ -28,18 +28,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/searchView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:iconifiedByDefault="false"
-        android:queryHint="@string/init_search_text"
-        app:iconifiedByDefault="false"
-        app:layout_constraintEnd_toEndOf="@+id/searchResults"
-        app:layout_constraintStart_toStartOf="@+id/searchResults"
-        app:layout_constraintTop_toBottomOf="@+id/appToolbar"
-        app:queryHint="@string/init_search_text" />
-
 
     <ListView
         android:id="@+id/searchResults"
@@ -50,6 +38,6 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchView" />
+        app:layout_constraintTop_toBottomOf="@+id/appToolbar" />
 
 </android.support.constraint.ConstraintLayout>

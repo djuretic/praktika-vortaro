@@ -22,40 +22,51 @@ class SearchActivity : AppCompatActivity() {
     private val ESPERANTO = "eo"
     private val ACTIVE_LANGUAGE = "active_language"
     private var activeLanguage = ESPERANTO
+    private var searchView: SearchView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(appToolbar)
+        appToolbar.navigationIcon = null
+        supportActionBar?.setDisplayShowHomeEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         searchAdapter = SearchResultAdapter(this)
-
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(query: String?): Boolean {
-                if(query == null) return true
-                var text = query.trim()
-                if(activeLanguage == ESPERANTO){
-                    text = Utils.addHats(text)
-                }
-                searchAdapter?.filter(text, activeLanguage)
-                return true
-            }
-
-            override fun onQueryTextSubmit(p0: String?) = true
-        })
         searchResults.adapter = searchAdapter
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         activeLanguage = sharedPref.getString(ACTIVE_LANGUAGE, ESPERANTO)
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         if(menu != null){
-            val langButton = menu?.findItem(R.id.change_search_language)
+            val langButton = menu.findItem(R.id.change_search_language)
             langButton.title = activeLanguage
+
+            val searchItem = menu.findItem(R.id.app_bar_search)
+            searchItem.expandActionView()
+            val searchView = searchItem.actionView as SearchView
+            searchView.queryHint = resources.getString(R.string.search_hint)
+            searchView.setIconifiedByDefault(false)
+
+            searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+                override fun onQueryTextChange(query: String?): Boolean {
+                    if(query == null) return true
+                    var text = query.trim()
+                    if(activeLanguage == ESPERANTO){
+                        text = Utils.addHats(text)
+                    }
+                    searchAdapter?.filter(text, activeLanguage)
+                    return true
+                }
+
+                override fun onQueryTextSubmit(p0: String?) = true
+            })
+            this.searchView = searchView
         }
         return true
     }
@@ -91,9 +102,12 @@ class SearchActivity : AppCompatActivity() {
                 edit.apply()
 
                 item.title = activeLanguage
-                val originalQuery = searchView.query
-                searchView.setQuery("", true)
-                searchView.setQuery(originalQuery, true)
+                val searchView = this.searchView
+                if(searchView != null){
+                    val originalQuery = searchView.query
+                    searchView.setQuery("", true)
+                    searchView.setQuery(originalQuery, true)
+                }
                 return true
             }
             R.id.about_the_app -> {
