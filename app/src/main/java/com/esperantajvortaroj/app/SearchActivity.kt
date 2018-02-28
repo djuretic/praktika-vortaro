@@ -7,8 +7,8 @@ import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.widget.BaseAdapter
 import android.support.v7.widget.SearchView
+import android.widget.BaseAdapter
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
@@ -28,7 +28,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(appToolbar)
-        appToolbar.navigationIcon = null
+
         supportActionBar?.setDisplayShowHomeEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowTitleEnabled(false)
