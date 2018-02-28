@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter : SearchResultAdapter? = null
     private val ESPERANTO = "eo"
+    private val ACTIVE_LANGUAGE = "active_language"
     private var activeLanguage = ESPERANTO
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,10 +46,17 @@ class SearchActivity : AppCompatActivity() {
         searchResults.adapter = searchAdapter
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        activeLanguage = sharedPref.getString(ACTIVE_LANGUAGE, ESPERANTO)
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        if(menu != null){
+            val langButton = menu?.findItem(R.id.change_search_language)
+            langButton.title = activeLanguage
+        }
         return true
     }
 
@@ -74,7 +82,14 @@ class SearchActivity : AppCompatActivity() {
                         activeLanguage = langPrefs.elementAt(currentIndex+1)
                     }
                 }
-                else activeLanguage = ESPERANTO
+                else {
+                    activeLanguage = ESPERANTO
+                }
+
+                val edit = sharedPref.edit()
+                edit.putString(ACTIVE_LANGUAGE, activeLanguage)
+                edit.apply()
+
                 item.title = activeLanguage
                 val originalQuery = searchView.query
                 searchView.setQuery("", true)
