@@ -1,6 +1,7 @@
 package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -102,6 +103,7 @@ class DefinitionActivity : AppCompatActivity() {
         val translations = databaseHelper.translationsByWordId(articleId, langPrefs)
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        textView.setTextColor(Color.BLACK)
         if(wordResult != null){
             val def = SpannableString(wordResult.definition)
             if(wordResult.format?.bold!!.isNotEmpty()){
