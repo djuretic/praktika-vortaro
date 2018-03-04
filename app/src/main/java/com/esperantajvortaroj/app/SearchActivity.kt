@@ -4,18 +4,19 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
-import android.widget.BaseAdapter
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.text.util.Linkify
 import android.view.*
+import android.widget.BaseAdapter
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter : SearchResultAdapter? = null
@@ -48,7 +49,7 @@ class SearchActivity : AppCompatActivity() {
             langButton.title = activeLanguage
 
             val searchItem = menu.findItem(R.id.app_bar_search)
-            searchItem.expandActionView()
+
             val searchView = searchItem.actionView as SearchView
             searchView.queryHint = resources.getString(R.string.search_hint)
             searchView.setIconifiedByDefault(false)
@@ -67,6 +68,17 @@ class SearchActivity : AppCompatActivity() {
                 override fun onQueryTextSubmit(p0: String?) = true
             })
             this.searchView = searchView
+
+            searchItem.expandActionView()
+            searchItem.setOnActionExpandListener(object: MenuItem.OnActionExpandListener {
+                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                    // avoid collapse of the searchView
+                    finish()
+                    return false
+                }
+
+                override fun onMenuItemActionExpand(p0: MenuItem?) = true
+            })
         }
         return true
     }
