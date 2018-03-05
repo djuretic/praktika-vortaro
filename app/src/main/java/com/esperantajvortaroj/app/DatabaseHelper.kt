@@ -72,14 +72,9 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
-    fun translationsByWordId(wordId: Int, langPrefs: MutableSet<String>): List<TranslationResult> {
+    fun translationsByWordId(wordId: Int, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
         val db = writableDatabase
-        if(langPrefs.isEmpty()){
-            return results
-        }
-        assert(langPrefs.size == 1)
-        val lng = langPrefs.elementAt(0)
         var sql = "SELECT word, translation FROM translations_$lng WHERE word_id = ?"
         //sql += langPrefs.joinToString(transform= {a -> "?"})
 
@@ -107,6 +102,23 @@ class DatabaseHelper : SQLiteAssetHelper {
             val name = cursor.getString(cursor.getColumnIndex("name"))
 
             result.add(Language(code, name))
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return result
+    }
+
+    fun getLanguagesHash(): HashMap<String, String>{
+        val cursor = readableDatabase.query(
+                "languages", arrayOf("code", "name"),
+                null, null, null, null, null)
+        val result = HashMap<String, String>()
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val code = cursor.getString(cursor.getColumnIndex("code"))
+            val name = cursor.getString(cursor.getColumnIndex("name"))
+
+            result.put(code, name)
             cursor.moveToNext()
         }
         cursor.close()

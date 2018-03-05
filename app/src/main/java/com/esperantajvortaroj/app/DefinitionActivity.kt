@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -97,10 +98,6 @@ class DefinitionActivity : AppCompatActivity() {
         val databaseHelper = DatabaseHelper(this)
         val wordResult = databaseHelper.wordById(articleId)
 
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
-
-        val translations = databaseHelper.translationsByWordId(articleId, langPrefs)
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         textView.setTextColor(Color.BLACK)
@@ -121,15 +118,39 @@ class DefinitionActivity : AppCompatActivity() {
             content = TextUtils.concat(word, "\n", def)
         }
 
-        if(translations.isNotEmpty()){
-            for(trad in translations){
-                content = TextUtils.concat(content, "\n\n ", trad.lng, ": ", trad.translation)
+        val translationsByLang = getTranslations(databaseHelper, articleId)
+        val langNames = databaseHelper.getLanguagesHash()
+        if(translationsByLang.isNotEmpty()){
+            val translationsTitle =  SpannableString("\n\nTradukoj")
+            translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
+            content = TextUtils.concat(content, translationsTitle)
+            for(entry in translationsByLang){
+                val lang = entry.key
+                val translations = entry.value
+                content = TextUtils.concat(
+                        content,
+                        "\n\n• ", langNames.get(lang), ": ",
+                        translations.joinToString(", ") {x -> x.translation})
             }
         }
         textView.text = content
 
         layout.addView(textView)
         return layout
+    }
+
+    private fun getTranslations(databaseHelper: DatabaseHelper, articleId: Int): LinkedHashMap<String, List<TranslationResult>> {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+
+        val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
+        for (lang in langPrefs) {
+            val translations = databaseHelper.translationsByWordId(articleId, lang)
+            if (translations.isNotEmpty()) {
+                translationsByLang.put(lang, translations)
+            }
+        }
+        return translationsByLang
     }
 
     companion object {
