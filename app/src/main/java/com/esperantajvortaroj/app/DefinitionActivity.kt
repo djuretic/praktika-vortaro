@@ -124,13 +124,16 @@ class DefinitionActivity : AppCompatActivity() {
             val translationsTitle =  SpannableString("\n\nTradukoj")
             translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
             content = TextUtils.concat(content, translationsTitle)
-            for(entry in translationsByLang){
-                val lang = entry.key
-                val translations = entry.value
-                content = TextUtils.concat(
-                        content,
-                        "\n\n• ", langNames.get(lang), ": ",
-                        translations.joinToString(", ") {x -> x.translation})
+            for(langEntry in langNames){
+                val translations = translationsByLang.get(langEntry.key)
+                if(translations != null){
+                    val lang = langEntry.value
+                    content = TextUtils.concat(
+                            content,
+                            "\n\n• ", lang, "j: ",
+                            translations.joinToString(", ") { it.translation })
+                }
+
             }
         }
         textView.text = content

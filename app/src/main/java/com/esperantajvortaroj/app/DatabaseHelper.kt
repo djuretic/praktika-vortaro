@@ -112,7 +112,8 @@ class DatabaseHelper : SQLiteAssetHelper {
         val cursor = readableDatabase.query(
                 "languages", arrayOf("code", "name"),
                 null, null, null, null, null)
-        val result = HashMap<String, String>()
+        // order matters here, so we use LinkedHashMap
+        val result = LinkedHashMap<String, String>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val code = cursor.getString(cursor.getColumnIndex("code"))
