@@ -49,9 +49,8 @@ class SearchActivity : AppCompatActivity() {
             langButton.title = activeLanguage
 
             val searchItem = menu.findItem(R.id.app_bar_search)
-
             val searchView = searchItem.actionView as SearchView
-            searchView.queryHint = resources.getString(R.string.search_hint)
+
             searchView.setIconifiedByDefault(false)
 
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
@@ -68,6 +67,7 @@ class SearchActivity : AppCompatActivity() {
                 override fun onQueryTextSubmit(p0: String?) = true
             })
             this.searchView = searchView
+            updateSearchQueryHint()
 
             searchItem.expandActionView()
             searchItem.setOnActionExpandListener(object: MenuItem.OnActionExpandListener {
@@ -91,7 +91,6 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.change_search_language -> {
-                val ESPERANTO = "eo"
                 val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
                 val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
 
@@ -108,6 +107,7 @@ class SearchActivity : AppCompatActivity() {
                 else {
                     activeLanguage = ESPERANTO
                 }
+                updateSearchQueryHint()
 
                 val edit = sharedPref.edit()
                 edit.putString(ACTIVE_LANGUAGE, activeLanguage)
@@ -129,6 +129,17 @@ class SearchActivity : AppCompatActivity() {
             else -> {
                 return super.onOptionsItemSelected(item)
             }
+        }
+    }
+
+    private fun updateSearchQueryHint() {
+        if (activeLanguage == ESPERANTO) {
+            searchView?.queryHint = resources.getString(R.string.search_hint, "esperante")
+        } else {
+            val langNames = DatabaseHelper(this).getLanguagesHash()
+            val currentLangName = langNames[activeLanguage]
+            val adverb = currentLangName?.substring(0, currentLangName.length-1) + "e"
+            searchView?.queryHint = resources.getString(R.string.search_hint, adverb)
         }
     }
 
