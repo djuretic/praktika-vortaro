@@ -8,8 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- hides back button -->
     <style name="AppTheme.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    </style>
+
+    <!-- hides back button -->
+    <style name="AppTheme.Toolbar.NoBackButton" parent="AppTheme.Toolbar">
         <item name="toolbarNavigationButtonStyle">@style/Widget.Toolbar.Button.Navigation</item>
     </style>
     <style name="Widget.Toolbar.Button.Navigation" parent="Widget.AppCompat.Toolbar.Button.Navigation">
