@@ -139,6 +139,11 @@ class SearchActivity : AppCompatActivity() {
                 }
                 return true
             }
+            R.id.select_translation_language -> {
+                val intent = Intent(this, SelectTranslationLanguageActivity::class.java)
+                startActivity(intent)
+                return true
+            }
             R.id.about_the_app -> {
                 showAboutDialog()
                 return true
@@ -160,7 +165,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    fun showAboutDialog(){
+    private fun showAboutDialog(){
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
         val message = SpannableString("""@ 2018 Dušan Juretić
@@ -214,7 +219,7 @@ class SearchActivity : AppCompatActivity() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val layoutInflater = LayoutInflater.from(context)
             val resultRow = if (convertView == null)
-                layoutInflater.inflate(R.layout.search_entry, parent, false)
+                layoutInflater.inflate(R.layout.item_search_entry, parent, false)
             else { convertView }
 
             val mainWord = resultRow.findViewById<TextView>(R.id.mainWord)

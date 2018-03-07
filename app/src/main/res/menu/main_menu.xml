@@ -13,8 +13,15 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/select_translation_language"
+        android:title="@string/item_select_translation_language"
+        app:showAsAction="never" />
+
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/settings"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item
