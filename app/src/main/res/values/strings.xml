@@ -6,4 +6,5 @@
     <string name="preference_select_languages">Elektu lingvojn</string>
     <string name="about_the_app">Pri</string>
     <string name="close_dialog">Fermi</string>
+    <string name="no_results_found">Neniu trovita</string>
 </resources>

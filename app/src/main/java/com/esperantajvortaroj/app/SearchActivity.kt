@@ -55,12 +55,16 @@ class SearchActivity : AppCompatActivity() {
 
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String?): Boolean {
-                    if(query == null) return true
+                    if(query == null || query.length == 0) {
+                        updateBottomPart(false, 0)
+                        return true
+                    }
                     var text = query.trim()
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
-                    searchAdapter?.filter(text, activeLanguage)
+                    searchAdapter?.filter(query, activeLanguage)
+                    updateBottomPart(true, searchAdapter?.count ?: 0)
                     return true
                 }
 
@@ -81,6 +85,19 @@ class SearchActivity : AppCompatActivity() {
             })
         }
         return true
+    }
+
+    private fun updateBottomPart(enteredText: Boolean, resultsCount: Int) {
+        if(!enteredText){
+            noResultsFound.visibility = View.GONE
+            searchResults.visibility = View.GONE
+        } else if(resultsCount == 0){
+            noResultsFound.visibility = View.VISIBLE
+            searchResults.visibility = View.GONE
+        } else {
+            noResultsFound.visibility = View.GONE
+            searchResults.visibility = View.VISIBLE
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
