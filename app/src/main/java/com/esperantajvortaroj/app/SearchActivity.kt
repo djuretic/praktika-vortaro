@@ -226,9 +226,11 @@ class SearchActivity : AppCompatActivity() {
             val definition = resultRow.findViewById<TextView>(R.id.definition)
             val foundEntry = getItem(position)
             var entryId = 0
+            var articleId = 0
             if(foundEntry is SearchResult){
                 mainWord.text = foundEntry.word
                 entryId = foundEntry.id
+                articleId = foundEntry?.articleId ?: 0
 
                 val def = SpannableString(foundEntry.definition)
                 if(foundEntry.format?.bold != null){
@@ -248,7 +250,8 @@ class SearchActivity : AppCompatActivity() {
                 override fun onClick(v: View?) {
                     val randomIntent = Intent(context, DefinitionActivity::class.java)
                     if(entryId > 0) {
-                        randomIntent.putExtra(DefinitionActivity.ENTRY_DATA, entryId)
+                        randomIntent.putExtra(DefinitionActivity.WORD_ID, entryId)
+                        randomIntent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
                         randomIntent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
 
                         val bundle = Bundle()

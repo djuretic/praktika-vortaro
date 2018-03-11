@@ -13,6 +13,7 @@ import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
@@ -20,6 +21,8 @@ import kotlinx.android.synthetic.main.activity_definition.*
 class DefinitionActivity : AppCompatActivity() {
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
+    // TODO change from the UI
+    private val seeArticle = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,14 +32,20 @@ class DefinitionActivity : AppCompatActivity() {
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        val articleId = intent.getIntExtra(ENTRY_DATA, 0)
+        val wordId = intent.getIntExtra(WORD_ID, 0)
+        val articleId = intent.getIntExtra(ARTICLE_ID, 0)
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
         val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
         this.entryPosition = entryPosition
         this.entriesList = entriesList
 
-        val articleView = loadArticle(articleId)
-        definitionScrollView.addView(articleView)
+        val view: View
+        if(seeArticle){
+            view = loadArticle(articleId)
+        } else {
+            view = loadWord(wordId)
+        }
+        definitionScrollView.addView(view)
         invalidateOptionsMenu()
     }
 
@@ -71,7 +80,7 @@ class DefinitionActivity : AppCompatActivity() {
                 }
                 entryPosition--
                 definitionScrollView.removeAllViews()
-                definitionScrollView.addView(loadArticle(entriesList[entryPosition]))
+                definitionScrollView.addView(loadWord(entriesList[entryPosition]))
                 invalidateOptionsMenu()
                 return true
             }
@@ -81,7 +90,7 @@ class DefinitionActivity : AppCompatActivity() {
                 }
                 entryPosition++
                 definitionScrollView.removeAllViews()
-                definitionScrollView.addView(loadArticle(entriesList[entryPosition]))
+                definitionScrollView.addView(loadWord(entriesList[entryPosition]))
                 invalidateOptionsMenu()
                 return true
             }
@@ -91,25 +100,82 @@ class DefinitionActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadArticle(articleId: Int): LinearLayout {
-        var content : CharSequence = ""
+    private fun loadWord(wordId: Int): LinearLayout {
+        val databaseHelper = DatabaseHelper(this)
+        val wordResult = databaseHelper.wordById(wordId)
+
+        val pair = getTextViewOfWord(wordResult)
+        val textView = pair.first
+        var content = pair.second
+
+        content = addTranslations(databaseHelper, wordId, content)
+        textView.text = content
+
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
-        val databaseHelper = DatabaseHelper(this)
-        val wordResult = databaseHelper.wordById(articleId)
+        layout.addView(textView)
+        return layout
+    }
 
+    private fun loadArticle(articleId: Int): View {
+        val databaseHelper = DatabaseHelper(this)
+        val results = databaseHelper.articleById(articleId)
+
+        val views = results.map {
+            val pair = getTextViewOfWord(it)
+            val textView = pair.first
+            var content = pair.second
+            //TODO add translations
+            /*content = addTranslations(databaseHelper, wordId, content)*/
+            textView.text = content
+            textView
+        }
+
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        for(view in views){
+            layout.addView(view)
+        }
+        return layout
+    }
+
+    private fun addTranslations(databaseHelper: DatabaseHelper, wordId: Int, content: CharSequence): CharSequence {
+        var content1 = content
+        val translationsByLang = getTranslations(databaseHelper, wordId)
+        val langNames = databaseHelper.getLanguagesHash()
+        if (translationsByLang.isNotEmpty()) {
+            val translationsTitle = SpannableString("\n\nTradukoj")
+            translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
+            content1 = TextUtils.concat(content1, translationsTitle)
+            for (langEntry in langNames) {
+                val translations = translationsByLang.get(langEntry.key)
+                if (translations != null) {
+                    val lang = langEntry.value
+                    content1 = TextUtils.concat(
+                            content1,
+                            "\n\n• ", lang, "j: ",
+                            translations.joinToString(", ") { it.translation })
+                }
+
+            }
+        }
+        return content1
+    }
+
+    private fun getTextViewOfWord(wordResult: SearchResult?): Pair<TextView, CharSequence> {
+        var content : CharSequence = ""
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         textView.setTextColor(Color.BLACK)
-        if(wordResult != null){
+        if (wordResult != null) {
             val def = SpannableString(wordResult.definition)
-            if(wordResult.format?.bold!!.isNotEmpty()){
-                for(pair in wordResult.format.bold){
+            if (wordResult.format?.bold!!.isNotEmpty()) {
+                for (pair in wordResult.format.bold) {
                     def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
                 }
             }
-            if(wordResult.format?.italic!!.isNotEmpty()){
-                for(pair in wordResult.format.italic){
+            if (wordResult.format?.italic!!.isNotEmpty()) {
+                for (pair in wordResult.format.italic) {
                     def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
                 }
             }
@@ -117,29 +183,7 @@ class DefinitionActivity : AppCompatActivity() {
             word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
             content = TextUtils.concat(word, "\n", def)
         }
-
-        val translationsByLang = getTranslations(databaseHelper, articleId)
-        val langNames = databaseHelper.getLanguagesHash()
-        if(translationsByLang.isNotEmpty()){
-            val translationsTitle =  SpannableString("\n\nTradukoj")
-            translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
-            content = TextUtils.concat(content, translationsTitle)
-            for(langEntry in langNames){
-                val translations = translationsByLang.get(langEntry.key)
-                if(translations != null){
-                    val lang = langEntry.value
-                    content = TextUtils.concat(
-                            content,
-                            "\n\n• ", lang, "j: ",
-                            translations.joinToString(", ") { it.translation })
-                }
-
-            }
-        }
-        textView.text = content
-
-        layout.addView(textView)
-        return layout
+        return Pair(textView, content)
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, articleId: Int): LinkedHashMap<String, List<TranslationResult>> {
@@ -157,7 +201,8 @@ class DefinitionActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val ENTRY_DATA = "entry_data"
+        const val WORD_ID = "word_id"
+        const val ARTICLE_ID = "article_id"
         const val ENTRY_POSITION = "entry_position"
         const val ENTRIES_LIST = "entries_list"
     }

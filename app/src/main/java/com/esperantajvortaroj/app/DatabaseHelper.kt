@@ -13,21 +13,18 @@ class DatabaseHelper : SQLiteAssetHelper {
     constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION)
 
     fun searchWords(searchString: String) : ArrayList<SearchResult> {
-        val db = writableDatabase
-        val cursor = db.rawQuery("""
-            SELECT id, word, definition, format
-            FROM words
-            WHERE word LIKE ?
-            ORDER BY id
-            LIMIT 50""", arrayOf(searchString+"%"))
+        val cursor = readableDatabase.query(
+                "words", arrayOf("id", "article_id", "word", "definition", "format"),
+                "word LIKE ?", arrayOf(searchString+"%"), null, null, "id", "50")
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val definition = cursor.getString(cursor.getColumnIndex("definition"))
             val word = cursor.getString(cursor.getColumnIndex("word"))
             val id = cursor.getInt(cursor.getColumnIndex("id"))
+            val articleId = cursor.getInt(cursor.getColumnIndex("article_id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
-            result.add(SearchResult(id, word, definition, format))
+            result.add(SearchResult(id, articleId, word, definition, format))
             cursor.moveToNext()
         }
         cursor.close()
@@ -49,7 +46,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val word = cursor.getString(cursor.getColumnIndex("translation"))
             val id = cursor.getInt(cursor.getColumnIndex("word_id"))
             val format = StringFormat(emptyList(), emptyList())
-            result.add(SearchResult(id, word, definition, format))
+            result.add(SearchResult(id, null, word, definition, format))
             cursor.moveToNext()
         }
         cursor.close()
@@ -57,20 +54,41 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
     fun wordById(wordId: Int): SearchResult?{
-        val db = writableDatabase
         var result: SearchResult? = null
-        val cursor = db.rawQuery("SELECT id, word, definition, format FROM words WHERE id = ?", arrayOf(""+wordId))
+        val cursor = readableDatabase.query("words", arrayOf("id", "article_id", "word", "definition", "format"),
+                "id = ?", arrayOf(""+wordId), null, null, null)
         if(cursor.count == 1){
             cursor.moveToFirst()
             val definition = cursor.getString(cursor.getColumnIndex("definition"))
             val word = cursor.getString(cursor.getColumnIndex("word"))
             val id = cursor.getInt(cursor.getColumnIndex("id"))
+            val articleId = cursor.getInt(cursor.getColumnIndex("article_id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
-            result = SearchResult(id, word, definition, format)
+            result = SearchResult(id, articleId, word, definition, format)
         }
         cursor.close()
         return result
     }
+
+    fun articleById(articleId: Int): ArrayList<SearchResult> {
+        //TODO same order as in inside the article
+        val cursor = readableDatabase.query("words", arrayOf("id", "article_id", "word", "definition", "format"),
+                "article_id = ?", arrayOf(""+articleId), null, null, "id")
+        val results = ArrayList<SearchResult>()
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val definition = cursor.getString(cursor.getColumnIndex("definition"))
+            val word = cursor.getString(cursor.getColumnIndex("word"))
+            val id = cursor.getInt(cursor.getColumnIndex("id"))
+            val articleId = cursor.getInt(cursor.getColumnIndex("article_id"))
+            val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
+            results.add(SearchResult(id, articleId, word, definition, format))
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return results
+    }
+
 
     fun translationsByWordId(wordId: Int, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
@@ -155,5 +173,6 @@ class DatabaseHelper : SQLiteAssetHelper {
 
 data class Language(val code: String, val name: String)
 data class StringFormat(val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>)
-data class SearchResult(val id: Int, val word: String, val definition: String, val format: StringFormat?)
+data class SearchResult(
+        val id: Int, val articleId: Int?, val word: String, val definition: String, val format: StringFormat?)
 data class TranslationResult(val word: String, val lng: String, val translation: String)
