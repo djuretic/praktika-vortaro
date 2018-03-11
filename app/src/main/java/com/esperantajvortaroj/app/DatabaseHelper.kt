@@ -73,7 +73,7 @@ class DatabaseHelper : SQLiteAssetHelper {
     fun articleById(articleId: Int): ArrayList<SearchResult> {
         //TODO same order as in inside the article
         val cursor = readableDatabase.query("words", arrayOf("id", "article_id", "word", "definition", "format"),
-                "article_id = ?", arrayOf(""+articleId), null, null, "id")
+                "article_id = ?", arrayOf(""+articleId), null, null, "position")
         val results = ArrayList<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
