@@ -15,14 +15,16 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Switch
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity() {
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
-    // TODO change from the UI
-    private val seeArticle = false
+    private var seeArticle = false
+    private var wordId = 0
+    private var articleId = 0
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,25 +34,40 @@ class DefinitionActivity : AppCompatActivity() {
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        val wordId = intent.getIntExtra(WORD_ID, 0)
-        val articleId = intent.getIntExtra(ARTICLE_ID, 0)
+        wordId = intent.getIntExtra(WORD_ID, 0)
+        articleId = intent.getIntExtra(ARTICLE_ID, 0)
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
         val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
         this.entryPosition = entryPosition
         this.entriesList = entriesList
 
+        displayArticleOrWord()
+        invalidateOptionsMenu()
+    }
+
+    private fun displayArticleOrWord() {
         val view: View
-        if(seeArticle){
+        if (seeArticle) {
             view = loadArticle(articleId)
         } else {
             view = loadWord(wordId)
         }
+        definitionScrollView.removeAllViews()
         definitionScrollView.addView(view)
-        invalidateOptionsMenu()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.entry_menu, menu)
+        if(menu != null){
+            val switch = menu.findItem(R.id.article_switch).actionView.findViewById<Switch>(R.id.the_switch)
+
+            switch.setOnClickListener { view ->
+                if(view is Switch){
+                    seeArticle = view.isChecked
+                    displayArticleOrWord()
+                }
+            }
+        }
         return true
     }
 
