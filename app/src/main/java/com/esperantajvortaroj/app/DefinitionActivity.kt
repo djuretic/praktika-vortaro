@@ -48,7 +48,7 @@ class DefinitionActivity : AppCompatActivity() {
     private fun displayArticleOrWord() {
         val view: View
         if (seeArticle) {
-            view = loadArticle(articleId)
+            view = loadArticle(articleId, wordId)
         } else {
             view = loadWord(wordId)
         }
@@ -134,7 +134,7 @@ class DefinitionActivity : AppCompatActivity() {
         return layout
     }
 
-    private fun loadArticle(articleId: Int): View {
+    private fun loadArticle(articleId: Int, wordId: Int): View {
         val databaseHelper = DatabaseHelper(this)
         val results = databaseHelper.articleById(articleId)
 
@@ -145,6 +145,7 @@ class DefinitionActivity : AppCompatActivity() {
             //TODO add translations
             /*content = addTranslations(databaseHelper, wordId, content)*/
             textView.text = TextUtils.concat(content, "\n")
+            if(it.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
             textView
         }
 
