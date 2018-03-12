@@ -3,6 +3,7 @@ package com.esperantajvortaroj.app
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -40,6 +41,19 @@ class SearchActivity : AppCompatActivity() {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         activeLanguage = sharedPref.getString(ACTIVE_LANGUAGE, ESPERANTO)
+
+        versionChecks(sharedPref)
+    }
+
+    private fun versionChecks(sharedPref: SharedPreferences) {
+        val versionCode = sharedPref.getInt(SettingsActivity.VERSION_CODE, 0)
+        if (versionCode != BuildConfig.VERSION_CODE) {
+            startLanguageActivity()
+            with(sharedPref.edit()) {
+                putInt(SettingsActivity.VERSION_CODE, BuildConfig.VERSION_CODE)
+                apply()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -140,8 +154,7 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.select_translation_language -> {
-                val intent = Intent(this, SelectTranslationLanguageActivity::class.java)
-                startActivity(intent)
+                startLanguageActivity()
                 return true
             }
             R.id.about_the_app -> {
@@ -152,6 +165,11 @@ class SearchActivity : AppCompatActivity() {
                 return super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun startLanguageActivity() {
+        val intent = Intent(this, SelectTranslationLanguageActivity::class.java)
+        startActivity(intent)
     }
 
     private fun updateSearchQueryHint() {

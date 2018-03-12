@@ -127,7 +127,7 @@ class DefinitionActivity : AppCompatActivity() {
             var content = pair.second
             //TODO add translations
             /*content = addTranslations(databaseHelper, wordId, content)*/
-            textView.text = content
+            textView.text = TextUtils.concat(content, "\n")
             textView
         }
 

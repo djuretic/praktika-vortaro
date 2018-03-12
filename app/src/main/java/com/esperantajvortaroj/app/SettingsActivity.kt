@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 class SettingsActivity : AppCompatActivity() {
     companion object {
         const val KEY_LANGUAGES_PREFERENCE = "languages_preference"
+        const val VERSION_CODE = "version_code"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
