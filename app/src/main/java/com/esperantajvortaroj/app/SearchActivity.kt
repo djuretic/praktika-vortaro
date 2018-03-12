@@ -47,8 +47,11 @@ class SearchActivity : AppCompatActivity() {
 
     private fun versionChecks(sharedPref: SharedPreferences) {
         val versionCode = sharedPref.getInt(SettingsActivity.VERSION_CODE, 0)
-        if (versionCode != BuildConfig.VERSION_CODE) {
+        if (versionCode == 0){
+            // first run
             startLanguageActivity()
+        }
+        if (versionCode != BuildConfig.VERSION_CODE) {
             with(sharedPref.edit()) {
                 putInt(SettingsActivity.VERSION_CODE, BuildConfig.VERSION_CODE)
                 apply()

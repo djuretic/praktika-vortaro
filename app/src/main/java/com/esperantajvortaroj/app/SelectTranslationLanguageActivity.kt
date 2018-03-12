@@ -20,7 +20,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_translation_language)
         setSupportActionBar(appToolbar)
-        supportActionBar?.title = resources.getString(R.string.item_select_translation_language)
+        supportActionBar?.title = resources.getString(R.string.title_select_translation_language)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 

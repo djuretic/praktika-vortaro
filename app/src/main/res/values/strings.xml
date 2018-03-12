@@ -8,4 +8,5 @@
     <string name="close_dialog">Fermi</string>
     <string name="no_results_found">Neniu trovita</string>
     <string name="item_select_translation_language">Elekti lingvojn</string>
+    <string name="title_select_translation_language">Elektu lingvojn</string>
 </resources>
