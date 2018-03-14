@@ -209,8 +209,6 @@ class SearchActivity : AppCompatActivity() {
         private val databaseHelper = DatabaseHelper(context)
 
          fun filter(searchString: String, language: String){
-            if(databaseHelper == null)
-                return
             if(searchString == ""){
                 results.clear()
             } else {
@@ -229,11 +227,7 @@ class SearchActivity : AppCompatActivity() {
 
         override fun getCount() = results.size
 
-        override fun getItem(position: Int): Any {
-            val res = results[position]
-            if(res != null) return res
-            return "null"
-        }
+        override fun getItem(position: Int): Any = results[position]
 
         override fun getItemId(position: Int): Long = position.toLong()
 
@@ -251,7 +245,7 @@ class SearchActivity : AppCompatActivity() {
             if(foundEntry is SearchResult){
                 mainWord.text = foundEntry.word
                 entryId = foundEntry.id
-                articleId = foundEntry?.articleId ?: 0
+                articleId = foundEntry.articleId ?: 0
 
                 val def = SpannableString(foundEntry.definition)
                 if(foundEntry.format?.bold != null){

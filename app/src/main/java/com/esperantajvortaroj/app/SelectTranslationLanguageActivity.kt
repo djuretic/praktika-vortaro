@@ -36,7 +36,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         val adapter = LanguageAdapter(this, allLangs, langPrefs)
         listView.adapter = adapter
 
-        listView.onItemClickListener = AdapterView.OnItemClickListener { parent, item, position, id ->
+        listView.onItemClickListener = AdapterView.OnItemClickListener { parent, item, position, _ ->
             val lang = adapter.getItem(position) as Language
             if(item != null && item is CheckedTextView && parent is ListView){
                 val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
