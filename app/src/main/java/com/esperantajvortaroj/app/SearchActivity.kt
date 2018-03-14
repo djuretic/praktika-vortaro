@@ -80,7 +80,7 @@ class SearchActivity : AppCompatActivity() {
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
-                    searchAdapter?.filter(query, activeLanguage)
+                    searchAdapter?.filter(text, activeLanguage)
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     return true
                 }
