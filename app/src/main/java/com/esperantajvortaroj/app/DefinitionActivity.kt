@@ -138,14 +138,14 @@ class DefinitionActivity : AppCompatActivity() {
         val databaseHelper = DatabaseHelper(this)
         val results = databaseHelper.articleById(articleId)
 
-        val views = results.map {
-            val pair = getTextViewOfWord(it)
+        val views = results.map { res ->
+            val pair = getTextViewOfWord(res)
             val textView = pair.first
             var content = pair.second
-            //TODO add translations
-            /*content = addTranslations(databaseHelper, wordId, content)*/
+
+            content = addTranslations(databaseHelper, res.id, content)
             textView.text = TextUtils.concat(content, "\n")
-            if(it.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
+            if(res.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
             textView
         }
 
@@ -204,13 +204,13 @@ class DefinitionActivity : AppCompatActivity() {
         return Pair(textView, content)
     }
 
-    private fun getTranslations(databaseHelper: DatabaseHelper, articleId: Int): LinkedHashMap<String, List<TranslationResult>> {
+    private fun getTranslations(databaseHelper: DatabaseHelper, wordId: Int): LinkedHashMap<String, List<TranslationResult>> {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
 
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {
-            val translations = databaseHelper.translationsByWordId(articleId, lang)
+            val translations = databaseHelper.translationsByWordId(wordId, lang)
             if (translations.isNotEmpty()) {
                 translationsByLang.put(lang, translations)
             }

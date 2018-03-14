@@ -92,11 +92,8 @@ class DatabaseHelper : SQLiteAssetHelper {
 
     fun translationsByWordId(wordId: Int, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
-        val db = writableDatabase
-        var sql = "SELECT word, translation FROM translations_$lng WHERE word_id = ?"
-        //sql += langPrefs.joinToString(transform= {a -> "?"})
-
-        val cursor = db.rawQuery(sql, arrayOf(""+wordId))
+        val cursor = readableDatabase.query("translations_$lng", arrayOf("word", "translation"),
+                "word_id = ?", arrayOf(""+wordId), null, null, null)
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val word = cursor.getString(cursor.getColumnIndex("word"))
