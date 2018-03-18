@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.TextUtils
@@ -15,16 +16,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Switch
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity() {
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
-    private var seeArticle = false
     private var wordId = 0
     private var articleId = 0
+    private var showArticle = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,33 +41,62 @@ class DefinitionActivity : AppCompatActivity() {
         this.entryPosition = entryPosition
         this.entriesList = entriesList
 
-        displayArticleOrWord()
+        displayArticleAndWord(wordId)
         invalidateOptionsMenu()
     }
 
-    private fun displayArticleOrWord() {
-        val view: View
-        if (seeArticle) {
-            view = loadArticle(articleId, wordId)
-        } else {
-            view = loadWord(wordId)
+    private fun displayArticleAndWord(wordId: Int) {
+        val wordInfo = loadWord(wordId)
+        val wordView = wordInfo.first
+        val articleId = wordInfo.second
+        val articleViews = loadArticle(articleId, wordId)
+
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.addView(wordView)
+        if(articleViews.isNotEmpty()){
+            layout.addView(articleHeader())
+            if(showArticle){
+                layout.addView(articleSeparator())
+                for(view in articleViews){
+                    layout.addView(view)
+                }
+            }
         }
-        definitionScrollView.removeAllViews()
-        definitionScrollView.addView(view)
+
+        with(definitionScrollView){
+            removeAllViews()
+            addView(layout)
+        }
+    }
+
+    private fun articleSeparator(): View {
+        val view = View(this)
+        view.minimumHeight = 1
+        view.setBackgroundColor(Color.GRAY)
+        return view
+    }
+
+    private fun articleHeader(): TextView {
+        val textView = TextView(this)
+        val text: SpannableString
+        if(showArticle)
+            text = SpannableString("Kaŝi artikolon")
+        else
+            text = SpannableString("Montri artikolon")
+        text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
+        textView.text = text
+        textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        textView.setOnClickListener {
+            showArticle = !showArticle
+            displayArticleAndWord(wordId)
+        }
+        return textView
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.entry_menu, menu)
-        if(menu != null){
-            val switch = menu.findItem(R.id.article_switch).actionView.findViewById<Switch>(R.id.the_switch)
-
-            switch.setOnClickListener { view ->
-                if(view is Switch){
-                    seeArticle = view.isChecked
-                    displayArticleOrWord()
-                }
-            }
-        }
         return true
     }
 
@@ -96,8 +125,7 @@ class DefinitionActivity : AppCompatActivity() {
                     return true
                 }
                 entryPosition--
-                definitionScrollView.removeAllViews()
-                definitionScrollView.addView(loadWord(entriesList[entryPosition]))
+                displayArticleAndWord(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -106,8 +134,7 @@ class DefinitionActivity : AppCompatActivity() {
                     return true
                 }
                 entryPosition++
-                definitionScrollView.removeAllViews()
-                definitionScrollView.addView(loadWord(entriesList[entryPosition]))
+                displayArticleAndWord(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -117,7 +144,7 @@ class DefinitionActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadWord(wordId: Int): LinearLayout {
+    private fun loadWord(wordId: Int): Pair<LinearLayout, Int> {
         val databaseHelper = DatabaseHelper(this)
         val wordResult = databaseHelper.wordById(wordId)
 
@@ -131,14 +158,18 @@ class DefinitionActivity : AppCompatActivity() {
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(textView)
-        return layout
+        return Pair(layout, wordResult?.articleId ?: 0)
     }
 
-    private fun loadArticle(articleId: Int, wordId: Int): View {
+    private fun loadArticle(articleId: Int, wordId: Int): List<View> {
         val databaseHelper = DatabaseHelper(this)
         val results = databaseHelper.articleById(articleId)
 
-        val views = results.map { res ->
+        if (results.size == 1){
+            return emptyList()
+        }
+
+        return results.map { res ->
             val pair = getTextViewOfWord(res)
             val textView = pair.first
             var content = pair.second
@@ -148,13 +179,6 @@ class DefinitionActivity : AppCompatActivity() {
             if(res.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
             textView
         }
-
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        for(view in views){
-            layout.addView(view)
-        }
-        return layout
     }
 
     private fun addTranslations(databaseHelper: DatabaseHelper, wordId: Int, content: CharSequence): CharSequence {
