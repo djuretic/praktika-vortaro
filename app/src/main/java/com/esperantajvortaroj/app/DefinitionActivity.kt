@@ -55,7 +55,7 @@ class DefinitionActivity : AppCompatActivity() {
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(wordView)
         if(articleViews.isNotEmpty()){
-            layout.addView(articleHeader())
+            layout.addView(articleHeader(wordId))
             if(showArticle){
                 layout.addView(articleSeparator())
                 for(view in articleViews){
@@ -77,7 +77,7 @@ class DefinitionActivity : AppCompatActivity() {
         return view
     }
 
-    private fun articleHeader(): TextView {
+    private fun articleHeader(wordId: Int): TextView {
         val textView = TextView(this)
         val text: SpannableString
         if(showArticle)
