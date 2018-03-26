@@ -81,9 +81,9 @@ class DefinitionActivity : AppCompatActivity() {
         val textView = TextView(this)
         val text: SpannableString
         if(showArticle)
-            text = SpannableString("Kaŝi artikolon")
+            text = SpannableString("\nKaŝi artikolon\n")
         else
-            text = SpannableString("Montri artikolon")
+            text = SpannableString("\nMontri artikolon\n")
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
         textView.text = text
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
@@ -210,20 +210,9 @@ class DefinitionActivity : AppCompatActivity() {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         textView.setTextColor(Color.BLACK)
         if (wordResult != null) {
-            val def = SpannableString(wordResult.definition)
-            if (wordResult.format?.bold!!.isNotEmpty()) {
-                for (pair in wordResult.format.bold) {
-                    def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
-                }
-            }
-            if (wordResult.format?.italic!!.isNotEmpty()) {
-                for (pair in wordResult.format.italic) {
-                    def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
-                }
-            }
             val word = SpannableString(wordResult.word)
             word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
-            content = TextUtils.concat(word, "\n", def)
+            content = TextUtils.concat(word, "\n", wordResult.formattedDefinition())
         }
         return Pair(textView, content)
     }

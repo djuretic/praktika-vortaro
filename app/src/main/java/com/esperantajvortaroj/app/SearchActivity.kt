@@ -4,14 +4,12 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Typeface
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
-import android.text.style.StyleSpan
 import android.text.util.Linkify
 import android.view.*
 import android.widget.BaseAdapter
@@ -246,19 +244,7 @@ class SearchActivity : AppCompatActivity() {
                 mainWord.text = foundEntry.word
                 entryId = foundEntry.id
                 articleId = foundEntry.articleId ?: 0
-
-                val def = SpannableString(foundEntry.definition)
-                if(foundEntry.format?.bold != null){
-                    for(pair in foundEntry.format.bold){
-                        def.setSpan(StyleSpan(Typeface.BOLD), pair.first, pair.second, 0)
-                    }
-                }
-                if(foundEntry.format?.italic != null){
-                    for(pair in foundEntry.format.italic){
-                        def.setSpan(StyleSpan(Typeface.ITALIC), pair.first, pair.second, 0)
-                    }
-                }
-                definition.text = def
+                definition.text = foundEntry.formattedDefinition()
             }
 
             resultRow.setOnClickListener(object : View.OnClickListener {

@@ -1,6 +1,12 @@
 package com.esperantajvortaroj.app
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.style.CharacterStyle
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 import java.util.ArrayList
 
@@ -45,7 +51,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val definition = cursor.getString(cursor.getColumnIndex("word"))
             val word = cursor.getString(cursor.getColumnIndex("translation"))
             val id = cursor.getInt(cursor.getColumnIndex("word_id"))
-            val format = StringFormat(emptyList(), emptyList())
+            val format = StringFormat(emptyList(), emptyList(), emptyList())
             result.add(SearchResult(id, null, word, definition, format))
             cursor.moveToNext()
         }
@@ -146,6 +152,7 @@ class DatabaseHelper : SQLiteAssetHelper {
 
         var bold = emptyList<Pair<Int, Int>>()
         var italic = emptyList<Pair<Int, Int>>()
+        var gray = emptyList<Pair<Int, Int>>()
         for (line in sections){
             if(line.isEmpty()){
                 continue
@@ -155,20 +162,42 @@ class DatabaseHelper : SQLiteAssetHelper {
                 val coords = it.split(",")
                 Pair(coords[0].toInt(), coords[1].toInt())
             }
-            if(parts[0] == "italic"){
-                italic = list
-            } else if (parts[0] == "bold"){
-                bold = list
+            when(parts[0]){
+                "italic" -> italic = list
+                "bold" -> bold = list
+                "gray" -> gray = list
             }
         }
 
-        return StringFormat(italic, bold)
+        return StringFormat(italic, bold, gray)
     }
 
 }
 
 data class Language(val code: String, val name: String)
-data class StringFormat(val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>)
-data class SearchResult(
-        val id: Int, val articleId: Int?, val word: String, val definition: String, val format: StringFormat?)
+data class StringFormat(
+        val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>,
+        val gray: List<Pair<Int, Int>>)
 data class TranslationResult(val word: String, val lng: String, val translation: String)
+
+data class SearchResult(
+        val id: Int, val articleId: Int?, val word: String, val definition: String, val format: StringFormat?) {
+
+    fun formattedDefinition(): SpannableString {
+        val def = SpannableString(definition)
+        if(format != null){
+            applyFormat(def, format.bold, StyleSpan(Typeface.BOLD))
+            applyFormat(def, format.italic, StyleSpan(Typeface.ITALIC))
+            applyFormat(def, format.gray, ForegroundColorSpan(Color.GRAY))
+        }
+        return def
+    }
+
+    private fun applyFormat(def: SpannableString, format: List<Pair<Int, Int>>, style: CharacterStyle){
+        if (format.isNotEmpty()) {
+            for (pair in format) {
+                def.setSpan(style, pair.first, pair.second, 0)
+            }
+        }
+    }
+}
