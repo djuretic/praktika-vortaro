@@ -113,15 +113,16 @@ class DatabaseHelper : SQLiteAssetHelper {
 
     fun getLanguages(): ArrayList<Language>{
         val cursor = readableDatabase.query(
-                "languages", arrayOf("code", "name"),
+                "languages", arrayOf("code", "name", "num_entries"),
                 null, null, null, null, null)
         val result = arrayListOf<Language>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val code = cursor.getString(cursor.getColumnIndex("code"))
             val name = cursor.getString(cursor.getColumnIndex("name"))
+            val numEntries = cursor.getInt(cursor.getColumnIndex("num_entries"))
 
-            result.add(Language(code, name))
+            result.add(Language(code, name, numEntries))
             cursor.moveToNext()
         }
         cursor.close()
@@ -174,7 +175,7 @@ class DatabaseHelper : SQLiteAssetHelper {
 
 }
 
-data class Language(val code: String, val name: String)
+data class Language(val code: String, val name: String, val numEntries: Int)
 data class StringFormat(
         val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>,
         val gray: List<Pair<Int, Int>>)

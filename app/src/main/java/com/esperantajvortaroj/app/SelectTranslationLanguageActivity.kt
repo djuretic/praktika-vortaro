@@ -2,9 +2,12 @@ package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -67,7 +70,11 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
             if(parent is ListView && textView is CheckedTextView){
                 val lang = getItem(position)
                 parent.setItemChecked(position, langPrefs.contains(lang.code))
-                textView.text = lang.name
+
+                val numEntries = String.format("%,d", lang.numEntries)
+                val text = SpannableString("${lang.name}\n$numEntries kapvortoj")
+                text.setSpan(ForegroundColorSpan(Color.GRAY), lang.name.length, text.length, 0)
+                textView.text = text
             }
             return textView
         }
