@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Esperanta Vortaro</string>
+    <string name="app_name">Praktika Vortaro</string>
     <string name="search_hint">Serĉu %1$s...</string>
     <string name="settings">Agordoj</string>
     <string name="preference_shown_translations">Montritaj tradukoj</string>
