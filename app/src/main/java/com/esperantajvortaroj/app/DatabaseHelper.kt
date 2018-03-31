@@ -16,7 +16,9 @@ class DatabaseHelper : SQLiteAssetHelper {
         val DB_VERSION = 1
     }
 
-    constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION)
+    constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION) {
+        setForcedUpgrade()
+    }
 
     fun searchWords(searchString: String) : ArrayList<SearchResult> {
         val cursor = readableDatabase.query(
