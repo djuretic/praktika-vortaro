@@ -1,6 +1,7 @@
 package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.TextUtils
+import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
@@ -209,10 +211,13 @@ class DefinitionActivity : AppCompatActivity() {
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         textView.setTextColor(Color.BLACK)
+        textView.movementMethod = LinkMovementMethod.getInstance()
         if (wordResult != null) {
             val word = SpannableString(wordResult.word)
             word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
-            content = TextUtils.concat(word, "\n", wordResult.formattedDefinition())
+            content = TextUtils.concat(word, "\n", wordResult.formattedDefinition(this, {
+                fako -> showDisciplineDialog(fako)
+            }))
         }
         return Pair(textView, content)
     }
@@ -229,6 +234,16 @@ class DefinitionActivity : AppCompatActivity() {
             }
         }
         return translationsByLang
+    }
+
+    private fun showDisciplineDialog(code: String) {
+        val databaseHelper = DatabaseHelper(this)
+        val description = databaseHelper.getDiscipline(code)
+        val builder = AlertDialog.Builder(this)
+        val dialog = builder.setMessage(description).setTitle(code)
+                .setPositiveButton(R.string.close_dialog, null)
+                .create()
+        dialog.show()
     }
 
     companion object {

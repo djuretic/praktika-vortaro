@@ -244,7 +244,7 @@ class SearchActivity : AppCompatActivity() {
                 mainWord.text = foundEntry.word
                 entryId = foundEntry.id
                 articleId = foundEntry.articleId ?: 0
-                definition.text = foundEntry.formattedDefinition()
+                definition.text = foundEntry.formattedDefinition(null)
             }
 
             resultRow.setOnClickListener(object : View.OnClickListener {
