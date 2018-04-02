@@ -47,7 +47,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val definition = cursor.getString(cursor.getColumnIndex("word"))
             val word = cursor.getString(cursor.getColumnIndex("translation"))
             val id = cursor.getInt(cursor.getColumnIndex("word_id"))
-            val format = StringFormat(emptyList(), emptyList(), emptyList(), emptyList())
+            val format = StringFormat.empty()
             result.add(SearchResult(id, null, word, definition, format))
             cursor.moveToNext()
         }
@@ -151,6 +151,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         var italic = emptyList<Pair<Int, Int>>()
         var gray = emptyList<Pair<Int, Int>>()
         var fako = emptyList<Pair<Int, Int>>()
+        var stilo = emptyList<Pair<Int, Int>>()
         for (line in sections){
             if(line.isEmpty()){
                 continue
@@ -165,10 +166,11 @@ class DatabaseHelper : SQLiteAssetHelper {
                 "bold" -> bold = list
                 "gray" -> gray = list
                 "fako" -> fako = list
+                "stilo" -> stilo = list
             }
         }
 
-        return StringFormat(italic, bold, gray, fako)
+        return StringFormat(italic, bold, gray, fako, stilo)
     }
 
     fun getDiscipline(code: String): String {
@@ -187,7 +189,16 @@ class DatabaseHelper : SQLiteAssetHelper {
 }
 
 data class Language(val code: String, val name: String, val numEntries: Int)
+
 data class StringFormat(
         val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>,
-        val gray: List<Pair<Int, Int>>, val fako: List<Pair<Int, Int>>)
+        val gray: List<Pair<Int, Int>>, val fako: List<Pair<Int, Int>>,
+        val stilo: List<Pair<Int, Int>>) {
+    companion object {
+        fun empty(): StringFormat {
+            return StringFormat(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+        }
+    }
+}
+
 data class TranslationResult(val word: String, val lng: String, val translation: String)

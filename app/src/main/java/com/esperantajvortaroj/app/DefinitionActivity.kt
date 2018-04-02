@@ -217,7 +217,7 @@ class DefinitionActivity : AppCompatActivity() {
             word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
             content = TextUtils.concat(word, "\n", wordResult.formattedDefinition(this, {
                 fako -> showDisciplineDialog(fako)
-            }))
+            }, { stilo -> showStyleDialog(stilo)}))
         }
         return Pair(textView, content)
     }
@@ -245,6 +245,28 @@ class DefinitionActivity : AppCompatActivity() {
                 .create()
         dialog.show()
     }
+
+    private fun showStyleDialog(code: String) {
+        val databaseHelper = DatabaseHelper(this)
+        val styles = hashMapOf(
+            "FRAZ" to "frazaĵo",
+            "FIG" to "figure",
+            "VULG" to "vulgare",
+            "RAR" to "malofte",
+            "POE" to "poezie",
+            "ARK" to "arkaismo",
+            "EVI" to "evitinde",
+            "KOMUNE" to "komune",
+            "NEO" to "neologismo"
+        )
+        val description = styles.get(code.trim()) ?: code
+        val builder = AlertDialog.Builder(this)
+        val dialog = builder.setMessage(description).setTitle(code)
+                .setPositiveButton(R.string.close_dialog, null)
+                .create()
+        dialog.show()
+    }
+
 
     companion object {
         const val WORD_ID = "word_id"
