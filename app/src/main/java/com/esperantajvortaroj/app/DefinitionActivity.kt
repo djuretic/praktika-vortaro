@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -11,14 +12,17 @@ import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity() {
@@ -41,7 +45,7 @@ class DefinitionActivity : AppCompatActivity() {
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
         val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
         this.entryPosition = entryPosition
-        this.entriesList = entriesList
+        this.entriesList = entriesList ?: arrayListOf()
 
         displayArticleAndWord(wordId)
         invalidateOptionsMenu()
@@ -156,6 +160,44 @@ class DefinitionActivity : AppCompatActivity() {
 
         content = addTranslations(databaseHelper, wordId, content)
         textView.text = content
+
+        textView.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(p0: View?, motionEvent: MotionEvent?): Boolean {
+                if(motionEvent?.action != MotionEvent.ACTION_UP) {
+                    return false
+                }
+                val layout = textView.layout
+                val line = layout.getLineForVertical(motionEvent.y.toInt())
+                val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
+
+                // don't interfere with ClickableSpan
+                val clickableSpans = (textView.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
+                if(clickableSpans.isNotEmpty()){
+                    return false
+                }
+
+                val word = Utils.getWholeWord(textView.text, offset)
+                if(word != null) {
+                    // TODO transform ending (e.g.: oj -> o)
+                    val results = databaseHelper.searchWords(word, true)
+                    if(results.isEmpty()){
+                        Toast.makeText(this@DefinitionActivity, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // TODO show popup to select between results
+                        val result = results[0]
+                        val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
+                        if(result.id > 0) {
+                            intent.putExtra(DefinitionActivity.WORD_ID, result.id)
+                            intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
+                            intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
+                            this@DefinitionActivity.startActivity(intent)
+                        }
+                    }
+                }
+                return true
+            }
+
+        })
 
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL

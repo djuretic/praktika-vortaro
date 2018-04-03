@@ -249,18 +249,18 @@ class SearchActivity : AppCompatActivity() {
 
             resultRow.setOnClickListener(object : View.OnClickListener {
                 override fun onClick(v: View?) {
-                    val randomIntent = Intent(context, DefinitionActivity::class.java)
+                    val intent = Intent(context, DefinitionActivity::class.java)
                     if(entryId > 0) {
-                        randomIntent.putExtra(DefinitionActivity.WORD_ID, entryId)
-                        randomIntent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
-                        randomIntent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
+                        intent.putExtra(DefinitionActivity.WORD_ID, entryId)
+                        intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
+                        intent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
 
                         val bundle = Bundle()
                         bundle.putIntegerArrayList(
                                 DefinitionActivity.ENTRIES_LIST,
                                 ArrayList(results.map { x -> x.id }))
-                        randomIntent.putExtras(bundle)
-                        context.startActivity(randomIntent)
+                        intent.putExtras(bundle)
+                        context.startActivity(intent)
                     }
 
                 }

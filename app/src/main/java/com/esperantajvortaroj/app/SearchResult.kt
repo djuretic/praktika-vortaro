@@ -1,14 +1,10 @@
 package com.esperantajvortaroj.app
 
-import android.content.ComponentCallbacks
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.support.v4.content.ContextCompat
 import android.text.SpannableString
-import android.text.TextPaint
 import android.text.style.CharacterStyle
-import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.View

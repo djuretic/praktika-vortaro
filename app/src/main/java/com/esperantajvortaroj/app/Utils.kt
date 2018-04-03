@@ -31,4 +31,25 @@ object Utils {
         }
         return res
     }
+
+    fun getWholeWord(text: CharSequence, position: Int): String? {
+        val boundaries = " \n:;;.,•?!()[]{}'\""
+        if (text[position] in boundaries) return null
+        var firstPos = position
+        var lastPos = position
+
+        for(i in position downTo 0 step 1){
+            if(text[i] in boundaries) {
+                break
+            }
+            firstPos = i
+        }
+        for(i in position until text.length){
+            if(text[i] in boundaries) {
+                break
+            }
+            lastPos = i
+        }
+        return text.substring(firstPos..lastPos)
+    }
 }

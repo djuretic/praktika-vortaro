@@ -11,4 +11,14 @@ class UtilsTest {
         Assert.assertEquals("serĉi", Utils.addHats("sercxi"))
         Assert.assertEquals("ĉŝĝĵĥŭĉŝĝĵĥŭ", Utils.addHats("CxSxGxJxHxUxcxsxgxjxhxux"))
     }
+
+    @Test
+    fun testGetWholeWord() {
+        val sentence = "Aa bbb;CC abc"
+        Assert.assertEquals("Aa", Utils.getWholeWord(sentence, 0))
+        Assert.assertEquals("Aa", Utils.getWholeWord(sentence, 1))
+        Assert.assertNull(Utils.getWholeWord(sentence, 2))
+
+        Assert.assertEquals("bbb", Utils.getWholeWord(sentence, 4))
+    }
 }

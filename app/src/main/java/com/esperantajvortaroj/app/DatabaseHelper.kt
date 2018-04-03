@@ -14,10 +14,14 @@ class DatabaseHelper : SQLiteAssetHelper {
         setForcedUpgrade()
     }
 
-    fun searchWords(searchString: String) : ArrayList<SearchResult> {
+    fun searchWords(searchString: String, exact: Boolean = false) : ArrayList<SearchResult> {
+        var sanitizedString = searchString.replace("%", "")
+        if(!exact){
+            sanitizedString = "$sanitizedString%"
+        }
         val cursor = readableDatabase.query(
                 "words", arrayOf("id", "article_id", "word", "definition", "format"),
-                "word LIKE ?", arrayOf(searchString+"%"), null, null, "id", "50")
+                "word LIKE ?", arrayOf(sanitizedString), null, null, "id", "50")
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
