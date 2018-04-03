@@ -21,4 +21,19 @@ class UtilsTest {
 
         Assert.assertEquals("bbb", Utils.getWholeWord(sentence, 4))
     }
+
+    @Test
+    fun testGetPossibleBaseWords() {
+        Assert.assertEquals(arrayListOf("amiko"), Utils.getPossibleBaseWords("amiko"))
+        Assert.assertEquals(arrayListOf("amikoj", "amiko"), Utils.getPossibleBaseWords("amikoj"))
+        Assert.assertEquals(arrayListOf("amikajn", "amikaj", "amika"), Utils.getPossibleBaseWords("amikajn"))
+
+        Assert.assertEquals(arrayListOf("ajn"), Utils.getPossibleBaseWords("ajn"))
+    }
+
+    @Test
+    fun testGetPossibleBaseWordsVerbs(){
+        Assert.assertEquals(arrayListOf("vidas", "vidi"), Utils.getPossibleBaseWords("vidas"))
+        Assert.assertEquals(arrayListOf("vidanta", "vidi"), Utils.getPossibleBaseWords("vidanta"))
+    }
 }

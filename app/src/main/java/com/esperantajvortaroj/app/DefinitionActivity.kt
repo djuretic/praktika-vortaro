@@ -159,6 +159,7 @@ class DefinitionActivity : AppCompatActivity() {
         var content = pair.second
 
         content = addTranslations(databaseHelper, wordId, content)
+        databaseHelper.close()
         textView.text = content
 
         textView.setOnTouchListener(object: View.OnTouchListener {
@@ -178,21 +179,29 @@ class DefinitionActivity : AppCompatActivity() {
 
                 val word = Utils.getWholeWord(textView.text, offset)
                 if(word != null) {
-                    // TODO transform ending (e.g.: oj -> o)
-                    val results = databaseHelper.searchWords(word, true)
-                    if(results.isEmpty()){
-                        Toast.makeText(this@DefinitionActivity, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
-                    } else {
-                        // TODO show popup to select between results
-                        val result = results[0]
-                        val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
-                        if(result.id > 0) {
-                            intent.putExtra(DefinitionActivity.WORD_ID, result.id)
-                            intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
-                            intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
-                            this@DefinitionActivity.startActivity(intent)
+                    val words = Utils.getPossibleBaseWords(word)
+                    val databaseHelper = DatabaseHelper(this@DefinitionActivity)
+                    try{
+                        for(possibleWord in words){
+                            val results = databaseHelper.searchWords(possibleWord, true)
+                            if(results.isNotEmpty()){
+                                // TODO show popup to select between results
+                                val result = results[0]
+                                val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
+                                if(result.id > 0) {
+                                    intent.putExtra(DefinitionActivity.WORD_ID, result.id)
+                                    intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
+                                    intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
+                                    this@DefinitionActivity.startActivity(intent)
+                                }
+                                return true
+                            }
                         }
+                    } finally {
+                        databaseHelper.close()
                     }
+
+                    Toast.makeText(this@DefinitionActivity, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
                 }
                 return true
             }
