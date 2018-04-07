@@ -60,6 +60,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             return false
         }
 
+        /*
+        val duration = motionEvent.eventTime - motionEvent.downTime
+        if(duration > 1000){
+            return false
+        }
+        */
+
         val layout = view.layout
         val line = layout.getLineForVertical(motionEvent.y.toInt())
         val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
@@ -267,6 +274,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setTextColor(Color.BLACK)
+        //textView.setTextIsSelectable(true)
         textView.movementMethod = LinkMovementMethod.getInstance()
         if (wordResult != null) {
             val word = SpannableString(wordResult.word)
