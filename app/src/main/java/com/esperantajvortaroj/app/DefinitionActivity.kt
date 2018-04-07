@@ -25,7 +25,8 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_definition.*
 
-class DefinitionActivity : AppCompatActivity() {
+class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
+    private val textSize = 18f
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
     private var wordId = 0
@@ -49,6 +50,53 @@ class DefinitionActivity : AppCompatActivity() {
 
         displayArticleAndWord(wordId)
         invalidateOptionsMenu()
+    }
+
+    override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
+        if(motionEvent?.action != MotionEvent.ACTION_UP) {
+            return false
+        }
+        if(view == null || view !is TextView){
+            return false
+        }
+
+        val layout = view.layout
+        val line = layout.getLineForVertical(motionEvent.y.toInt())
+        val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
+
+        // don't interfere with ClickableSpan
+        val clickableSpans = (view.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
+        if(clickableSpans.isNotEmpty()){
+            return false
+        }
+
+        val word = Utils.getWholeWord(view.text, offset)
+        if(word != null) {
+            val words = Utils.getPossibleBaseWords(word)
+            val databaseHelper = DatabaseHelper(this)
+            try{
+                for(possibleWord in words){
+                    val results = databaseHelper.searchWords(possibleWord, true)
+                    if(results.isNotEmpty()){
+                        // TODO show popup to select between results
+                        val result = results[0]
+                        val intent = Intent(this, DefinitionActivity::class.java)
+                        if(result.id > 0) {
+                            intent.putExtra(DefinitionActivity.WORD_ID, result.id)
+                            intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
+                            intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
+                            this.startActivity(intent)
+                        }
+                        return true
+                    }
+                }
+            } finally {
+                databaseHelper.close()
+            }
+
+            Toast.makeText(this, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
+        }
+        return true
     }
 
     private fun displayArticleAndWord(wordId: Int) {
@@ -93,7 +141,7 @@ class DefinitionActivity : AppCompatActivity() {
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
         textView.text = text
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setOnClickListener {
             showArticle = !showArticle
             displayArticleAndWord(wordId)
@@ -162,51 +210,7 @@ class DefinitionActivity : AppCompatActivity() {
         databaseHelper.close()
         textView.text = content
 
-        textView.setOnTouchListener(object: View.OnTouchListener {
-            override fun onTouch(p0: View?, motionEvent: MotionEvent?): Boolean {
-                if(motionEvent?.action != MotionEvent.ACTION_UP) {
-                    return false
-                }
-                val layout = textView.layout
-                val line = layout.getLineForVertical(motionEvent.y.toInt())
-                val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
-
-                // don't interfere with ClickableSpan
-                val clickableSpans = (textView.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
-                if(clickableSpans.isNotEmpty()){
-                    return false
-                }
-
-                val word = Utils.getWholeWord(textView.text, offset)
-                if(word != null) {
-                    val words = Utils.getPossibleBaseWords(word)
-                    val databaseHelper = DatabaseHelper(this@DefinitionActivity)
-                    try{
-                        for(possibleWord in words){
-                            val results = databaseHelper.searchWords(possibleWord, true)
-                            if(results.isNotEmpty()){
-                                // TODO show popup to select between results
-                                val result = results[0]
-                                val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
-                                if(result.id > 0) {
-                                    intent.putExtra(DefinitionActivity.WORD_ID, result.id)
-                                    intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
-                                    intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
-                                    this@DefinitionActivity.startActivity(intent)
-                                }
-                                return true
-                            }
-                        }
-                    } finally {
-                        databaseHelper.close()
-                    }
-
-                    Toast.makeText(this@DefinitionActivity, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
-                }
-                return true
-            }
-
-        })
+        textView.setOnTouchListener(this)
 
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
@@ -229,6 +233,7 @@ class DefinitionActivity : AppCompatActivity() {
 
             content = addTranslations(databaseHelper, res.id, content)
             textView.text = TextUtils.concat(content, "\n")
+            textView.setOnTouchListener(this)
             if(res.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
             textView
         }
@@ -260,7 +265,7 @@ class DefinitionActivity : AppCompatActivity() {
     private fun getTextViewOfWord(wordResult: SearchResult?): Pair<TextView, CharSequence> {
         var content : CharSequence = ""
         val textView = TextView(this)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setTextColor(Color.BLACK)
         textView.movementMethod = LinkMovementMethod.getInstance()
         if (wordResult != null) {
@@ -298,7 +303,6 @@ class DefinitionActivity : AppCompatActivity() {
     }
 
     private fun showStyleDialog(code: String) {
-        val databaseHelper = DatabaseHelper(this)
         val styles = hashMapOf(
             "FRAZ" to "frazaĵo",
             "FIG" to "figure",
