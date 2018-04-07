@@ -7,7 +7,7 @@ import java.util.ArrayList
 class DatabaseHelper : SQLiteAssetHelper {
     companion object {
         val DB_NAME = "vortaro.db"
-        val DB_VERSION = 1
+        val DB_VERSION = 2
     }
 
     constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION) {
