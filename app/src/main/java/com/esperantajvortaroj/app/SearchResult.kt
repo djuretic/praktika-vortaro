@@ -17,9 +17,9 @@ data class SearchResult(
                             stiloCallback: (stilo: String) -> Unit = {}): SpannableString {
         val def = SpannableString(definition)
         if(format != null){
-            applyFormat(def, format.bold, StyleSpan(Typeface.BOLD))
-            applyFormat(def, format.italic, StyleSpan(Typeface.ITALIC))
-            applyFormat(def, format.gray, ForegroundColorSpan(Color.GRAY))
+            applyFormat(def, format.bold, { arrayOf(StyleSpan(Typeface.BOLD))} )
+            applyFormat(def, format.italic, {arrayOf(StyleSpan(Typeface.ITALIC))})
+            applyFormat(def, format.ekz, {arrayOf(StyleSpan(Typeface.ITALIC), ForegroundColorSpan(Color.GRAY))})
 
             if(context != null) {
                 for (pair in format.fako) {
@@ -42,10 +42,11 @@ data class SearchResult(
         return def
     }
 
-    private fun applyFormat(def: SpannableString, format: List<Pair<Int, Int>>, style: CharacterStyle){
+    private fun applyFormat(def: SpannableString, format: List<Pair<Int, Int>>, styleArr: () -> Array<CharacterStyle>){
         if (format.isNotEmpty()) {
             for (pair in format) {
-                def.setSpan(style, pair.first, pair.second, 0)
+                for(style in styleArr())
+                    def.setSpan(style, pair.first, pair.second, 0)
             }
         }
     }
