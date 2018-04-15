@@ -17,10 +17,7 @@ import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_definition.*
 
@@ -28,7 +25,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private val textSize = 18f
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
-    private var wordId = 0
+    private var definitionId = 0
     private var articleId = 0
 
     @SuppressLint("RestrictedApi")
@@ -40,15 +37,15 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        wordId = intent.getIntExtra(WORD_ID, 0)
+        definitionId = intent.getIntExtra(DEFINITION_ID, 0)
         articleId = intent.getIntExtra(ARTICLE_ID, 0)
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
         val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
         this.entryPosition = entryPosition
         this.entriesList = entriesList ?: arrayListOf()
 
-        if(wordId > 0){
-            displayWord(wordId)
+        if(definitionId > 0){
+            displayDefinition(definitionId)
         } else {
             displayArticle(articleId)
         }
@@ -117,7 +114,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                         val result = results[0]
                         val intent = Intent(context, DefinitionActivity::class.java)
                         if(result.id > 0) {
-                            intent.putExtra(DefinitionActivity.WORD_ID, result.id)
+                            intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
                             intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
                             intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
                             context.startActivity(intent)
@@ -139,8 +136,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun displayWord(wordId: Int){
-        val wordInfo = loadWord(wordId)
+    private fun displayDefinition(definitionId: Int){
+        val wordInfo = loadDefinition(definitionId)
         val wordView = wordInfo.layout
         val articleId = wordInfo.articleId
 
@@ -219,7 +216,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     return true
                 }
                 entryPosition--
-                displayWord(entriesList[entryPosition])
+                displayDefinition(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -228,7 +225,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     return true
                 }
                 entryPosition++
-                displayWord(entriesList[entryPosition])
+                displayDefinition(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -238,19 +235,19 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun loadWord(wordId: Int): WordData {
+    private fun loadDefinition(definitionId: Int): DefinitionData {
         val databaseHelper = DatabaseHelper(this)
-        val wordResult = databaseHelper.wordById(wordId)
+        val definitionResult = databaseHelper.definitionById(definitionId)
         var hasArticle = false
-        if(wordResult?.articleId != null) {
-           hasArticle =   databaseHelper.getArticleCountWords(wordResult.articleId) > 1
+        if(definitionResult?.articleId != null) {
+           hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
         }
 
-        val pair = getTextViewOfWord(wordResult)
+        val pair = getTextViewOfDefinition(definitionResult)
         val textView = pair.first
         var content = pair.second
 
-        content = addTranslations(databaseHelper, wordId, content)
+        content = addTranslations(databaseHelper, definitionId, content)
         databaseHelper.close()
         textView.text = content
 
@@ -259,7 +256,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(textView)
-        return WordData(layout, wordResult?.articleId ?: 0, hasArticle)
+        return DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle)
     }
 
     private fun loadArticle(articleId: Int): List<View> {
@@ -271,7 +268,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
 
         return results.map { res ->
-            val pair = getTextViewOfWord(res)
+            val pair = getTextViewOfDefinition(res)
             val textView = pair.first
             var content = pair.second
 
@@ -282,9 +279,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun addTranslations(databaseHelper: DatabaseHelper, wordId: Int, content: CharSequence): CharSequence {
+    private fun addTranslations(databaseHelper: DatabaseHelper, definitionId: Int, content: CharSequence): CharSequence {
         var content1 = content
-        val translationsByLang = getTranslations(databaseHelper, wordId)
+        val translationsByLang = getTranslations(databaseHelper, definitionId)
         val langNames = databaseHelper.getLanguagesHash()
         if (translationsByLang.isNotEmpty()) {
             val translationsTitle = SpannableString("\n\nTradukoj")
@@ -305,30 +302,30 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         return content1
     }
 
-    private fun getTextViewOfWord(wordResult: SearchResult?): Pair<TextView, CharSequence> {
+    private fun getTextViewOfDefinition(definitionResult: SearchResult?): Pair<TextView, CharSequence> {
         var content : CharSequence = ""
         val textView = TextView(this)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setTextColor(Color.BLACK)
         //textView.setTextIsSelectable(true)
         textView.movementMethod = LinkMovementMethod.getInstance()
-        if (wordResult != null) {
-            val word = SpannableString(wordResult.word)
-            word.setSpan(StyleSpan(Typeface.BOLD), 0, wordResult.word.length, 0)
-            content = TextUtils.concat(word, "\n", wordResult.formattedDefinition(this, {
+        if (definitionResult != null) {
+            val word = SpannableString(definitionResult.word)
+            word.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
+            content = TextUtils.concat(word, "\n", definitionResult.formattedDefinition(this, {
                 fako -> showDisciplineDialog(fako)
             }, { stilo -> showStyleDialog(stilo)}))
         }
         return Pair(textView, content)
     }
 
-    private fun getTranslations(databaseHelper: DatabaseHelper, wordId: Int): LinkedHashMap<String, List<TranslationResult>> {
+    private fun getTranslations(databaseHelper: DatabaseHelper, definitionId: Int): LinkedHashMap<String, List<TranslationResult>> {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
 
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {
-            val translations = databaseHelper.translationsByWordId(wordId, lang)
+            val translations = databaseHelper.translationsByDefinitionId(definitionId, lang)
             if (translations.isNotEmpty()) {
                 translationsByLang.put(lang, translations)
             }
@@ -368,11 +365,11 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
 
     companion object {
-        const val WORD_ID = "word_id"
+        const val DEFINITION_ID = "definition_id"
         const val ARTICLE_ID = "article_id"
         const val ENTRY_POSITION = "entry_position"
         const val ENTRIES_LIST = "entries_list"
     }
 }
 
-data class WordData(val layout: LinearLayout, val articleId: Int, val hasArticle: Boolean)
+data class DefinitionData(val layout: LinearLayout, val articleId: Int, val hasArticle: Boolean)

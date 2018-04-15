@@ -280,7 +280,7 @@ class SearchActivity : AppCompatActivity() {
                 override fun onClick(v: View?) {
                     val intent = Intent(context, DefinitionActivity::class.java)
                     if(entryId > 0) {
-                        intent.putExtra(DefinitionActivity.WORD_ID, entryId)
+                        intent.putExtra(DefinitionActivity.DEFINITION_ID, entryId)
                         intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
                         intent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
 
