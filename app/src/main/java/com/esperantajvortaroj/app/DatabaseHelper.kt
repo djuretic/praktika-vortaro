@@ -1,6 +1,7 @@
 package com.esperantajvortaroj.app
 
 import android.content.Context
+import android.database.DatabaseUtils
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 import java.util.ArrayList
 
@@ -188,6 +189,10 @@ class DatabaseHelper : SQLiteAssetHelper {
         }
         cursor.close()
         return result
+    }
+
+    fun getArticleCountWords(wordId: Int): Long {
+        return DatabaseUtils.queryNumEntries(readableDatabase, "words", "article_id = ?", arrayOf(""+wordId))
     }
 
 }

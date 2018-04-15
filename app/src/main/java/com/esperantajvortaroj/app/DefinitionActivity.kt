@@ -30,7 +30,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var entryPosition = 0
     private var wordId = 0
     private var articleId = 0
-    private var showArticle = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,8 +47,18 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         this.entryPosition = entryPosition
         this.entriesList = entriesList ?: arrayListOf()
 
-        displayArticleAndWord(wordId)
+        if(wordId > 0){
+            displayWord(wordId)
+        } else {
+            displayArticle(articleId)
+        }
         invalidateOptionsMenu()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        invalidateOptionsMenu()
+
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
@@ -130,22 +139,32 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun displayArticleAndWord(wordId: Int) {
+    private fun displayWord(wordId: Int){
         val wordInfo = loadWord(wordId)
-        val wordView = wordInfo.first
-        val articleId = wordInfo.second
-        val articleViews = loadArticle(articleId, wordId)
+        val wordView = wordInfo.layout
+        val articleId = wordInfo.articleId
 
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(wordView)
+
+        if(wordInfo.hasArticle){
+            layout.addView(linkToArticleView(articleId))
+        }
+
+        with(definitionScrollView){
+            removeAllViews()
+            addView(layout)
+        }
+    }
+
+    private fun displayArticle(articleId: Int){
+        val articleViews = loadArticle(articleId)
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
         if(articleViews.isNotEmpty()){
-            layout.addView(articleHeader(wordId))
-            if(showArticle){
-                layout.addView(articleSeparator())
-                for(view in articleViews){
-                    layout.addView(view)
-                }
+            for(view in articleViews){
+                layout.addView(view)
             }
         }
 
@@ -155,27 +174,17 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun articleSeparator(): View {
-        val view = View(this)
-        view.minimumHeight = 1
-        view.setBackgroundColor(Color.GRAY)
-        return view
-    }
-
-    private fun articleHeader(wordId: Int): TextView {
+    private fun linkToArticleView(articleId: Int): TextView {
         val textView = TextView(this)
-        val text: SpannableString
-        if(showArticle)
-            text = SpannableString("\nKaŝi artikolon\n")
-        else
-            text = SpannableString("\nMontri artikolon\n")
+        val text = SpannableString("\nMontri artikolon\n")
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
         textView.text = text
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setOnClickListener {
-            showArticle = !showArticle
-            displayArticleAndWord(wordId)
+            val intent = Intent(this, DefinitionActivity::class.java)
+            intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
+            startActivity(intent)
         }
         return textView
     }
@@ -210,7 +219,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     return true
                 }
                 entryPosition--
-                displayArticleAndWord(entriesList[entryPosition])
+                displayWord(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -219,7 +228,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     return true
                 }
                 entryPosition++
-                displayArticleAndWord(entriesList[entryPosition])
+                displayWord(entriesList[entryPosition])
                 invalidateOptionsMenu()
                 return true
             }
@@ -229,9 +238,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun loadWord(wordId: Int): Pair<LinearLayout, Int> {
+    private fun loadWord(wordId: Int): WordData {
         val databaseHelper = DatabaseHelper(this)
         val wordResult = databaseHelper.wordById(wordId)
+        var hasArticle = false
+        if(wordResult?.articleId != null) {
+           hasArticle =   databaseHelper.getArticleCountWords(wordResult.articleId) > 1
+        }
 
         val pair = getTextViewOfWord(wordResult)
         val textView = pair.first
@@ -246,10 +259,10 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(textView)
-        return Pair(layout, wordResult?.articleId ?: 0)
+        return WordData(layout, wordResult?.articleId ?: 0, hasArticle)
     }
 
-    private fun loadArticle(articleId: Int, wordId: Int): List<View> {
+    private fun loadArticle(articleId: Int): List<View> {
         val databaseHelper = DatabaseHelper(this)
         val results = databaseHelper.articleById(articleId)
 
@@ -265,7 +278,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             content = addTranslations(databaseHelper, res.id, content)
             textView.text = TextUtils.concat(content, "\n")
             textView.setOnTouchListener(this)
-            if(res.id == wordId) textView.setBackgroundColor(Color.parseColor("#dddddd"))
             textView
         }
     }
@@ -363,3 +375,4 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 }
 
+data class WordData(val layout: LinearLayout, val articleId: Int, val hasArticle: Boolean)
