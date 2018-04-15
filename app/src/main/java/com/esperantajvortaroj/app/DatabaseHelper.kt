@@ -8,7 +8,7 @@ import java.util.ArrayList
 class DatabaseHelper : SQLiteAssetHelper {
     companion object {
         val DB_NAME = "vortaro.db"
-        val DB_VERSION = 3
+        val DB_VERSION = 4
     }
 
     constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION) {
@@ -202,10 +202,10 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
-    fun getArticleCountDefinitions(definitionId: Int): Long {
+    fun getArticleCountDefinitions(articleId: Int): Long {
         return DatabaseUtils.queryNumEntries(
                 readableDatabase,
-                "definitions", "article_id = ?", arrayOf(""+definitionId)
+                "definitions", "article_id = ?", arrayOf(""+articleId)
         )
     }
 
