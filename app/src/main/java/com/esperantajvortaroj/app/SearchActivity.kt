@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
@@ -202,6 +203,34 @@ class SearchActivity : AppCompatActivity() {
         dialog.findViewById<TextView>(android.R.id.message).movementMethod = LinkMovementMethod.getInstance()
     }
 
+    private class SearchTask(val context: Context, val adapter: SearchResultAdapter, val language: String)
+        : AsyncTask<String, Void, ArrayList<SearchResult>>(){
+
+        override fun doInBackground(vararg params: String?): ArrayList<SearchResult> {
+            var results = ArrayList<SearchResult>()
+            if(params.isEmpty()) return results
+            val searchString = params[0] ?: return results
+
+            val databaseHelper = DatabaseHelper(context)
+            try{
+                if(language == "eo"){
+                    results = databaseHelper.searchWords(searchString)
+                } else {
+                    results = databaseHelper.searchTranslations(searchString, language)
+                }
+            } finally {
+                databaseHelper.close()
+            }
+
+            return results
+        }
+
+        override fun onPostExecute(results: ArrayList<SearchResult>?) {
+            if(results == null) return
+            adapter.receiveDataSet(results)
+        }
+    }
+
     private class SearchResultAdapter(val context: Context): BaseAdapter() {
         private var results = ArrayList<SearchResult>()
         private val databaseHelper = DatabaseHelper(context)
@@ -210,13 +239,13 @@ class SearchActivity : AppCompatActivity() {
             if(searchString == ""){
                 results.clear()
             } else {
-                //TODO not on main thread
-                if(language == "eo"){
-                    results = databaseHelper.searchWords(searchString)
-                } else {
-                    results = databaseHelper.searchTranslations(searchString, language)
-                }
+                SearchTask(context, this, language).execute(searchString)
             }
+
+        }
+
+        fun receiveDataSet(receivedResults: ArrayList<SearchResult>): Unit{
+            results = receivedResults
             if(results.count() > 0)
                 notifyDataSetChanged()
             else

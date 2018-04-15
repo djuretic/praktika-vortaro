@@ -20,6 +20,17 @@
         android:theme="@style/AppTheme.Toolbar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintTop_toBottomOf="@+id/appToolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
     <ScrollView
         android:id="@+id/definitionScrollView"
         android:layout_width="0dp"

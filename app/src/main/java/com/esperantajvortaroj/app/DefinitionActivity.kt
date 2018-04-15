@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
@@ -20,9 +21,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
@@ -37,6 +36,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_definition)
+        progressBar.visibility = View.GONE
         setSupportActionBar(appToolbar)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -77,33 +77,57 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             return false
         }
 
+        progressBar.visibility = View.VISIBLE
+
         val word = Utils.getWholeWord(view.text, offset)
-        if(word != null) {
+        if(word != null){
+            SearchWordTask(this).execute(word)
+        }
+        return true
+    }
+
+    fun hideProgressBar(){
+        progressBar.visibility = View.GONE
+    }
+
+    private class SearchWordTask(val context: DefinitionActivity) : AsyncTask<String, Void, SearchResult?>() {
+        var baseWord: String? = null
+
+        override fun doInBackground(vararg params: String?): SearchResult? {
+            if(params.isEmpty()) return null
+            val word = params[0] ?: return null
+            baseWord = word
+
             val words = Utils.getPossibleBaseWords(word)
-            val databaseHelper = DatabaseHelper(this)
+            val databaseHelper = DatabaseHelper(context)
             try{
                 for(possibleWord in words){
                     val results = databaseHelper.searchWords(possibleWord, true)
                     if(results.isNotEmpty()){
                         // TODO show popup to select between results
                         val result = results[0]
-                        val intent = Intent(this, DefinitionActivity::class.java)
+                        val intent = Intent(context, DefinitionActivity::class.java)
                         if(result.id > 0) {
                             intent.putExtra(DefinitionActivity.WORD_ID, result.id)
                             intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
                             intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
-                            this.startActivity(intent)
+                            context.startActivity(intent)
                         }
-                        return true
+                        return result
                     }
                 }
             } finally {
                 databaseHelper.close()
             }
-
-            Toast.makeText(this, "Vorto '${word}' ne trovita", Toast.LENGTH_SHORT).show()
+            return null
         }
-        return true
+
+        override fun onPostExecute(result: SearchResult?) {
+            if(result == null){
+                Toast.makeText(context, "Vorto '$baseWord' ne trovita", Toast.LENGTH_SHORT).show()
+            }
+            context.hideProgressBar()
+        }
     }
 
     private fun displayArticleAndWord(wordId: Int) {
