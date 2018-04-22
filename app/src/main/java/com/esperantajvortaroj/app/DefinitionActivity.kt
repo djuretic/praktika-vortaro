@@ -3,7 +3,6 @@ package com.esperantajvortaroj.app
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.AsyncTask
 import android.os.Bundle
@@ -11,14 +10,16 @@ import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
-import android.text.TextUtils
-import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
 import android.util.TypedValue
-import android.view.*
-import android.widget.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
@@ -243,14 +244,10 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
            hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
         }
 
-        val pair = getTextViewOfDefinition(definitionResult)
-        val textView = pair.first
-        var content = pair.second
-
-        content = addTranslations(databaseHelper, definitionId, content)
+        val translationsByLang = getTranslations(databaseHelper, definitionId)
+        val langNames = databaseHelper.getLanguagesHash()
         databaseHelper.close()
-        textView.text = content
-
+        val textView = getDefinitionTextView(definitionResult, translationsByLang, langNames)
         textView.setOnTouchListener(this)
 
         val layout = LinearLayout(this)
@@ -268,55 +265,23 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
 
         return results.map { res ->
-            val pair = getTextViewOfDefinition(res)
-            val textView = pair.first
-            var content = pair.second
-
-            content = addTranslations(databaseHelper, res.id, content)
-            textView.text = TextUtils.concat(content, "\n")
+            val translationsByLang = getTranslations(databaseHelper, definitionId)
+            val langNames = databaseHelper.getLanguagesHash()
+            val textView = getDefinitionTextView(res, translationsByLang, langNames)
             textView.setOnTouchListener(this)
             textView
         }
     }
 
-    private fun addTranslations(databaseHelper: DatabaseHelper, definitionId: Int, content: CharSequence): CharSequence {
-        var content1 = content
-        val translationsByLang = getTranslations(databaseHelper, definitionId)
-        val langNames = databaseHelper.getLanguagesHash()
-        if (translationsByLang.isNotEmpty()) {
-            val translationsTitle = SpannableString("\n\nTradukoj")
-            translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
-            content1 = TextUtils.concat(content1, translationsTitle)
-            for (langEntry in langNames) {
-                val translations = translationsByLang.get(langEntry.key)
-                if (translations != null) {
-                    val lang = langEntry.value
-                    content1 = TextUtils.concat(
-                            content1,
-                            "\n\n• ", lang, "j: ",
-                            translations.joinToString(", ") { it.translation })
-                }
-
-            }
-        }
-        return content1
-    }
-
-    private fun getTextViewOfDefinition(definitionResult: SearchResult?): Pair<TextView, CharSequence> {
-        var content : CharSequence = ""
-        val textView = TextView(this)
+    private fun getDefinitionTextView(definitionResult: SearchResult?,
+                                      translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
+                                      langNames: HashMap<String, String>): DefinitionTextView {
+        val textView = DefinitionTextView(this)
+        textView.onClickFako = { fako -> showDisciplineDialog(fako) }
+        textView.onClikStilo = { stilo -> showStyleDialog(stilo)}
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
-        textView.setTextColor(Color.BLACK)
-        //textView.setTextIsSelectable(true)
-        textView.movementMethod = LinkMovementMethod.getInstance()
-        if (definitionResult != null) {
-            val word = SpannableString(definitionResult.word)
-            word.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
-            content = TextUtils.concat(word, "\n", definitionResult.formattedDefinition(this, {
-                fako -> showDisciplineDialog(fako)
-            }, { stilo -> showStyleDialog(stilo)}))
-        }
-        return Pair(textView, content)
+        textView.setResult(definitionResult, translationsByLang, langNames)
+        return textView
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, definitionId: Int): LinkedHashMap<String, List<TranslationResult>> {
