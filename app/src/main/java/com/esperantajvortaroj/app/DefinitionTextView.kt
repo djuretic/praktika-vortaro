@@ -20,6 +20,7 @@ class DefinitionTextView(context: Context) : TextView(context) {
                   langNames: HashMap<String, String>): CharSequence{
         var content : CharSequence = ""
         setTextColor(Color.BLACK)
+
         //textView.setTextIsSelectable(true)
         movementMethod = LinkMovementMethod.getInstance()
         if (definitionResult != null) {

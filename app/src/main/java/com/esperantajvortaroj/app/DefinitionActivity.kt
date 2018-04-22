@@ -87,7 +87,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         progressBar.visibility = View.VISIBLE
 
         val word = Utils.getWholeWord(view.text, offset)
-        if(word != null){
+        if(word == null){
+            progressBar.visibility = View.GONE
+        } else {
             SearchWordTask(this).execute(word)
         }
         return true
