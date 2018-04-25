@@ -13,6 +13,7 @@ import android.widget.TextView
 class DefinitionTextView(context: Context) : TextView(context) {
     var onClickFako: (fako: String) -> Unit = {}
     var onClikStilo: (stilo: String) -> Unit = {}
+    var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
 
     fun setResult(definitionResult: SearchResult?,
@@ -24,10 +25,10 @@ class DefinitionTextView(context: Context) : TextView(context) {
         //textView.setTextIsSelectable(true)
         movementMethod = LinkMovementMethod.getInstance()
         if (definitionResult != null) {
-            val word = SpannableString(definitionResult.word)
-            word.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
+            headword = SpannableString(definitionResult.word)
+            headword.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
             definition = definitionResult.formattedDefinition(context, onClickFako, onClikStilo)
-            content = TextUtils.concat(word, "\n", definition)
+            content = TextUtils.concat(headword, "\n", definition)
         }
         content = addTranslations(content, translationsByLang, langNames)
         this.text = TextUtils.concat(content, "\n")

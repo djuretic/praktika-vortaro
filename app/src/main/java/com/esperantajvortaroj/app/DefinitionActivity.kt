@@ -2,6 +2,9 @@ package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.AsyncTask
@@ -13,10 +16,8 @@ import android.text.SpannableString
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.TypedValue
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
+import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -28,6 +29,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var entryPosition = 0
     private var definitionId = 0
     private var articleId = 0
+    private var touchedView: View? = null
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,16 +65,15 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         if(motionEvent?.action != MotionEvent.ACTION_UP) {
             return false
         }
+        touchedView = view
         if(view == null || view !is TextView){
             return false
         }
 
-        /*
         val duration = motionEvent.eventTime - motionEvent.downTime
         if(duration > 1000){
             return false
         }
-        */
 
         val layout = view.layout
         val line = layout.getLineForVertical(motionEvent.y.toInt())
@@ -238,6 +239,32 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
+    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menuInflater.inflate(R.menu.definition_context_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        val targetView = touchedView
+        if(targetView == null || targetView !is DefinitionTextView){
+            return super.onContextItemSelected(item)
+        }
+
+        when(item?.itemId){
+            R.id.copyDefinition -> {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.primaryClip = ClipData.newPlainText("difino", targetView.definition.toString())
+                return true
+            }
+            R.id.copyHeadword -> {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.primaryClip = ClipData.newPlainText("kapvorto", targetView.headword.toString())
+                return true
+            }
+            else -> return super.onContextItemSelected(item)
+        }
+    }
+
     private fun loadDefinition(definitionId: Int): DefinitionData {
         val databaseHelper = DatabaseHelper(this)
         val definitionResult = databaseHelper.definitionById(definitionId)
@@ -283,6 +310,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         textView.onClikStilo = { stilo -> showStyleDialog(stilo)}
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setResult(definitionResult, translationsByLang, langNames)
+        registerForContextMenu(textView)
         return textView
     }
 

@@ -8,4 +8,6 @@
     <string name="no_results_found">Neniu trovita</string>
     <string name="item_select_translation_language">Elekti lingvojn</string>
     <string name="title_select_translation_language">Elektu lingvojn</string>
+    <string name="copy_headword">Kopii kapvorton</string>
+    <string name="copy_definition">Kopii difinon</string>
 </resources>
