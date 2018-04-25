@@ -12,6 +12,7 @@ import android.support.v7.widget.SearchView
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
+import android.util.Log
 import android.view.*
 import android.widget.BaseAdapter
 import android.widget.TextView
@@ -24,6 +25,7 @@ class SearchActivity : AppCompatActivity() {
     private val ACTIVE_LANGUAGE = "active_language"
     private var activeLanguage = ESPERANTO
     private var searchView: SearchView? = null
+    private var isSearching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,14 +74,17 @@ class SearchActivity : AppCompatActivity() {
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String?): Boolean {
                     if(query == null || query.length == 0) {
+                        isSearching = false
                         updateBottomPart(false, 0)
                         return true
                     }
+
                     var text = query.trim()
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
                     searchAdapter?.filter(text, activeLanguage)
+                    isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     return true
                 }
@@ -104,6 +109,13 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateBottomPart(enteredText: Boolean, resultsCount: Int) {
+        if(isSearching){
+            progressBarSearch.visibility = View.VISIBLE
+            noResultsFound.visibility = View.GONE
+            searchResults.visibility = View.GONE
+            return
+        }
+        progressBarSearch.visibility = View.GONE
         if(!enteredText){
             noResultsFound.visibility = View.GONE
             searchResults.visibility = View.GONE
@@ -233,9 +245,10 @@ class SearchActivity : AppCompatActivity() {
 
     private class SearchResultAdapter(val context: Context): BaseAdapter() {
         private var results = ArrayList<SearchResult>()
-        private val databaseHelper = DatabaseHelper(context)
+        private var searchString: String? = null
 
          fun filter(searchString: String, language: String){
+             this.searchString = searchString
             if(searchString == ""){
                 results.clear()
             } else {
@@ -244,12 +257,16 @@ class SearchActivity : AppCompatActivity() {
 
         }
 
-        fun receiveDataSet(receivedResults: ArrayList<SearchResult>): Unit{
+        fun receiveDataSet(receivedResults: ArrayList<SearchResult>) {
             results = receivedResults
             if(results.count() > 0)
                 notifyDataSetChanged()
             else
                 notifyDataSetInvalidated()
+            val searchString = this.searchString
+            val activity = context as SearchActivity
+            activity.isSearching = false
+            activity.updateBottomPart(searchString != null && !searchString.isEmpty(), results.count())
         }
 
         override fun getCount() = results.size
