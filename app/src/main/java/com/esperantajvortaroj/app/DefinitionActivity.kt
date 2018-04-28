@@ -11,13 +11,13 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.*
-import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -29,7 +29,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var entryPosition = 0
     private var definitionId = 0
     private var articleId = 0
+
     private var touchedView: View? = null
+    private var gestureDetector: GestureDetectorCompat? = null
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +41,11 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         setSupportActionBar(appToolbar)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        gestureDetector = GestureDetectorCompat(this, object: GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent?) = showContextMenu(touchedView)
+            override fun onSingleTapUp(e: MotionEvent?) = onSingleTap(e)
+        })
 
         definitionId = intent.getIntExtra(DEFINITION_ID, 0)
         articleId = intent.getIntExtra(ARTICLE_ID, 0)
@@ -62,19 +69,16 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if(motionEvent?.action != MotionEvent.ACTION_UP) {
-            return false
-        }
-        touchedView = view
-        if(view == null || view !is TextView){
-            return false
-        }
+        if(motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN)
+            touchedView = view
+        return gestureDetector?.onTouchEvent(motionEvent) ?: false
+    }
 
-        val duration = motionEvent.eventTime - motionEvent.downTime
-        if(duration > 1000){
+    fun onSingleTap(motionEvent: MotionEvent?): Boolean{
+        val view = touchedView
+        if(view == null || view !is TextView || motionEvent == null){
             return false
         }
-
         val layout = view.layout
         val line = layout.getLineForVertical(motionEvent.y.toInt())
         val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
@@ -94,6 +98,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             SearchWordTask(this).execute(word)
         }
         return true
+    }
+
+    fun showContextMenu(view: View?){
+        registerForContextMenu(view)
+        openContextMenu(view)
+        unregisterForContextMenu(view)
     }
 
     fun hideProgressBar(){
@@ -310,7 +320,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         textView.onClikStilo = { stilo -> showStyleDialog(stilo)}
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setResult(definitionResult, translationsByLang, langNames)
-        registerForContextMenu(textView)
+        //registerForContextMenu(textView)
         return textView
     }
 
