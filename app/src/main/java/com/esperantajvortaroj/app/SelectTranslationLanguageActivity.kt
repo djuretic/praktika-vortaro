@@ -8,6 +8,8 @@ import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -24,8 +26,9 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_translation_language)
         setSupportActionBar(appToolbar)
         supportActionBar?.title = resources.getString(R.string.title_select_translation_language)
-        supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDefaultDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowHomeEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         val allLangs = DatabaseHelper(this).getLanguages()
 
@@ -57,10 +60,24 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.translation_language_menu, menu)
+        return true
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if(item?.itemId == R.id.close_translation_language){
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     class LanguageAdapter(context: Context, items: ArrayList<Language>, var langPrefs: MutableSet<String>)
         : ArrayAdapter<Language>(context, android.R.layout.simple_list_item_multiple_choice, items){
