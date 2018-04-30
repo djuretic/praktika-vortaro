@@ -207,16 +207,14 @@ class SearchActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setView(layout)
         builder.setTitle("Elektu tiparan grandon")
-        builder.setPositiveButton(R.string.close_dialog, object : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                val newFontSize = picker.value
-                val editor = sharedPrefs.edit()
-                editor.putInt(SettingsActivity.FONT_SIZE, newFontSize)
-                editor.apply()
-                dialog?.dismiss()
-            }
-
-        })
+        builder.setPositiveButton(R.string.close_dialog) { dialog, which ->
+            val newFontSize = picker.value
+            val editor = sharedPrefs.edit()
+            editor.putInt(SettingsActivity.FONT_SIZE, newFontSize)
+            editor.apply()
+            dialog?.dismiss()
+            searchResults.invalidateViews()
+        }
         builder.show()
     }
 
