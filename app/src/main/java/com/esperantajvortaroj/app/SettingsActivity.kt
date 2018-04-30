@@ -7,6 +7,8 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         const val KEY_LANGUAGES_PREFERENCE = "languages_preference"
         const val VERSION_CODE = "version_code"
+        const val FONT_SIZE = "font_size"
+        const val DEFAULT_FONT_SIZE = 18
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

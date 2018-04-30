@@ -24,7 +24,6 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
-    private val textSize = 18f
     private var entriesList: ArrayList<Int> = arrayListOf()
     private var entryPosition = 0
     private var definitionId = 0
@@ -185,13 +184,18 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
+    fun getTextSize(): Float{
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        return sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE).toFloat()
+    }
+
     private fun linkToArticleView(articleId: Int): TextView {
         val textView = TextView(this)
         val text = SpannableString("\nMontri artikolon\n")
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
         textView.text = text
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
         textView.setOnClickListener {
             val intent = Intent(this, DefinitionActivity::class.java)
             intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
@@ -318,9 +322,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val textView = DefinitionTextView(this)
         textView.onClickFako = { fako -> showDisciplineDialog(fako) }
         textView.onClikStilo = { stilo -> showStyleDialog(stilo)}
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
         textView.setResult(definitionResult, translationsByLang, langNames)
-        //registerForContextMenu(textView)
         return textView
     }
 

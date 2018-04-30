@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.AsyncTask
@@ -12,9 +13,11 @@ import android.support.v7.widget.SearchView
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
-import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.widget.BaseAdapter
+import android.widget.FrameLayout
+import android.widget.NumberPicker
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -171,6 +174,10 @@ class SearchActivity : AppCompatActivity() {
                 startLanguageActivity()
                 return true
             }
+            R.id.font_size_setting -> {
+                showFontSizeDialog()
+                return true
+            }
             R.id.about_the_app -> {
                 showAboutDialog()
                 return true
@@ -179,6 +186,38 @@ class SearchActivity : AppCompatActivity() {
                 return super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun showFontSizeDialog() {
+        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
+
+        val picker = NumberPicker(this)
+        picker.minValue = 1
+        picker.maxValue = 50
+        picker.value = fontSize
+
+        val layout = FrameLayout(this)
+        layout.addView(picker, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
+        ))
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(layout)
+        builder.setTitle("Elektu tiparan grandon")
+        builder.setPositiveButton(R.string.close_dialog, object : DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                val newFontSize = picker.value
+                val editor = sharedPrefs.edit()
+                editor.putInt(SettingsActivity.FONT_SIZE, newFontSize)
+                editor.apply()
+                dialog?.dismiss()
+            }
+
+        })
+        builder.show()
     }
 
     private fun startLanguageActivity() {
@@ -281,8 +320,13 @@ class SearchActivity : AppCompatActivity() {
                 layoutInflater.inflate(R.layout.item_search_entry, parent, false)
             else { convertView }
 
+            val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
+
             val mainWord = resultRow.findViewById<TextView>(R.id.mainWord)
+            mainWord.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
             val definition = resultRow.findViewById<TextView>(R.id.definition)
+            definition.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
             val foundEntry = getItem(position)
             var entryId = 0
             var articleId = 0

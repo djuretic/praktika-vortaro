@@ -17,6 +17,10 @@
         android:title="@string/item_select_translation_language"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/font_size_setting"
+        android:title="Tipara grando"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_settings"

@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:text="Word"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +25,6 @@
         android:maxLines="2"
         android:text="Definition"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/mainWord"
         app:layout_constraintTop_toBottomOf="@+id/mainWord" />
