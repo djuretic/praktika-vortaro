@@ -29,6 +29,8 @@ class UtilsTest {
         Assert.assertEquals(arrayListOf("amikajn", "amikaj", "amika"), Utils.getPossibleBaseWords("amikajn"))
 
         Assert.assertEquals(arrayListOf("ajn"), Utils.getPossibleBaseWords("ajn"))
+        Assert.assertEquals(arrayListOf("ion", "io"), Utils.getPossibleBaseWords("ion"))
+        Assert.assertEquals(arrayListOf("iun", "iu"), Utils.getPossibleBaseWords("iun"))
     }
 
     @Test

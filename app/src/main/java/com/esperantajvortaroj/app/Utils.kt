@@ -56,6 +56,10 @@ object Utils {
     fun getPossibleBaseWords(word: CharSequence): List<String> {
         val words = arrayListOf(word.toString())
         if(word.length <= 3){
+            if(word == "ajn") return words
+            if(word.length == 3 && word.endsWith("n")){
+                words.add(word.substring(0 until word.length - 1))
+            }
             return words
         }
 
