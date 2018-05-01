@@ -2,7 +2,6 @@ package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.AsyncTask
@@ -193,7 +192,7 @@ class SearchActivity : AppCompatActivity() {
         val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
 
         val picker = NumberPicker(this)
-        picker.minValue = 1
+        picker.minValue = 5
         picker.maxValue = 50
         picker.value = fontSize
 
