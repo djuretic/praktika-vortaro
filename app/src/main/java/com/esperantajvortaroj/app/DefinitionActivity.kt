@@ -10,17 +10,21 @@ import android.graphics.Typeface
 import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.constraint.ConstraintSet
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
 import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
 import kotlinx.android.synthetic.main.activity_definition.*
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
@@ -82,6 +86,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val line = layout.getLineForVertical(motionEvent.y.toInt())
         val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
 
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.connect(R.id.dummyView, ConstraintSet.TOP, R.id.appToolbar, ConstraintSet.BOTTOM, motionEvent.y.toInt())
+        constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.x.toInt())
+        constraintSet.applyTo(constraintLayout)
+
         // don't interfere with ClickableSpan
         val clickableSpans = (view.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
         if(clickableSpans.isNotEmpty()){
@@ -123,16 +133,15 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                 for(possibleWord in words){
                     val results = databaseHelper.searchWords(possibleWord, true)
                     if(results.isNotEmpty()){
-                        // TODO show popup to select between results
-                        val result = results[0]
-                        val intent = Intent(context, DefinitionActivity::class.java)
+                        return results[0]
+                        /*val intent = Intent(context, DefinitionActivity::class.java)
                         if(result.id > 0) {
                             intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
                             intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
                             intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
                             context.startActivity(intent)
                         }
-                        return result
+                        */
                     }
                 }
             } finally {
@@ -144,9 +153,42 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         override fun onPostExecute(result: SearchResult?) {
             if(result == null){
                 Toast.makeText(context, "Vorto '$baseWord' ne trovita", Toast.LENGTH_SHORT).show()
+            } else {
+                context.showTooltip(result)
             }
             context.hideProgressBar()
         }
+    }
+
+    private fun showTooltip(result: SearchResult) {
+        val textView = DefinitionTextView(this)
+        textView.setResult(result, LinkedHashMap(), HashMap())
+
+        class OnViewGlobalLayoutListener(val view: View): ViewTreeObserver.OnGlobalLayoutListener {
+            private val maxHeight = 400
+            override fun onGlobalLayout() {
+                if(view.height > maxHeight)
+                    view.layoutParams.height = maxHeight
+            }
+
+        }
+
+        val layout =  ScrollView(this)
+        layout.addView(textView)
+        layout.viewTreeObserver.addOnGlobalLayoutListener(OnViewGlobalLayoutListener(layout))
+
+        val tooltipBgColor = ContextCompat.getColor(this, R.color.colorTooltip)
+        layout.setBackgroundColor(tooltipBgColor)
+
+        SimpleTooltip.Builder(this)
+                .anchorView(dummyView)
+                .backgroundColor(tooltipBgColor)
+                .arrowColor(tooltipBgColor)
+                .contentView(layout, 0)
+                .dismissOnInsideTouch(false)
+                .modal(true)
+                .build()
+                .show()
     }
 
     private fun displayDefinition(definitionId: Int){
@@ -191,16 +233,19 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     private fun linkToArticleView(articleId: Int): TextView {
         val textView = TextView(this)
-        val text = SpannableString("\nMontri artikolon\n")
+        val text = SpannableString("\nMontri artikolon \n")
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
+        text.setSpan(object: StyledClickableSpan(this) {
+            override fun onClick(p0: View?) {
+                val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
+                intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
+                startActivity(intent)
+            }
+
+        }, 1, text.length - 2, 0)
         textView.text = text
-        textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary))
+        textView.movementMethod = LinkMovementMethod.getInstance()
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
-        textView.setOnClickListener {
-            val intent = Intent(this, DefinitionActivity::class.java)
-            intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
-            startActivity(intent)
-        }
         return textView
     }
 

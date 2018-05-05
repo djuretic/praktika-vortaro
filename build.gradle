@@ -19,6 +19,8 @@ allprojects {
     repositories {
         google()
         jcenter()
+        // for android-simple-tooltip
+        maven { url "https://jitpack.io" }
     }
 }
 
