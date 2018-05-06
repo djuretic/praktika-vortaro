@@ -141,15 +141,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     val results = databaseHelper.searchWords(possibleWord, true)
                     if(results.isNotEmpty()){
                         return results[0]
-                        // TODO button to open definition in new activity
-                        /*val intent = Intent(context, DefinitionActivity::class.java)
-                        if(result.id > 0) {
-                            intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
-                            intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
-                            intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
-                            context.startActivity(intent)
-                        }
-                        */
                     }
                 }
             } finally {
@@ -170,7 +161,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     private fun showTooltip(result: SearchResult) {
         val textView = DefinitionTextView(this)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize() - 2)
+        val textSize = getTextSize() - 2
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setResult(result, LinkedHashMap(), HashMap())
 
         class OnViewGlobalLayoutListener(val view: View): ViewTreeObserver.OnGlobalLayoutListener {
@@ -181,22 +173,48 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             }
         }
 
-        val layout =  ScrollView(this)
-        layout.addView(textView)
-        layout.viewTreeObserver.addOnGlobalLayoutListener(OnViewGlobalLayoutListener(layout))
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        val clickView = TextView(this)
+        clickView.movementMethod = LinkMovementMethod.getInstance()
+        clickView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        val showLink = SpannableString("Montri")
 
         val tooltipBgColor = ContextCompat.getColor(this, R.color.colorTooltip)
         layout.setBackgroundColor(tooltipBgColor)
-
-        SimpleTooltip.Builder(this)
+        val tooltip = SimpleTooltip.Builder(this)
                 .anchorView(dummyView)
                 .backgroundColor(tooltipBgColor)
                 .arrowColor(tooltipBgColor)
                 .contentView(layout, 0)
                 .dismissOnInsideTouch(false)
+                .animated(false)
                 .modal(true)
                 .build()
-                .show()
+        showLink.setSpan(object: StyledClickableSpan(this) {
+            override fun onClick(p0: View?) {
+                val intent = Intent(context, DefinitionActivity::class.java)
+                if(result.id > 0) {
+                    intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
+                    intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
+                    intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
+                    context.startActivity(intent)
+                    tooltip.dismiss()
+                }
+            }
+        }, 0, showLink.length, 0)
+        showLink.setSpan(StyleSpan(Typeface.BOLD), 0, showLink.length, 0)
+        clickView.text = showLink
+
+        val scrollView = ScrollView(this)
+
+        layout.addView(scrollView)
+        layout.addView(clickView)
+
+        scrollView.addView(textView)
+        scrollView.viewTreeObserver.addOnGlobalLayoutListener(OnViewGlobalLayoutListener(scrollView))
+
+        tooltip.show()
     }
 
     private fun displayDefinition(definitionId: Int){
