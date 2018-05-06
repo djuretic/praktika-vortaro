@@ -89,6 +89,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
         constraintSet.connect(R.id.dummyView, ConstraintSet.TOP, R.id.appToolbar, ConstraintSet.BOTTOM, motionEvent.y.toInt())
+        // api >= 17
+        constraintSet.connect(R.id.dummyView, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, motionEvent.x.toInt())
+        // api < 17
         constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.x.toInt())
         constraintSet.applyTo(constraintLayout)
 
@@ -134,6 +137,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     val results = databaseHelper.searchWords(possibleWord, true)
                     if(results.isNotEmpty()){
                         return results[0]
+                        // TODO button to open definition in new activity
                         /*val intent = Intent(context, DefinitionActivity::class.java)
                         if(result.id > 0) {
                             intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
@@ -162,15 +166,15 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     private fun showTooltip(result: SearchResult) {
         val textView = DefinitionTextView(this)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize() - 2)
         textView.setResult(result, LinkedHashMap(), HashMap())
 
         class OnViewGlobalLayoutListener(val view: View): ViewTreeObserver.OnGlobalLayoutListener {
-            private val maxHeight = 400
+            private val maxHeight = 500
             override fun onGlobalLayout() {
                 if(view.height > maxHeight)
                     view.layoutParams.height = maxHeight
             }
-
         }
 
         val layout =  ScrollView(this)
@@ -226,7 +230,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    fun getTextSize(): Float{
+    private fun getTextSize(): Float{
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
         return sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE).toFloat()
     }
