@@ -28,6 +28,9 @@ class UtilsTest {
         Assert.assertEquals(arrayListOf("amikoj", "amiko"), Utils.getPossibleBaseWords("amikoj"))
         Assert.assertEquals(arrayListOf("amikajn", "amikaj", "amika"), Utils.getPossibleBaseWords("amikajn"))
 
+        Assert.assertEquals(arrayListOf("ilin", "ili"), Utils.getPossibleBaseWords("ilin"))
+        Assert.assertEquals(arrayListOf("tien", "tie"), Utils.getPossibleBaseWords("tien"))
+
         Assert.assertEquals(arrayListOf("ajn"), Utils.getPossibleBaseWords("ajn"))
         Assert.assertEquals(arrayListOf("ion", "io"), Utils.getPossibleBaseWords("ion"))
         Assert.assertEquals(arrayListOf("iun", "iu"), Utils.getPossibleBaseWords("iun"))
@@ -37,5 +40,6 @@ class UtilsTest {
     fun testGetPossibleBaseWordsVerbs(){
         Assert.assertEquals(arrayListOf("vidas", "vidi"), Utils.getPossibleBaseWords("vidas"))
         Assert.assertEquals(arrayListOf("vidanta", "vidi"), Utils.getPossibleBaseWords("vidanta"))
+        Assert.assertEquals(arrayListOf("vidu", "vidi"), Utils.getPossibleBaseWords("vidu"))
     }
 }

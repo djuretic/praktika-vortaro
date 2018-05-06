@@ -67,18 +67,17 @@ object Utils {
             words.add(word.substring(0 until word.length - 1))
             words.add(word.substring(0 until word.length - 2))
         } else if(word.endsWith("oj") || word.endsWith("aj") ||
-                word.endsWith("on") || word.endsWith("an")){
+                word.endsWith("n")){
             words.add(word.substring(0 until word.length - 1))
         }
 
-        if(word.length >= 5){
-            val verbEndings = arrayListOf("as", "is", "os", "us", "anta", "inta", "onta", "ata", "ita", "ota")
-            for(ending in verbEndings){
-                if(word.endsWith(ending)){
-                    words.add(word.substring(0 until word.length - ending.length)+ "i")
-                }
+        val verbEndings = arrayListOf("as", "is", "os", "us", "anta", "inta", "onta", "ante", "ata", "ita", "ota", "u")
+        for(ending in verbEndings){
+            if(word.endsWith(ending) && word != ending){
+                words.add(word.substring(0 until word.length - ending.length)+ "i")
             }
         }
+
 
         return words
     }
