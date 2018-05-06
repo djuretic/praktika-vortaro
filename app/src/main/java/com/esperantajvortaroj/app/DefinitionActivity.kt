@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.AsyncTask
 import android.os.Bundle
@@ -86,13 +87,16 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val line = layout.getLineForVertical(motionEvent.y.toInt())
         val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
 
+        val scrollViewRect = Rect()
+        definitionScrollView.getGlobalVisibleRect(scrollViewRect)
+
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
-        constraintSet.connect(R.id.dummyView, ConstraintSet.TOP, R.id.appToolbar, ConstraintSet.BOTTOM, motionEvent.y.toInt())
+        constraintSet.connect(R.id.dummyView, ConstraintSet.TOP, R.id.appToolbar, ConstraintSet.BOTTOM, motionEvent.rawY.toInt() - scrollViewRect.top)
         // api >= 17
-        constraintSet.connect(R.id.dummyView, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, motionEvent.x.toInt())
+        constraintSet.connect(R.id.dummyView, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, motionEvent.rawX.toInt() - scrollViewRect.left)
         // api < 17
-        constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.x.toInt())
+        constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.rawX.toInt() - scrollViewRect.left)
         constraintSet.applyTo(constraintLayout)
 
         // don't interfere with ClickableSpan
