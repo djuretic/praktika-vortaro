@@ -19,6 +19,7 @@ import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
@@ -36,6 +37,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     private var touchedView: View? = null
     private var gestureDetector: GestureDetectorCompat? = null
+    private var tapTooDown = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +100,10 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         // api < 17
         constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.rawX.toInt() - scrollViewRect.left)
         constraintSet.applyTo(constraintLayout)
+
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        tapTooDown = motionEvent.rawY >= displayMetrics.heightPixels*2/3
 
         // don't interfere with ClickableSpan
         val clickableSpans = (view.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
@@ -165,14 +171,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setResult(result, LinkedHashMap(), HashMap())
 
-        class OnViewGlobalLayoutListener(val view: View): ViewTreeObserver.OnGlobalLayoutListener {
-            private val maxHeight = 500
-            override fun onGlobalLayout() {
-                if(view.height > maxHeight)
-                    view.layoutParams.height = maxHeight
-            }
-        }
-
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         val clickView = TextView(this)
@@ -188,6 +186,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                 .arrowColor(tooltipBgColor)
                 .contentView(layout, 0)
                 .dismissOnInsideTouch(false)
+                .gravity(if(tapTooDown) Gravity.TOP else Gravity.BOTTOM)
                 .animated(false)
                 .modal(true)
                 .build()
@@ -207,12 +206,11 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         clickView.text = showLink
 
         val scrollView = ScrollView(this)
+        scrollView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 310)
 
         layout.addView(scrollView)
         layout.addView(clickView)
-
         scrollView.addView(textView)
-        scrollView.viewTreeObserver.addOnGlobalLayoutListener(OnViewGlobalLayoutListener(scrollView))
 
         tooltip.show()
     }
