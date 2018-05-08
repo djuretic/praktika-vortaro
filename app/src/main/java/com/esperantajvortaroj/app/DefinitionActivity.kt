@@ -176,7 +176,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val clickView = TextView(this)
         clickView.movementMethod = LinkMovementMethod.getInstance()
         clickView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
-        val showLink = SpannableString("Montri")
+        val showLink = SpannableString("Montri ")
 
         val tooltipBgColor = ContextCompat.getColor(this, R.color.colorTooltip)
         layout.setBackgroundColor(tooltipBgColor)
@@ -201,7 +201,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     tooltip.dismiss()
                 }
             }
-        }, 0, showLink.length, 0)
+        }, 0, showLink.length - 1, 0)
         showLink.setSpan(StyleSpan(Typeface.BOLD), 0, showLink.length, 0)
         clickView.text = showLink
 
@@ -389,8 +389,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                                       translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
                                       langNames: HashMap<String, String>): DefinitionTextView {
         val textView = DefinitionTextView(this)
-        textView.onClickFako = { fako -> showDisciplineDialog(fako) }
-        textView.onClikStilo = { stilo -> showStyleDialog(stilo)}
+        textView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
+        textView.onClikStilo = { stilo -> DialogBuilder.showStyleDialog(this, stilo)}
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
         textView.setResult(definitionResult, translationsByLang, langNames)
         return textView
@@ -409,37 +409,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
         return translationsByLang
     }
-
-    private fun showDisciplineDialog(code: String) {
-        val databaseHelper = DatabaseHelper(this)
-        val description = databaseHelper.getDiscipline(code)
-        val builder = AlertDialog.Builder(this)
-        val dialog = builder.setMessage(description).setTitle(code)
-                .setPositiveButton(R.string.close_dialog, null)
-                .create()
-        dialog.show()
-    }
-
-    private fun showStyleDialog(code: String) {
-        val styles = hashMapOf(
-            "FRAZ" to "frazaĵo",
-            "FIG" to "figure",
-            "VULG" to "vulgare",
-            "RAR" to "malofte",
-            "POE" to "poezie",
-            "ARK" to "arkaismo",
-            "EVI" to "evitinde",
-            "KOMUNE" to "komune",
-            "NEO" to "neologismo"
-        )
-        val description = styles.get(code.trim()) ?: code
-        val builder = AlertDialog.Builder(this)
-        val dialog = builder.setMessage(description).setTitle(code)
-                .setPositiveButton(R.string.close_dialog, null)
-                .create()
-        dialog.show()
-    }
-
 
     companion object {
         const val DEFINITION_ID = "definition_id"
