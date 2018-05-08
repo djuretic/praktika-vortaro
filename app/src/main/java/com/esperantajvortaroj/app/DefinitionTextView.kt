@@ -8,13 +8,17 @@ import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import android.util.AttributeSet
 import android.widget.TextView
 
-class DefinitionTextView(context: Context) : TextView(context) {
+class DefinitionTextView : TextView {
     var onClickFako: (fako: String) -> Unit = {}
     var onClikStilo: (stilo: String) -> Unit = {}
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
+
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet) :  super(context, attrs)
 
     fun setResult(definitionResult: SearchResult?,
                   translationsByLang: LinkedHashMap<String, List<TranslationResult>>,

@@ -1,7 +1,6 @@
 package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -166,20 +165,19 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun showTooltip(result: SearchResult) {
-        val textView = DefinitionTextView(this)
         val textSize = getTextSize() - 2
+
+        val layout = layoutInflater.inflate(R.layout.tooltip_definition, null)
+        val textView = layout.findViewById<DefinitionTextView>(R.id.tooltipDefinition)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         textView.setResult(result, LinkedHashMap(), HashMap())
 
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        val clickView = TextView(this)
+        val clickView = layout.findViewById<TextView>(R.id.tooltipBottomActions)
         clickView.movementMethod = LinkMovementMethod.getInstance()
         clickView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
         val showLink = SpannableString("Montri ")
 
         val tooltipBgColor = ContextCompat.getColor(this, R.color.colorTooltip)
-        layout.setBackgroundColor(tooltipBgColor)
         val tooltip = SimpleTooltip.Builder(this)
                 .anchorView(dummyView)
                 .backgroundColor(tooltipBgColor)
@@ -204,14 +202,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }, 0, showLink.length - 1, 0)
         showLink.setSpan(StyleSpan(Typeface.BOLD), 0, showLink.length, 0)
         clickView.text = showLink
-
-        val scrollView = ScrollView(this)
-        scrollView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 310)
-
-        layout.addView(scrollView)
-        layout.addView(clickView)
-        scrollView.addView(textView)
-
         tooltip.show()
     }
 
