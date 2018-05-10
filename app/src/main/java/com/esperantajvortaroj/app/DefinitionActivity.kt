@@ -22,7 +22,6 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
@@ -37,6 +36,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var touchedView: View? = null
     private var gestureDetector: GestureDetectorCompat? = null
     private var tapTooDown = false
+    private var tooltipVisible = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,14 +74,17 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if(motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN)
+        if(motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN){
             touchedView = view
+        }
+
         return gestureDetector?.onTouchEvent(motionEvent) ?: false
     }
 
     fun onSingleTap(motionEvent: MotionEvent?): Boolean{
         val view = touchedView
-        if(view == null || view !is TextView || motionEvent == null){
+        if(view == null || view !is TextView || motionEvent == null || tooltipVisible){
+            tooltipVisible = false
             return false
         }
         val layout = view.layout
@@ -197,11 +200,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
                     context.startActivity(intent)
                     tooltip.dismiss()
+                    tooltipVisible = false
                 }
             }
         }, 0, showLink.length - 1, 0)
         showLink.setSpan(StyleSpan(Typeface.BOLD), 0, showLink.length, 0)
         clickView.text = showLink
+        tooltipVisible = true
         tooltip.show()
     }
 
