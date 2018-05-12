@@ -26,6 +26,10 @@ android {
     }
 }
 
+preBuild.doFirst {
+    assert file("./src/main/assets/databases/vortaro.db").size() > 0
+}
+
 afterEvaluate {
     android.sourceSets.all { sourceSet ->
         if (!sourceSet.name.startsWith('test') || !sourceSet.name.startsWith('androidTest')) {
