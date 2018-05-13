@@ -25,13 +25,15 @@
 
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appToolbar"/>
+        app:layout_constraintTop_toBottomOf="@+id/appToolbar"
+        app:layout_constraintBottom_toTopOf="@id/languagesListView"/>
 
     <ListView
         android:id="@+id/languagesListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/explanation" />
+        app:layout_constraintTop_toBottomOf="@+id/explanation"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </android.support.constraint.ConstraintLayout>
