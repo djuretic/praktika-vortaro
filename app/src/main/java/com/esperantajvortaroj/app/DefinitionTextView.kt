@@ -35,7 +35,7 @@ class DefinitionTextView : TextView {
             content = TextUtils.concat(headword, "\n", definition)
         }
         content = addTranslations(content, translationsByLang, langNames)
-        this.text = TextUtils.concat(content, "\n")
+        this.text = content
         return content
     }
 
