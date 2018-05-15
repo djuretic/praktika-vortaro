@@ -292,6 +292,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        tooltipVisible = false
         when (item?.itemId) {
             R.id.prev_entry -> {
                 if(entryPosition == 0){
