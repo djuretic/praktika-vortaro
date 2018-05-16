@@ -7,6 +7,7 @@ import android.text.SpannableString
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.view.View
 
 data class SearchResult(
@@ -20,6 +21,7 @@ data class SearchResult(
             applyFormat(def, format.bold, { arrayOf(StyleSpan(Typeface.BOLD))} )
             applyFormat(def, format.italic, {arrayOf(StyleSpan(Typeface.ITALIC))})
             applyFormat(def, format.ekz, {arrayOf(StyleSpan(Typeface.ITALIC), ForegroundColorSpan(Color.GRAY))})
+            applyFormat(def, format.tld, { arrayOf(UnderlineSpan())} )
 
             if(context != null) {
                 for (pair in format.fako) {
