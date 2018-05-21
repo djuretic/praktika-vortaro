@@ -173,7 +173,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val layout = layoutInflater.inflate(R.layout.tooltip_definition, null)
         val textView = layout.findViewById<DefinitionTextView>(R.id.tooltipDefinition)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
-        textView.setResult(result, LinkedHashMap(), HashMap())
+        textView.setResult(result, LinkedHashMap(), HashMap(), showLinks = false)
 
         val clickView = layout.findViewById<TextView>(R.id.tooltipBottomActions)
         clickView.movementMethod = LinkMovementMethod.getInstance()

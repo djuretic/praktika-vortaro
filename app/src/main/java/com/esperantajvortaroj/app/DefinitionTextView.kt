@@ -22,7 +22,7 @@ class DefinitionTextView : TextView {
 
     fun setResult(definitionResult: SearchResult?,
                   translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
-                  langNames: HashMap<String, String>): CharSequence{
+                  langNames: HashMap<String, String>, showLinks:Boolean = true): CharSequence{
         var content : CharSequence = ""
         setTextColor(Color.BLACK)
 
@@ -31,7 +31,7 @@ class DefinitionTextView : TextView {
         if (definitionResult != null) {
             headword = SpannableString(definitionResult.word)
             headword.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
-            definition = definitionResult.formattedDefinition(context, onClickFako, onClikStilo)
+            definition = definitionResult.formattedDefinition(if(showLinks) context else null, onClickFako, onClikStilo)
             content = TextUtils.concat(headword, "\n", definition)
         }
         content = addTranslations(content, translationsByLang, langNames)
