@@ -32,7 +32,7 @@ object Utils {
         return res
     }
 
-    fun getWholeWord(text: CharSequence, position: Int): String? {
+    fun getWholeWord(text: CharSequence, position: Int): WholeWordResult? {
         val boundaries = " \n:;;.,•?!()[]{}'\""
         if (position >= text.length || text[position] in boundaries) return null
         var firstPos = position
@@ -50,7 +50,7 @@ object Utils {
             }
             lastPos = i
         }
-        return text.substring(firstPos..lastPos)
+        return WholeWordResult(text.substring(firstPos..lastPos), firstPos, lastPos)
     }
 
     fun getPossibleBaseWords(word: CharSequence): List<String> {
@@ -82,3 +82,5 @@ object Utils {
         return words
     }
 }
+
+data class WholeWordResult(val word: String?, val start: Int, val end: Int)

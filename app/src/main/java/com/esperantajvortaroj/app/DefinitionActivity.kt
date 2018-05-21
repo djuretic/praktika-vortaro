@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.AsyncTask
@@ -16,8 +17,7 @@ import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.text.style.StyleSpan
+import android.text.style.*
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.*
@@ -37,6 +37,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var gestureDetector: GestureDetectorCompat? = null
     private var tapTooDown = false
     private var tooltipVisible = false
+    /* Used to highlight selected word when showing the tooltip */
+    private var highlightSpans: Pair<SpannableString, ArrayList<CharacterStyle>>? = null
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +86,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     fun onSingleTap(motionEvent: MotionEvent?): Boolean{
         val view = touchedView
         if(view == null || view !is TextView || motionEvent == null || tooltipVisible){
+            cancelHighlightWord()
             tooltipVisible = false
             return false
         }
@@ -108,18 +111,20 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         tapTooDown = motionEvent.rawY >= displayMetrics.heightPixels*2/3
 
         // don't interfere with ClickableSpan
-        val clickableSpans = (view.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
+        val spanText = view.text as SpannableString
+        val clickableSpans = spanText.getSpans(offset, offset, ClickableSpan::class.java)
+        highlightSpans = Pair(spanText, ArrayList())
         if(clickableSpans.isNotEmpty()){
             return false
         }
 
         progressBar.visibility = View.VISIBLE
 
-        val word = Utils.getWholeWord(view.text, offset)
-        if(word == null){
+        val wholeWordResult = Utils.getWholeWord(view.text, offset)
+        if(wholeWordResult?.word == null){
             progressBar.visibility = View.GONE
         } else {
-            SearchWordTask(this).execute(word)
+            SearchWordTask(this).execute(wholeWordResult)
         }
         return true
     }
@@ -134,13 +139,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         progressBar.visibility = View.GONE
     }
 
-    private class SearchWordTask(val context: DefinitionActivity) : AsyncTask<String, Void, SearchResult?>() {
-        var baseWord: String? = null
+    private class SearchWordTask(val context: DefinitionActivity) : AsyncTask<WholeWordResult, Void, SearchResult?>() {
+        var baseWord: WholeWordResult? = null
 
-        override fun doInBackground(vararg params: String?): SearchResult? {
+        override fun doInBackground(vararg params: WholeWordResult?): SearchResult? {
             if(params.isEmpty()) return null
-            val word = params[0] ?: return null
-            baseWord = word
+            val word = params[0]?.word ?: return null
+            baseWord = params[0]
 
             val words = Utils.getPossibleBaseWords(word)
             val databaseHelper = DatabaseHelper(context)
@@ -159,15 +164,35 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
         override fun onPostExecute(result: SearchResult?) {
             if(result == null){
-                Toast.makeText(context, "Vorto '$baseWord' ne trovita", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Vorto '${baseWord?.word}' ne trovita", Toast.LENGTH_SHORT).show()
             } else {
-                context.showTooltip(result)
+                context.showTooltip(baseWord, result)
             }
             context.hideProgressBar()
         }
     }
 
-    private fun showTooltip(result: SearchResult) {
+    private fun highlightWord(wholeWordResult: WholeWordResult){
+        var highSpan = highlightSpans
+        if(highSpan == null) return
+        val color = ContextCompat.getColor(this, R.color.colorPrimary)
+        val backColorSpan = BackgroundColorSpan(color)
+        val foreColorSpan = ForegroundColorSpan(Color.WHITE)
+        highSpan.second.add(backColorSpan)
+        highSpan.second.add(foreColorSpan)
+        highSpan.first.setSpan(backColorSpan, wholeWordResult.start, wholeWordResult.end + 1, 0)
+        highSpan.first.setSpan(foreColorSpan, wholeWordResult.start, wholeWordResult.end + 1, 0)
+    }
+
+    private fun cancelHighlightWord(){
+        var highSpan = highlightSpans
+        if(highSpan == null) return
+        highSpan.second.forEach { highSpan.first.removeSpan(it) }
+    }
+
+    private fun showTooltip(wholeWordResult: WholeWordResult?, result: SearchResult) {
+        if(wholeWordResult == null) return
+        highlightWord(wholeWordResult)
         val textSize = getTextSize() - 2
 
         val layout = layoutInflater.inflate(R.layout.tooltip_definition, null)
@@ -200,6 +225,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
                     context.startActivity(intent)
                     tooltip.dismiss()
+                    cancelHighlightWord()
                     tooltipVisible = false
                 }
             }
@@ -293,6 +319,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         tooltipVisible = false
+        cancelHighlightWord()
         when (item?.itemId) {
             R.id.prev_entry -> {
                 if(entryPosition == 0){
