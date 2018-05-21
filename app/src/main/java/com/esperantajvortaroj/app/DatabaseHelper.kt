@@ -109,13 +109,14 @@ class DatabaseHelper : SQLiteAssetHelper {
 
     fun translationsByDefinitionId(definitionId: Int, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
-        val cursor = readableDatabase.query("translations_$lng", arrayOf("word", "translation"),
-                "definition_id = ?", arrayOf(""+definitionId), null, null, null)
+        val cursor = readableDatabase.query("translations_$lng", arrayOf("word", "translation", "snc_index"),
+                "definition_id = ?", arrayOf(""+definitionId), null, null, "snc_index")
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val word = cursor.getString(cursor.getColumnIndex("word"))
             val translation = cursor.getString(cursor.getColumnIndex("translation"))
-            val res = TranslationResult(word, lng, translation)
+            val sncIndex = cursor.getInt(cursor.getColumnIndex("snc_index"))
+            val res = TranslationResult(word, lng, translation, sncIndex)
             results.add(res)
             cursor.moveToNext()
         }
@@ -226,4 +227,4 @@ data class StringFormat(
     }
 }
 
-data class TranslationResult(val word: String, val lng: String, val translation: String)
+data class TranslationResult(val word: String, val lng: String, val translation: String, val sncIndex: Int)
