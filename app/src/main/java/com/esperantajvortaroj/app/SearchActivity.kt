@@ -111,6 +111,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateBottomPart(enteredText: Boolean, resultsCount: Int) {
+        searchResults.setSelection(0)
         if(isSearching){
             progressBarSearch.visibility = View.VISIBLE
             noResultsFound.visibility = View.GONE
