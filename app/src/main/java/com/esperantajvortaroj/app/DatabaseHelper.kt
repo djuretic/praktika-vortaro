@@ -168,7 +168,6 @@ class DatabaseHelper : SQLiteAssetHelper {
         var italic = emptyList<Pair<Int, Int>>()
         var ekz = emptyList<Pair<Int, Int>>()
         var fako = emptyList<Pair<Int, Int>>()
-        var stilo = emptyList<Pair<Int, Int>>()
         var tld = emptyList<Pair<Int, Int>>()
         for (line in sections){
             if(line.isEmpty()){
@@ -184,12 +183,11 @@ class DatabaseHelper : SQLiteAssetHelper {
                 "bold" -> bold = list
                 "ekz" -> ekz = list
                 "fako" -> fako = list
-                "stilo" -> stilo = list
                 "tld" -> tld = list
             }
         }
 
-        return StringFormat(italic, bold, ekz, fako, stilo, tld)
+        return StringFormat(italic, bold, ekz, fako, tld)
     }
 
     fun getDiscipline(code: String): String {
@@ -219,10 +217,10 @@ data class Language(val code: String, val name: String, val numEntries: Int)
 data class StringFormat(
         val italic: List<Pair<Int, Int>>, val bold: List<Pair<Int, Int>>,
         val ekz: List<Pair<Int, Int>>, val fako: List<Pair<Int, Int>>,
-        val stilo: List<Pair<Int, Int>>, val tld: List<Pair<Int, Int>>) {
+        val tld: List<Pair<Int, Int>>) {
     companion object {
         fun empty(): StringFormat {
-            return StringFormat(emptyList(), emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
+            return StringFormat(emptyList(), emptyList(), emptyList(), emptyList(), emptyList())
         }
     }
 }

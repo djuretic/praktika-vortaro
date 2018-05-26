@@ -14,8 +14,7 @@ data class SearchResult(
         val id: Int, val articleId: Int?, val word: String, val definition: String, val format: StringFormat?) {
 
     fun formattedDefinition(context: Context?,
-                            fakoCallback: (fako: String) -> Unit = {},
-                            stiloCallback: (stilo: String) -> Unit = {}): SpannableString {
+                            fakoCallback: (fako: String) -> Unit = {}): SpannableString {
         val def = SpannableString(definition)
         if(format != null){
             applyFormat(def, format.bold, { arrayOf(StyleSpan(Typeface.BOLD))} )
@@ -28,14 +27,6 @@ data class SearchResult(
                     def.setSpan(object : StyledClickableSpan(context) {
                         override fun onClick(view: View?) {
                             fakoCallback(def.substring(pair.first..pair.second))
-                        }
-                    }, pair.first, pair.second, 0)
-                }
-
-                for (pair in format.stilo) {
-                    def.setSpan(object : StyledClickableSpan(context) {
-                        override fun onClick(view: View?) {
-                            stiloCallback(def.substring(pair.first..pair.second))
                         }
                     }, pair.first, pair.second, 0)
                 }

@@ -13,7 +13,6 @@ import android.widget.TextView
 
 class DefinitionTextView : TextView {
     var onClickFako: (fako: String) -> Unit = {}
-    var onClikStilo: (stilo: String) -> Unit = {}
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
 
@@ -31,7 +30,7 @@ class DefinitionTextView : TextView {
         if (definitionResult != null) {
             headword = SpannableString(definitionResult.word)
             headword.setSpan(StyleSpan(Typeface.BOLD), 0, definitionResult.word.length, 0)
-            definition = definitionResult.formattedDefinition(if(showLinks) context else null, onClickFako, onClikStilo)
+            definition = definitionResult.formattedDefinition(if(showLinks) context else null, onClickFako)
             content = TextUtils.concat(headword, "\n", definition)
         }
         content = addTranslations(content, translationsByLang, langNames)

@@ -386,7 +386,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                                       langNames: HashMap<String, String>): DefinitionTextView {
         val textView = DefinitionTextView(this)
         textView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
-        textView.onClikStilo = { stilo -> DialogBuilder.showStyleDialog(this, stilo)}
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
         textView.setResult(definitionResult, translationsByLang, langNames)
         return textView
