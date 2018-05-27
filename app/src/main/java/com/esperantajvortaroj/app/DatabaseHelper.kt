@@ -18,7 +18,11 @@ class DatabaseHelper : SQLiteAssetHelper {
     fun searchWords(searchString: String, exact: Boolean = false) : ArrayList<SearchResult> {
         var sanitizedString = searchString.replace("%", "")
         if(!exact){
-            sanitizedString = "$sanitizedString%"
+            if(sanitizedString.contains('*')){
+               sanitizedString = sanitizedString.replace("*", "%")
+            } else {
+                sanitizedString = "$sanitizedString%"
+            }
         }
         val db = readableDatabase
         val cursor = db.rawQuery("""
@@ -45,13 +49,19 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
     fun searchTranslations(searchString: String, language: String): ArrayList<SearchResult> {
+        var sanitizedString = searchString
+        if(searchString.contains('*')){
+            sanitizedString = sanitizedString.replace("*", "%")
+        } else {
+            sanitizedString = "$sanitizedString%"
+        }
         val db = readableDatabase
         val cursor = db.rawQuery("""
             SELECT definition_id, word, translation
             FROM translations_$language
             WHERE translation LIKE ?
             ORDER BY id
-            LIMIT 50""", arrayOf(searchString+"%"))
+            LIMIT 50""", arrayOf(sanitizedString))
         val result = arrayListOf<SearchResult>()
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
