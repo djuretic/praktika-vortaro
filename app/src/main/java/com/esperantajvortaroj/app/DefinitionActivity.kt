@@ -392,8 +392,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, definitionId: Int): LinkedHashMap<String, List<TranslationResult>> {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+        val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
 
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {

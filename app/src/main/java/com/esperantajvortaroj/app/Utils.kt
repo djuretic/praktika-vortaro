@@ -81,4 +81,14 @@ object Utils {
 
         return words
     }
+
+    fun languageName(langHash: HashMap<String, String>, langCode: String?): String{
+        if(langCode == null)
+            return ""
+
+        if(langCode == "eo"){
+            return "esperanto"
+        }
+        return "la " + langHash.get(langCode)
+    }
 }

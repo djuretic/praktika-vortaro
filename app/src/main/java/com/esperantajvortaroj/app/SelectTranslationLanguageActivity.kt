@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -36,8 +35,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         listView.itemsCanFocus = true
 
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+        val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
 
         val adapter = LanguageAdapter(this, allLangs, langPrefs)
         listView.adapter = adapter
@@ -45,16 +43,14 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         listView.onItemClickListener = AdapterView.OnItemClickListener { parent, item, position, _ ->
             val lang = adapter.getItem(position) as Language
             if(item != null && item is CheckedTextView && parent is ListView){
-                val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+                val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
                 val copyLangPrefs = langPrefs.toHashSet()
                 if(parent.isItemChecked(position)) {
                     copyLangPrefs.add(lang.code)
                 } else {
                     copyLangPrefs.remove(lang.code)
                 }
-                val editor = sharedPref.edit()
-                editor.putStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, copyLangPrefs)
-                editor.apply()
+                PreferenceHelper.putStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE, copyLangPrefs)
                 adapter.langPrefs = copyLangPrefs
             }
         }
@@ -79,7 +75,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
     }
 
 
-    class LanguageAdapter(context: Context, items: ArrayList<Language>, var langPrefs: MutableSet<String>)
+    class LanguageAdapter(context: Context, items: ArrayList<Language>, var langPrefs: Set<String>)
         : ArrayAdapter<Language>(context, android.R.layout.simple_list_item_multiple_choice, items){
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {

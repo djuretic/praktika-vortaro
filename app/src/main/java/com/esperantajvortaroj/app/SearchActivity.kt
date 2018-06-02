@@ -3,7 +3,6 @@ package com.esperantajvortaroj.app
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -24,7 +23,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter : SearchResultAdapter? = null
     private val ESPERANTO = "eo"
-    private val ACTIVE_LANGUAGE = "active_language"
     private var activeLanguage = ESPERANTO
     private var searchView: SearchView? = null
     private var isSearching = false
@@ -42,13 +40,13 @@ class SearchActivity : AppCompatActivity() {
         searchResults.adapter = searchAdapter
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        activeLanguage = sharedPref.getString(ACTIVE_LANGUAGE, ESPERANTO)
+        activeLanguage = PreferenceHelper.getString(this, SettingsActivity.ACTIVE_LANGUAGE, ESPERANTO)
 
-        versionChecks(sharedPref)
+        versionChecks()
     }
 
-    private fun versionChecks(sharedPref: SharedPreferences) {
+    private fun versionChecks() {
+        val sharedPref = PreferenceHelper.defaultSharedPreferences(this)
         val versionCode = sharedPref.getInt(SettingsActivity.VERSION_CODE, 0)
         if (versionCode == 0){
             // first run
@@ -110,7 +108,7 @@ class SearchActivity : AppCompatActivity() {
         return true
     }
 
-    private fun updateBottomPart(enteredText: Boolean, resultsCount: Int) {
+    private fun updateBottomPart(enteredText: Boolean, resultsCount: Int, originalLang: String? = null, usedLang: String? = null) {
         searchResults.setSelection(0)
         if(isSearching){
             progressBarSearch.visibility = View.VISIBLE
@@ -122,11 +120,24 @@ class SearchActivity : AppCompatActivity() {
         if(!enteredText){
             noResultsFound.visibility = View.GONE
             searchResults.visibility = View.GONE
-        } else if(resultsCount == 0){
+        } else if(resultsCount == 0) {
             noResultsFound.visibility = View.VISIBLE
             searchResults.visibility = View.GONE
         } else {
-            noResultsFound.visibility = View.GONE
+            if(usedLang == null){
+                noResultsFound.text = resources.getString(R.string.no_results_found)
+                noResultsFound.visibility = View.GONE
+            } else {
+                val databaseHelper = DatabaseHelper(this)
+                val langHash = databaseHelper.getLanguagesHash()
+                databaseHelper.close()
+                noResultsFound.text = resources.getString(
+                        R.string.results_found_in_another_language,
+                        Utils.languageName(langHash, originalLang),
+                        Utils.languageName(langHash, usedLang))
+                noResultsFound.visibility = View.VISIBLE
+            }
+
             searchResults.visibility = View.VISIBLE
         }
     }
@@ -139,8 +150,7 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.change_search_language -> {
-                val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-                val langPrefs = sharedPref.getStringSet(SettingsActivity.KEY_LANGUAGES_PREFERENCE, null)
+                val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
 
                 if(activeLanguage == ESPERANTO && !langPrefs.isEmpty()){
                     activeLanguage = langPrefs.elementAt(0)
@@ -157,9 +167,7 @@ class SearchActivity : AppCompatActivity() {
                 }
                 updateSearchQueryHint()
 
-                val edit = sharedPref.edit()
-                edit.putString(ACTIVE_LANGUAGE, activeLanguage)
-                edit.apply()
+                PreferenceHelper.putString(this, SettingsActivity.ACTIVE_LANGUAGE, activeLanguage)
 
                 item.title = activeLanguage
                 val searchView = this.searchView
@@ -253,28 +261,48 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private class SearchTask(val context: Context, val adapter: SearchResultAdapter, val language: String)
-        : AsyncTask<String, Void, ArrayList<SearchResult>>(){
+        : AsyncTask<String, Void, SearchResultStatus>(){
 
-        override fun doInBackground(vararg params: String?): ArrayList<SearchResult> {
-            var results = ArrayList<SearchResult>()
-            if(params.isEmpty()) return results
-            val searchString = params[0] ?: return results
+        override fun doInBackground(vararg params: String?): SearchResultStatus {
+            val result = SearchResultStatus(ArrayList(), language, null)
+            if(params.isEmpty()) return result
+            val searchString = params[0] ?: return result
 
             val databaseHelper = DatabaseHelper(context)
             try{
-                if(language == "eo"){
-                    results = databaseHelper.searchWords(searchString)
-                } else {
-                    results = databaseHelper.searchTranslations(searchString, language)
+                result.results = doSearch(databaseHelper, searchString, language)
+                // try with other languages
+                if(result.results.isEmpty()){
+                    val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+                    val mutableLangPrefs = LinkedHashSet<String>(langPrefs)
+                    if(language != "eo")
+                        mutableLangPrefs.add("eo")
+                    else
+                        mutableLangPrefs.remove(language)
+                    for(lang in mutableLangPrefs){
+                        result.results = doSearch(databaseHelper, searchString, lang)
+                        if(result.results.isNotEmpty()) {
+                            result.usedLang = lang
+                            return result
+                        }
+                    }
                 }
             } finally {
                 databaseHelper.close()
             }
 
-            return results
+            return result
         }
 
-        override fun onPostExecute(results: ArrayList<SearchResult>?) {
+        fun doSearch(databaseHelper: DatabaseHelper, searchString: String, lang: String): ArrayList<SearchResult>{
+            if(lang == "eo"){
+                return databaseHelper.searchWords(searchString)
+            } else {
+                return databaseHelper.searchTranslations(searchString, lang)
+            }
+        }
+
+        override fun onPostExecute(results: SearchResultStatus?) {
             if(results == null) return
             adapter.receiveDataSet(results)
         }
@@ -294,8 +322,8 @@ class SearchActivity : AppCompatActivity() {
 
         }
 
-        fun receiveDataSet(receivedResults: ArrayList<SearchResult>) {
-            results = receivedResults
+        fun receiveDataSet(receivedResults: SearchResultStatus) {
+            results = receivedResults.results
             if(results.count() > 0)
                 notifyDataSetChanged()
             else
@@ -303,7 +331,9 @@ class SearchActivity : AppCompatActivity() {
             val searchString = this.searchString
             val activity = context as SearchActivity
             activity.isSearching = false
-            activity.updateBottomPart(searchString != null && !searchString.isEmpty(), results.count())
+            activity.updateBottomPart(
+                    searchString != null && !searchString.isEmpty(),
+                    results.count(), receivedResults.originalLang, receivedResults.usedLang)
         }
 
         override fun getCount() = results.size
@@ -359,3 +389,4 @@ class SearchActivity : AppCompatActivity() {
     }
 }
 
+data class SearchResultStatus(var results: ArrayList<SearchResult>, val originalLang: String, var usedLang: String?)
