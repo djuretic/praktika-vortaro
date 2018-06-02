@@ -128,9 +128,7 @@ class SearchActivity : AppCompatActivity() {
                 noResultsFound.text = resources.getString(R.string.no_results_found)
                 noResultsFound.visibility = View.GONE
             } else {
-                val databaseHelper = DatabaseHelper(this)
-                val langHash = databaseHelper.getLanguagesHash()
-                databaseHelper.close()
+                val langHash = DatabaseHelper.getLanguagesHash(this)
                 noResultsFound.text = resources.getString(
                         R.string.results_found_in_another_language,
                         Utils.languageName(langHash, originalLang),
@@ -235,7 +233,7 @@ class SearchActivity : AppCompatActivity() {
         if (activeLanguage == ESPERANTO) {
             searchView?.queryHint = resources.getString(R.string.search_hint, "esperante")
         } else {
-            val langNames = DatabaseHelper(this).getLanguagesHash()
+            val langNames = DatabaseHelper.getLanguagesHash(this)
             val currentLangName = langNames[activeLanguage]
             val adverb = currentLangName?.substring(0, currentLangName.length-1) + "e"
             searchView?.queryHint = resources.getString(R.string.search_hint, adverb)

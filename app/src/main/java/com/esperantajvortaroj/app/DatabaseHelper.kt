@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.content.Context
 import android.database.DatabaseUtils
+import android.text.TextUtils
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 import java.util.ArrayList
 
@@ -9,6 +10,15 @@ class DatabaseHelper : SQLiteAssetHelper {
     companion object {
         val DB_NAME = "vortaro.db"
         val DB_VERSION = 8
+
+        fun getLanguagesHash(context: Context): HashMap<String, String> {
+            val helper = DatabaseHelper(context)
+            try{
+                return helper.getLanguagesHash()
+            }  finally {
+                helper.close()
+            }
+        }
     }
 
     constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION) {
@@ -121,6 +131,26 @@ class DatabaseHelper : SQLiteAssetHelper {
         val results = mutableListOf<TranslationResult>()
         val cursor = readableDatabase.query("translations_$lng", arrayOf("word", "translation", "snc_index"),
                 "definition_id = ?", arrayOf(""+definitionId), null, null, "snc_index")
+        cursor.moveToFirst()
+        while (!cursor.isAfterLast) {
+            val word = cursor.getString(cursor.getColumnIndex("word"))
+            val translation = cursor.getString(cursor.getColumnIndex("translation"))
+            val sncIndex = cursor.getInt(cursor.getColumnIndex("snc_index"))
+            val res = TranslationResult(word, lng, translation, sncIndex)
+            results.add(res)
+            cursor.moveToNext()
+        }
+        cursor.close()
+        return results
+    }
+
+    fun translationsByDefinitionIds(definitionIds: List<Int>, lng: String): List<TranslationResult> {
+        val results = mutableListOf<TranslationResult>()
+        val cursor = readableDatabase.query(
+                "translations_$lng",
+                arrayOf("word", "translation", "snc_index"),
+                "definition_id IN (" + TextUtils.join(",", definitionIds.map { "?" }) +")"  ,
+                definitionIds.map { it.toString() }.toTypedArray(), null, null, "snc_index")
         cursor.moveToFirst()
         while (!cursor.isAfterLast) {
             val word = cursor.getString(cursor.getColumnIndex("word"))

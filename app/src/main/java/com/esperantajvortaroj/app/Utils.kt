@@ -1,5 +1,9 @@
 package com.esperantajvortaroj.app
 
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.UnderlineSpan
+
 val mapping = hashMapOf(
     'c' to 'ĉ',
     'g' to 'ĝ',
@@ -90,5 +94,50 @@ object Utils {
             return "esperanto"
         }
         return "la " + langHash.get(langCode)
+    }
+
+    fun addTranslations(content: CharSequence,
+                        translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
+                        langNames: HashMap<String, String>,
+                        showBaseWordInTranslation: Boolean): CharSequence {
+        if (translationsByLang.isEmpty()) {
+            return content
+        }
+        var content1 = content
+        val translationsTitle = SpannableString("\n\nTradukoj")
+        translationsTitle.setSpan(UnderlineSpan(), 0, translationsTitle.length, 0)
+        content1 = TextUtils.concat(content1, translationsTitle)
+        for (langEntry in langNames) {
+            val translations = translationsByLang.get(langEntry.key) ?: continue
+            val lang = langEntry.value
+            content1 = TextUtils.concat(
+                    content1,
+                    "\n\n• ", lang, "j: ",
+                    translationsToString(translations, showBaseWordInTranslation))
+        }
+        return content1
+    }
+
+    private fun translationsToString(translations: List<TranslationResult>, showBaseWordInTranslation: Boolean): CharSequence {
+        fun translationListToString(translations: List<TranslationResult>): CharSequence{
+            return translations.joinToString(", ") { tr->
+                if(tr.sncIndex > 0){
+                    tr.sncIndex.toString() + ". " + tr.translation
+                } else {
+                    tr.translation
+                }
+            }
+        }
+
+        if(showBaseWordInTranslation){
+            var content: CharSequence = ""
+            val groups = translations.groupBy { it.word }
+            for(key in groups.keys.sorted()){
+                val value = groups[key] ?: emptyList()
+                content = TextUtils.concat(content, "\n    ", key, ": ", translationListToString(value))
+            }
+            return content
+        }
+        return translationListToString(translations)
     }
 }

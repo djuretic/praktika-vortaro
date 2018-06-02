@@ -355,7 +355,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = getTranslations(databaseHelper, definitionId)
         val langNames = databaseHelper.getLanguagesHash()
         databaseHelper.close()
-        val textView = getDefinitionTextView(definitionResult, translationsByLang, langNames)
+        val textView = getDefinitionTextView(definitionResult, translationsByLang, langNames, false)
         textView.setOnTouchListener(this)
 
         val layout = LinearLayout(this)
@@ -367,27 +367,28 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private fun loadArticle(articleId: Int): List<View> {
         val databaseHelper = DatabaseHelper(this)
         val results = databaseHelper.articleById(articleId)
+        val langNames = databaseHelper.getLanguagesHash()
 
         if (results.size == 1){
             return emptyList()
         }
+        val translationsByLang = getTranslations(databaseHelper, results.map{ it.id })
 
         return results.map { res ->
-            val translationsByLang = getTranslations(databaseHelper, definitionId)
-            val langNames = databaseHelper.getLanguagesHash()
-            val textView = getDefinitionTextView(res, translationsByLang, langNames)
+            val textView = getDefinitionTextView(res, showTranslationWord = false)
             textView.setOnTouchListener(this)
             textView
-        }
+        } + listOf(getDefinitionTextView(null, translationsByLang, langNames, true))
     }
 
     private fun getDefinitionTextView(definitionResult: SearchResult?,
-                                      translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
-                                      langNames: HashMap<String, String>): DefinitionTextView {
+                                      translationsByLang: LinkedHashMap<String, List<TranslationResult>> = LinkedHashMap(),
+                                      langNames: HashMap<String, String> = HashMap(),
+                                      showTranslationWord: Boolean): DefinitionTextView {
         val textView = DefinitionTextView(this)
         textView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
-        textView.setResult(definitionResult, translationsByLang, langNames)
+        textView.setResult(definitionResult, translationsByLang, langNames, true, showTranslationWord)
         return textView
     }
 
@@ -397,6 +398,19 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {
             val translations = databaseHelper.translationsByDefinitionId(definitionId, lang)
+            if (translations.isNotEmpty()) {
+                translationsByLang.put(lang, translations)
+            }
+        }
+        return translationsByLang
+    }
+
+    private fun getTranslations(databaseHelper: DatabaseHelper, definitionIds: List<Int>): LinkedHashMap<String, List<TranslationResult>> {
+        val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+
+        val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
+        for (lang in langPrefs) {
+            val translations = databaseHelper.translationsByDefinitionIds(definitionIds, lang)
             if (translations.isNotEmpty()) {
                 translationsByLang.put(lang, translations)
             }
