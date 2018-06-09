@@ -121,6 +121,7 @@ class SearchActivity : AppCompatActivity() {
             noResultsFound.visibility = View.GONE
             searchResults.visibility = View.GONE
         } else if(resultsCount == 0) {
+            noResultsFound.text = resources.getString(R.string.no_results_found)
             noResultsFound.visibility = View.VISIBLE
             searchResults.visibility = View.GONE
         } else {
