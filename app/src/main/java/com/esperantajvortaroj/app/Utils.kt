@@ -1,8 +1,10 @@
 package com.esperantajvortaroj.app
 
+import android.content.Context
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.UnderlineSpan
+import android.view.View
 
 val mapping = hashMapOf(
     'c' to 'ĉ',
@@ -99,7 +101,9 @@ object Utils {
     fun addTranslations(content: CharSequence,
                         translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
                         langNames: HashMap<String, String>,
-                        showBaseWordInTranslation: Boolean): CharSequence {
+                        showBaseWordInTranslation: Boolean,
+                        context: Context,
+                        onArticleTranslationClick: (position: Int) -> Unit): CharSequence {
         if (translationsByLang.isEmpty()) {
             return content
         }
@@ -113,12 +117,15 @@ object Utils {
             content1 = TextUtils.concat(
                     content1,
                     "\n\n• ", lang, "j: ",
-                    translationsToString(translations, showBaseWordInTranslation))
+                    translationsToString(translations, showBaseWordInTranslation, context, onArticleTranslationClick))
         }
         return content1
     }
 
-    private fun translationsToString(translations: List<TranslationResult>, showBaseWordInTranslation: Boolean): CharSequence {
+    private fun translationsToString(translations: List<TranslationResult>,
+                                     showBaseWordInTranslation: Boolean,
+                                     context: Context,
+                                     onArticleTranslationClick: (position: Int) -> Unit): CharSequence {
         fun translationListToString(translations: List<TranslationResult>): CharSequence{
             return translations.joinToString(", ") { tr->
                 if(tr.sncIndex > 0){
@@ -134,7 +141,14 @@ object Utils {
             val groups = translations.groupBy { it.word }
             for(key in groups.keys.sorted()){
                 val value = groups[key] ?: emptyList()
-                content = TextUtils.concat(content, "\n    ", key, ": ", translationListToString(value))
+                val headword = SpannableString(key)
+                headword.setSpan(object: StyledClickableSpan(context) {
+                    override fun onClick(p0: View?) {
+                        onArticleTranslationClick(value.first().positionInArticle)
+                    }
+
+                }, 0, headword.length, 0)
+                content = TextUtils.concat(content, "\n    ", headword, ": ", translationListToString(value))
             }
             return content
         }

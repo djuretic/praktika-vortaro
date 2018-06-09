@@ -12,6 +12,7 @@ import android.widget.TextView
 
 class DefinitionTextView : TextView {
     var onClickFako: (fako: String) -> Unit = {}
+    var onArticleTranslationClick: (position: Int) -> Unit = {}
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
 
@@ -34,7 +35,9 @@ class DefinitionTextView : TextView {
             definition = definitionResult.formattedDefinition(if(showLinks) context else null, onClickFako)
             content = TextUtils.concat(headword, "\n", definition)
         }
-        content = Utils.addTranslations(content, translationsByLang, langNames, showBaseWordInTranslation)
+        content = Utils.addTranslations(
+                content, translationsByLang, langNames,
+                showBaseWordInTranslation, context, onArticleTranslationClick)
         this.text = content
         return content
     }

@@ -33,6 +33,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var definitionId = 0
     private var articleId = 0
 
+    private var definitionLinearLayout: LinearLayout? = null
     private var touchedView: View? = null
     private var gestureDetector: GestureDetectorCompat? = null
     private var tapTooDown = false
@@ -216,6 +217,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val articleId = wordInfo.articleId
 
         val layout = LinearLayout(this)
+        definitionLinearLayout = layout
         layout.orientation = LinearLayout.VERTICAL
         layout.addView(wordView)
 
@@ -232,6 +234,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private fun displayArticle(articleId: Int){
         val articleViews = loadArticle(articleId)
         val layout = LinearLayout(this)
+        definitionLinearLayout = layout
         layout.orientation = LinearLayout.VERTICAL
         if(articleViews.isNotEmpty()){
             for(view in articleViews){
@@ -387,6 +390,10 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                                       showTranslationWord: Boolean): DefinitionTextView {
         val textView = DefinitionTextView(this)
         textView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
+        textView.onArticleTranslationClick = { position ->
+            val view = definitionLinearLayout?.getChildAt(position)
+            view?.parent?.requestChildFocus(view, view)
+        }
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
         textView.setResult(definitionResult, translationsByLang, langNames, true, showTranslationWord)
         return textView

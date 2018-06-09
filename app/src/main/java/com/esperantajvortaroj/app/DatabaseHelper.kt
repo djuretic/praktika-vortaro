@@ -148,7 +148,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         val results = mutableListOf<TranslationResult>()
         val cursor = readableDatabase.query(
                 "translations_$lng",
-                arrayOf("word", "translation", "snc_index"),
+                arrayOf("definition_id", "word", "translation", "snc_index"),
                 "definition_id IN (" + TextUtils.join(",", definitionIds.map { "?" }) +")"  ,
                 definitionIds.map { it.toString() }.toTypedArray(), null, null, "snc_index")
         cursor.moveToFirst()
@@ -156,7 +156,8 @@ class DatabaseHelper : SQLiteAssetHelper {
             val word = cursor.getString(cursor.getColumnIndex("word"))
             val translation = cursor.getString(cursor.getColumnIndex("translation"))
             val sncIndex = cursor.getInt(cursor.getColumnIndex("snc_index"))
-            val res = TranslationResult(word, lng, translation, sncIndex)
+            val definitionId = cursor.getInt(cursor.getColumnIndex("definition_id"))
+            val res = TranslationResult(word, lng, translation, sncIndex, definitionIds.indexOf(definitionId))
             results.add(res)
             cursor.moveToNext()
         }
@@ -265,4 +266,7 @@ data class StringFormat(
     }
 }
 
-data class TranslationResult(val word: String, val lng: String, val translation: String, val sncIndex: Int)
+data class TranslationResult(
+        val word: String, val lng: String, val translation: String, val sncIndex: Int,
+        // used to create link in the article view's list of translations
+        val positionInArticle: Int = 0)
