@@ -3,6 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/go_back_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="Sercxi"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/prev_entry"
         android:icon="@drawable/ic_keyboard_arrow_up_white_24dp"
         android:title="Lasta"

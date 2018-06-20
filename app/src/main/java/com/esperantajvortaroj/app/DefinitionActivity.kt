@@ -297,6 +297,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         tooltipVisible = false
         when (item?.itemId) {
+            R.id.go_back_search -> {
+                val intent = Intent(this, SearchActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(intent)
+                return true
+            }
             R.id.prev_entry -> {
                 if(entryPosition == 0){
                     return true
