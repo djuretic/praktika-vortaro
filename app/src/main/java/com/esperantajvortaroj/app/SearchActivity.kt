@@ -26,6 +26,12 @@ class SearchActivity : AppCompatActivity() {
     private var activeLanguage = ESPERANTO
     private var searchView: SearchView? = null
     private var isSearching = false
+    /* Used when coming back from DefinitionActivity*/
+    private var resetSearch = false
+
+    companion object {
+        const val RESET_SEARCH = "reset_search"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +49,21 @@ class SearchActivity : AppCompatActivity() {
         activeLanguage = PreferenceHelper.getString(this, SettingsActivity.ACTIVE_LANGUAGE, ESPERANTO)
 
         versionChecks()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        resetSearch = intent?.getBooleanExtra(RESET_SEARCH, false) ?: false
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        if(resetSearch){
+            searchView?.setQuery("", true)
+            searchView?.isFocusableInTouchMode = true
+            searchView?.requestFocus()
+            resetSearch = false
+        }
     }
 
     private fun versionChecks() {

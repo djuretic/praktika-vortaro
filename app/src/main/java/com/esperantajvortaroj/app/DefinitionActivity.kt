@@ -39,6 +39,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var tapTooDown = false
     private var tooltipVisible = false
 
+    companion object {
+        const val DEFINITION_ID = "definition_id"
+        const val ARTICLE_ID = "article_id"
+        const val ENTRY_POSITION = "entry_position"
+        const val ENTRIES_LIST = "entries_list"
+    }
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -299,6 +306,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         when (item?.itemId) {
             R.id.go_back_search -> {
                 val intent = Intent(this, SearchActivity::class.java)
+                intent.putExtra(SearchActivity.RESET_SEARCH, true)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
                 return true
@@ -429,13 +437,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             }
         }
         return translationsByLang
-    }
-
-    companion object {
-        const val DEFINITION_ID = "definition_id"
-        const val ARTICLE_ID = "article_id"
-        const val ENTRY_POSITION = "entry_position"
-        const val ENTRIES_LIST = "entries_list"
     }
 }
 
