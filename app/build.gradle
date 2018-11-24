@@ -10,8 +10,8 @@ android {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 14
-        versionName "0.14"
+        versionCode 15
+        versionName "0.15"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
