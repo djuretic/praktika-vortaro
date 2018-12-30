@@ -1,6 +1,8 @@
 package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
@@ -17,17 +19,23 @@ import android.widget.BaseAdapter
 import android.widget.FrameLayout
 import android.widget.NumberPicker
 import android.widget.TextView
+
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
 
 
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter : SearchResultAdapter? = null
+    private var searchHistoryAdapter : SearchHistoryAdapter? = null
     private val ESPERANTO = "eo"
     private var activeLanguage = ESPERANTO
     private var searchView: SearchView? = null
     private var isSearching = false
+    /* Used to avoid generating (repeated) search history when visiting the history */
+    private var isFromSearchHistory = false
     /* Used when coming back from DefinitionActivity*/
     private var resetSearch = false
+    private lateinit var searchHistoryViewModel: SearchHistoryViewModel
 
     companion object {
         const val RESET_SEARCH = "reset_search"
@@ -42,11 +50,28 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+        activeLanguage = PreferenceHelper.getString(this, SettingsActivity.ACTIVE_LANGUAGE, ESPERANTO)
+
         searchAdapter = SearchResultAdapter(this)
         searchResults.adapter = searchAdapter
 
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-        activeLanguage = PreferenceHelper.getString(this, SettingsActivity.ACTIVE_LANGUAGE, ESPERANTO)
+        searchHistoryAdapter = SearchHistoryAdapter(this)
+        searchHistoryList.adapter = searchHistoryAdapter
+        searchHistoryList.setOnItemClickListener { parent, view, position, id ->
+            if (view is TextView) {
+                isFromSearchHistory = true
+                searchView?.setQuery(view.text.toString(), true)
+                searchView?.isFocusableInTouchMode = true
+                searchView?.requestFocus()
+                isFromSearchHistory = false
+            }
+        }
+
+        searchHistoryViewModel = ViewModelProviders.of(this).get(SearchHistoryViewModel::class.java)
+        searchHistoryViewModel.allHistory.observe(this, Observer { history ->
+            history?.let { searchHistoryAdapter?.receiveDataSet(history) }
+        })
 
         versionChecks()
     }
@@ -94,7 +119,7 @@ class SearchActivity : AppCompatActivity() {
 
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String?): Boolean {
-                    if(query == null || query.length == 0) {
+                    if(query == null || query.isEmpty()) {
                         isSearching = false
                         updateBottomPart(false, 0)
                         return true
@@ -104,7 +129,7 @@ class SearchActivity : AppCompatActivity() {
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
-                    searchAdapter?.filter(text, activeLanguage)
+                    searchAdapter?.filter(text, activeLanguage, saveHistory = !isFromSearchHistory)
                     isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     return true
@@ -135,16 +160,19 @@ class SearchActivity : AppCompatActivity() {
             progressBarSearch.visibility = View.VISIBLE
             noResultsFound.visibility = View.GONE
             searchResults.visibility = View.GONE
+            searchHistoryList.visibility = View.GONE
             return
         }
         progressBarSearch.visibility = View.GONE
         if(!enteredText){
             noResultsFound.visibility = View.GONE
             searchResults.visibility = View.GONE
+            searchHistoryList.visibility = View.VISIBLE
         } else if(resultsCount == 0) {
             noResultsFound.text = resources.getString(R.string.no_results_found)
             noResultsFound.visibility = View.VISIBLE
             searchResults.visibility = View.GONE
+            searchHistoryList.visibility = View.GONE
         } else {
             if(usedLang == null){
                 noResultsFound.text = resources.getString(R.string.no_results_found)
@@ -159,6 +187,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             searchResults.visibility = View.VISIBLE
+            searchHistoryList.visibility = View.GONE
         }
     }
 
@@ -332,11 +361,16 @@ class SearchActivity : AppCompatActivity() {
         private var results = ArrayList<SearchResult>()
         private var searchString: String? = null
 
-         fun filter(searchString: String, language: String){
+         fun filter(searchString: String, language: String, saveHistory: Boolean){
              this.searchString = searchString
             if(searchString == ""){
                 results.clear()
             } else {
+                val activity = context as SearchActivity
+                if(saveHistory) {
+                    activity.updateHistory(searchString)
+                }
+
                 SearchTask(context, this, language).execute(searchString)
             }
 
@@ -405,6 +439,12 @@ class SearchActivity : AppCompatActivity() {
             })
 
             return resultRow
+        }
+    }
+
+    private fun updateHistory(searchString: String) {
+        doAsync {
+            searchHistoryViewModel.insert(SearchHistory(0, searchString))
         }
     }
 }

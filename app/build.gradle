@@ -1,15 +1,14 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 15
         versionName "0.15"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -48,4 +47,16 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     implementation 'com.github.douglasjunior:android-simple-tooltip:0.2.2'
+
+    def room_version = "1.1.1"
+    implementation "android.arch.persistence.room:runtime:$room_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
+    kapt "android.arch.persistence.room:compiler:$room_version"
+
+    def lifecycle_version = "1.1.1"
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+
+    def anko_version = "0.10.8"
+    implementation "org.jetbrains.anko:anko-commons:$anko_version"
+
 }
