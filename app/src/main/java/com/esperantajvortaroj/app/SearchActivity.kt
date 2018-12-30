@@ -35,6 +35,7 @@ class SearchActivity : AppCompatActivity() {
     private var isFromSearchHistory = false
     /* Used when coming back from DefinitionActivity*/
     private var resetSearch = false
+    private var lastSearchQuery: String? = null
     private lateinit var searchHistoryViewModel: SearchHistoryViewModel
 
     companion object {
@@ -119,6 +120,8 @@ class SearchActivity : AppCompatActivity() {
 
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String?): Boolean {
+                    val lastQuery = lastSearchQuery
+                    var lastQueryIsPrefix = query != null && lastQuery != null && query.startsWith(lastQuery)
                     if(query == null || query.isEmpty()) {
                         isSearching = false
                         updateBottomPart(false, 0)
@@ -129,9 +132,10 @@ class SearchActivity : AppCompatActivity() {
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
-                    searchAdapter?.filter(text, activeLanguage, saveHistory = !isFromSearchHistory)
+                    searchAdapter?.filter(text, activeLanguage, saveHistory = !isFromSearchHistory, isUpdate = lastQueryIsPrefix)
                     isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
+                    lastSearchQuery = query
                     return true
                 }
 
@@ -361,14 +365,14 @@ class SearchActivity : AppCompatActivity() {
         private var results = ArrayList<SearchResult>()
         private var searchString: String? = null
 
-         fun filter(searchString: String, language: String, saveHistory: Boolean){
+         fun filter(searchString: String, language: String, saveHistory: Boolean, isUpdate: Boolean){
              this.searchString = searchString
             if(searchString == ""){
                 results.clear()
             } else {
                 val activity = context as SearchActivity
                 if(saveHistory) {
-                    activity.updateHistory(searchString)
+                    activity.updateHistory(searchString, isUpdate)
                 }
 
                 SearchTask(context, this, language).execute(searchString)
@@ -442,9 +446,13 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateHistory(searchString: String) {
+    private fun updateHistory(searchString: String, update: Boolean) {
         doAsync {
-            searchHistoryViewModel.insert(SearchHistory(0, searchString))
+            if (update) {
+                searchHistoryViewModel.updateLast(searchString)
+            } else {
+                searchHistoryViewModel.insert(SearchHistory(0, searchString))
+            }
         }
     }
 }

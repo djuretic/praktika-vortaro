@@ -15,4 +15,8 @@ class SearchHistoryViewModel(application: Application) : AndroidViewModel(applic
     fun insert(searchHistory: SearchHistory) {
         searchHistoryDao.insertOne(searchHistory)
     }
+
+    fun updateLast(word: String) {
+        searchHistoryDao.updateLast(word)
+    }
 }

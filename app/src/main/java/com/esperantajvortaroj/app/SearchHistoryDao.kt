@@ -1,10 +1,7 @@
 package com.esperantajvortaroj.app
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 
 @Dao
 interface SearchHistoryDao {
@@ -13,6 +10,9 @@ interface SearchHistoryDao {
 
     @Insert
     fun insertOne(searchHistory: SearchHistory)
+
+    @Query("UPDATE SearchHistory SET word = :word WHERE id=(SELECT MAX(id) FROM SearchHistory)")
+    fun updateLast(word: String)
 
     @Delete
     fun deleteOne(searchHistory: SearchHistory)
