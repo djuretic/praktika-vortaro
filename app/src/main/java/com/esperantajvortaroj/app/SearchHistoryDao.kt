@@ -5,7 +5,7 @@ import android.arch.persistence.room.*
 
 @Dao
 interface SearchHistoryDao {
-    @Query("SELECT * FROM SearchHistory")
+    @Query("SELECT * FROM SearchHistory ORDER BY id DESC")
     fun getAll(): LiveData<List<SearchHistory>>
 
     @Insert
@@ -16,4 +16,7 @@ interface SearchHistoryDao {
 
     @Delete
     fun deleteOne(searchHistory: SearchHistory)
+
+    @Query("DELETE FROM SearchHistory WHERE id <= (SELECT MAX(id) - :numEntries FROM SearchHistory)")
+    fun deleteOldestEntries(numEntries: Int = 100)
 }

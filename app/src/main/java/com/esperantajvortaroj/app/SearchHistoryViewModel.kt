@@ -16,6 +16,10 @@ class SearchHistoryViewModel(application: Application) : AndroidViewModel(applic
         searchHistoryDao.insertOne(searchHistory)
     }
 
+    fun deleteOlderEntries() {
+        searchHistoryDao.deleteOldestEntries()
+    }
+
     fun updateLast(word: String) {
         searchHistoryDao.updateLast(word)
     }

@@ -452,6 +452,7 @@ class SearchActivity : AppCompatActivity() {
                 searchHistoryViewModel.updateLast(searchString)
             } else {
                 searchHistoryViewModel.insert(SearchHistory(0, searchString))
+                searchHistoryViewModel.deleteOlderEntries()
             }
         }
     }
