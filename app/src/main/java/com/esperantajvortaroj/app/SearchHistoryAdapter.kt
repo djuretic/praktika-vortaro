@@ -19,10 +19,10 @@ class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
         val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
-        val resultRow = convertView ?: TextView(context)
-        if (resultRow is TextView) {
+        val resultRow = convertView ?: SearchHistoryTextView(context)
+        if (resultRow is SearchHistoryTextView) {
             val historyEntry = getItem(position)
-            resultRow.text = historyEntry.word
+            resultRow.setItem(historyEntry)
             resultRow.textSize = fontSize.toFloat()
             resultRow.setTextColor(Color.BLACK)
             resultRow.setPadding(16, 8, 16, 8)

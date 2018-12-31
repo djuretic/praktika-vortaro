@@ -3,6 +3,8 @@ package com.esperantajvortaroj.app
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
@@ -15,10 +17,7 @@ import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.*
-import android.widget.BaseAdapter
-import android.widget.FrameLayout
-import android.widget.NumberPicker
-import android.widget.TextView
+import android.widget.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
@@ -59,6 +58,7 @@ class SearchActivity : AppCompatActivity() {
 
         searchHistoryAdapter = SearchHistoryAdapter(this)
         searchHistoryList.adapter = searchHistoryAdapter
+        registerForContextMenu(searchHistoryList)
         searchHistoryList.setOnItemClickListener { parent, view, position, id ->
             if (view is TextView) {
                 isFromSearchHistory = true
@@ -75,6 +75,37 @@ class SearchActivity : AppCompatActivity() {
         })
 
         versionChecks()
+    }
+
+    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        menuInflater.inflate(R.menu.history_context_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem?): Boolean {
+        val info = item?.menuInfo as AdapterView.AdapterContextMenuInfo
+        val targetView = info.targetView
+        if(targetView !is SearchHistoryTextView){
+            return super.onContextItemSelected(item)
+        }
+
+        when(item?.itemId) {
+            R.id.copyHistoryEntry -> {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.primaryClip = ClipData.newPlainText("difino", targetView.text.toString())
+                return true
+            }
+            R.id.deleteHistoryEntry -> {
+                val entry = targetView.historyEntry
+                if(entry != null) {
+                    doAsync {
+                        searchHistoryViewModel.deleteOne(entry)
+                    }
+                }
+            }
+            else -> return super.onContextItemSelected(item)
+        }
+        return super.onContextItemSelected(item)
     }
 
     override fun onNewIntent(intent: Intent?) {

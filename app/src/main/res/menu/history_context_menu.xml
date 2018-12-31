@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/copyHistoryEntry"
+        android:title="Kopii" />
+    <item
+        android:id="@+id/deleteHistoryEntry"
+        android:title="Forigi" />
+
+</menu>
