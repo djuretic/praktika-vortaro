@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.view.View
+import com.esperantajvortaroj.app.db.StringFormat
 
 data class SearchResult(
         val id: Int, val articleId: Int?, val word: String, val definition: String, val format: StringFormat?) {

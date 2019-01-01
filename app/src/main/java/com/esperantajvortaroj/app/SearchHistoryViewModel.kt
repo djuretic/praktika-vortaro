@@ -3,6 +3,9 @@ package com.esperantajvortaroj.app
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
+import com.esperantajvortaroj.app.db.AppDatabase
+import com.esperantajvortaroj.app.db.SearchHistory
+import com.esperantajvortaroj.app.db.SearchHistoryDao
 
 class SearchHistoryViewModel(application: Application) : AndroidViewModel(application) {
     val searchHistoryDao: SearchHistoryDao = AppDatabase.getInstance(application).searchHistoryDao()

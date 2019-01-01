@@ -15,6 +15,8 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
 import android.widget.ListView
+import com.esperantajvortaroj.app.db.DatabaseHelper
+import com.esperantajvortaroj.app.db.Language
 import kotlinx.android.synthetic.main.activity_translation_language.*
 
 

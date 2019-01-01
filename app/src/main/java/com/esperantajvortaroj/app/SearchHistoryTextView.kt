@@ -3,6 +3,7 @@ package com.esperantajvortaroj.app
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.TextView
+import com.esperantajvortaroj.app.db.SearchHistory
 
 class SearchHistoryTextView : TextView {
     var historyEntry : SearchHistory? = null

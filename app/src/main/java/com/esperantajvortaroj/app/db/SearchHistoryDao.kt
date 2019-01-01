@@ -1,4 +1,4 @@
-package com.esperantajvortaroj.app
+package com.esperantajvortaroj.app.db
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
@@ -18,5 +18,5 @@ interface SearchHistoryDao {
     fun deleteOne(searchHistory: SearchHistory)
 
     @Query("DELETE FROM SearchHistory WHERE id <= (SELECT MAX(id) - :numEntries FROM SearchHistory)")
-    fun deleteOldestEntries(numEntries: Int = 100)
+    fun deleteOldestEntries(numEntries: Int = 50)
 }

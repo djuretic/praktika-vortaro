@@ -18,6 +18,8 @@ import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import com.esperantajvortaroj.app.db.DatabaseHelper
+import com.esperantajvortaroj.app.db.SearchHistory
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync

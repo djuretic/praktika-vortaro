@@ -1,8 +1,9 @@
-package com.esperantajvortaroj.app
+package com.esperantajvortaroj.app.db
 
 import android.content.Context
 import android.database.DatabaseUtils
 import android.text.TextUtils
+import com.esperantajvortaroj.app.SearchResult
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 import java.util.ArrayList
 
@@ -202,7 +203,7 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
 
-    private fun parseFormat(string: String): StringFormat{
+    private fun parseFormat(string: String): StringFormat {
         val sections = string.split("\n")
 
         var bold = emptyList<Pair<Int, Int>>()

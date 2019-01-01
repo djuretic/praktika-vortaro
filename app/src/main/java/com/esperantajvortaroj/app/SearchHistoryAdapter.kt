@@ -6,7 +6,7 @@ import android.preference.PreferenceManager
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.TextView
+import com.esperantajvortaroj.app.db.SearchHistory
 
 class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
     private var items = emptyList<SearchHistory>()
@@ -25,7 +25,7 @@ class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
             resultRow.setItem(historyEntry)
             resultRow.textSize = fontSize.toFloat()
             resultRow.setTextColor(Color.BLACK)
-            resultRow.setPadding(16, 8, 16, 8)
+            resultRow.setPadding(16, 32, 32, 16)
         }
         return resultRow
     }

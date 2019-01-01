@@ -3,6 +3,7 @@ package com.esperantajvortaroj.app
 import android.os.Bundle
 import android.preference.MultiSelectListPreference
 import android.preference.PreferenceFragment
+import com.esperantajvortaroj.app.db.DatabaseHelper
 
 class SettingsFragment : PreferenceFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {

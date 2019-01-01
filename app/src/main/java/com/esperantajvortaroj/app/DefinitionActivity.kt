@@ -24,6 +24,8 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.esperantajvortaroj.app.db.DatabaseHelper
+import com.esperantajvortaroj.app.db.TranslationResult
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
 import kotlinx.android.synthetic.main.activity_definition.*
 

@@ -9,6 +9,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.widget.TextView
+import com.esperantajvortaroj.app.db.TranslationResult
 
 class DefinitionTextView : TextView {
     var onClickFako: (fako: String) -> Unit = {}

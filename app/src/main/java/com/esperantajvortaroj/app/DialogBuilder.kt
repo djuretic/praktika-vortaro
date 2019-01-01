@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
 import android.content.Context
+import com.esperantajvortaroj.app.db.DatabaseHelper
 
 object DialogBuilder {
     fun showDisciplineDialog(context: Context, code: String) {

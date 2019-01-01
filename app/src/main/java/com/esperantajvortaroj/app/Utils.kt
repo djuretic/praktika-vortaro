@@ -5,6 +5,7 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.UnderlineSpan
 import android.view.View
+import com.esperantajvortaroj.app.db.TranslationResult
 
 val mapping = hashMapOf(
     'c' to 'ĉ',
