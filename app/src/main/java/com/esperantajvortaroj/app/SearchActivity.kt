@@ -331,7 +331,7 @@ class SearchActivity : AppCompatActivity() {
     private fun showAboutDialog(){
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
-        val message = SpannableString("""@ 2018 Dušan Juretić
+        val message = SpannableString("""@ 2018-2019 Dušan Juretić
             |
             |Datumbazo: Reta Vortaro - http://www.reta-vortaro.de/revo
             |
