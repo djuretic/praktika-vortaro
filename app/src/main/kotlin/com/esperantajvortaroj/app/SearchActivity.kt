@@ -87,14 +87,14 @@ class SearchActivity : AppCompatActivity() {
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         val info = item?.menuInfo as AdapterView.AdapterContextMenuInfo
         val targetView = info.targetView
-        if(targetView !is SearchHistoryTextView){
+        if(targetView !is SearchHistoryView){
             return super.onContextItemSelected(item)
         }
 
         when(item?.itemId) {
             R.id.copyHistoryEntry -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.primaryClip = ClipData.newPlainText("difino", targetView.text.toString())
+                clipboard.primaryClip = ClipData.newPlainText("difino", targetView.word.toString())
                 return true
             }
             R.id.deleteHistoryEntry -> {

@@ -1,7 +1,6 @@
 package com.esperantajvortaroj.app
 
 import android.content.Context
-import android.graphics.Color
 import android.preference.PreferenceManager
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +18,10 @@ class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
         val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
-        val resultRow = convertView ?: SearchHistoryTextView(context)
-        if (resultRow is SearchHistoryTextView) {
-            val historyEntry = getItem(position)
-            resultRow.setItem(historyEntry)
-            resultRow.textSize = fontSize.toFloat()
-            resultRow.setTextColor(Color.BLACK)
-            resultRow.setPadding(16, 32, 32, 16)
+        val historyEntry = getItem(position)
+        val resultRow = convertView ?: SearchHistoryView(context)
+        if (resultRow is SearchHistoryView) {
+            resultRow.initView(context, historyEntry, fontSize.toFloat())
         }
         return resultRow
     }

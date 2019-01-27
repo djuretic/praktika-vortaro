@@ -11,7 +11,11 @@ android {
         targetSdkVersion 28
         versionCode 16
         versionName "0.16"
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
     buildTypes {
         release {
