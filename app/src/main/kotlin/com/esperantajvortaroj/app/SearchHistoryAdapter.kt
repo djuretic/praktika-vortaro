@@ -9,10 +9,15 @@ import com.esperantajvortaroj.app.db.SearchHistory
 
 class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
     private var items = emptyList<SearchHistory>()
+    private var onDelete: (View)-> Unit = {}
 
     fun receiveDataSet(newItems: List<SearchHistory>) {
         items = newItems
         notifyDataSetChanged()
+    }
+
+    fun setOnDelete (handler: (View) -> Unit) {
+        onDelete = handler
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
@@ -21,7 +26,7 @@ class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
         val historyEntry = getItem(position)
         val resultRow = convertView ?: SearchHistoryView(context)
         if (resultRow is SearchHistoryView) {
-            resultRow.initView(context, historyEntry, fontSize.toFloat())
+            resultRow.initView(context, historyEntry, fontSize.toFloat(), onDelete)
         }
         return resultRow
     }

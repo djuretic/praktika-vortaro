@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.RelativeLayout
 import com.esperantajvortaroj.app.db.SearchHistory
 import kotlinx.android.synthetic.main.item_search_history_entry.view.*
@@ -15,11 +16,7 @@ class SearchHistoryView : RelativeLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) :  super(context, attrs)
 
-    constructor(context: Context, searchHistory: SearchHistory, fontSize: Float) : super(context) {
-        initView(context, searchHistory, fontSize)
-    }
-
-    fun initView(context: Context, searchHistory: SearchHistory, fontSize: Float) {
+    fun initView(context: Context, searchHistory: SearchHistory, fontSize: Float, onDelete: (View) -> Unit) {
         historyEntry = searchHistory
         this.removeAllViewsInLayout()
         val view = LayoutInflater.from(context).inflate(R.layout.item_search_history_entry, this, true)
@@ -28,6 +25,8 @@ class SearchHistoryView : RelativeLayout {
         view.entryWord.textSize = fontSize
         view.entryWord.setTextColor(Color.BLACK)
         view.setPadding(16, 32, 32, 16)
+        view.deleteImageView.setOnClickListener { onDelete(this) }
+
     }
 
 }

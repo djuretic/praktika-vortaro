@@ -59,12 +59,17 @@ class SearchActivity : AppCompatActivity() {
         searchResults.adapter = searchAdapter
 
         searchHistoryAdapter = SearchHistoryAdapter(this)
+        searchHistoryAdapter?.setOnDelete { view ->
+            if(view is SearchHistoryView) {
+                deleteHistoryEntry(view)
+            }
+        }
         searchHistoryList.adapter = searchHistoryAdapter
         registerForContextMenu(searchHistoryList)
         searchHistoryList.setOnItemClickListener { parent, view, position, id ->
-            if (view is TextView) {
+            if (view is SearchHistoryView) {
                 isFromSearchHistory = true
-                searchView?.setQuery(view.text.toString(), true)
+                searchView?.setQuery(view.word.toString(), true)
                 searchView?.isFocusableInTouchMode = true
                 searchView?.requestFocus()
                 isFromSearchHistory = false
@@ -98,16 +103,20 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.deleteHistoryEntry -> {
-                val entry = targetView.historyEntry
-                if(entry != null) {
-                    doAsync {
-                        searchHistoryViewModel.deleteOne(entry)
-                    }
-                }
+                deleteHistoryEntry(targetView)
             }
             else -> return super.onContextItemSelected(item)
         }
         return super.onContextItemSelected(item)
+    }
+
+    private fun deleteHistoryEntry(targetView: SearchHistoryView) {
+        val entry = targetView.historyEntry
+        if (entry != null) {
+            doAsync {
+                searchHistoryViewModel.deleteOne(entry)
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
