@@ -163,7 +163,8 @@ class SearchActivity : AppCompatActivity() {
             searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
                 override fun onQueryTextChange(query: String?): Boolean {
                     val lastQuery = lastSearchQuery
-                    var lastQueryIsPrefix = query != null && lastQuery != null && query.startsWith(lastQuery)
+                    val lastQueryIsPrefix = query != null && lastQuery != null && query.startsWith(lastQuery)
+                    val lastQueryIsMoreComplete = query != null && lastQuery != null && lastQuery.startsWith(query)
                     if(query == null || query.isEmpty()) {
                         isSearching = false
                         updateBottomPart(false, 0)
@@ -174,7 +175,9 @@ class SearchActivity : AppCompatActivity() {
                     if(activeLanguage == ESPERANTO){
                         text = Utils.addHats(text)
                     }
-                    searchAdapter?.filter(text, activeLanguage, saveHistory = !isFromSearchHistory, isUpdate = lastQueryIsPrefix)
+                    searchAdapter?.filter(text, activeLanguage,
+                            saveHistory = !isFromSearchHistory && !lastQueryIsMoreComplete,
+                            isUpdate = lastQueryIsPrefix)
                     isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     lastSearchQuery = query
