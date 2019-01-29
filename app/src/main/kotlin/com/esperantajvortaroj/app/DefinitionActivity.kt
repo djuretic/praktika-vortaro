@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -181,9 +182,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val textSize = getTextSize() - 2
 
         val layout = layoutInflater.inflate(R.layout.tooltip_definition, null)
-        val textView = layout.findViewById<DefinitionTextView>(R.id.tooltipDefinition)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        val textView = layout.findViewById<DefinitionView>(R.id.tooltipDefinition)
         textView.setResult(result, LinkedHashMap(), HashMap(), showLinks = false)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
 
         val clickView = layout.findViewById<TextView>(R.id.tooltipBottomActions)
         clickView.movementMethod = LinkMovementMethod.getInstance()
@@ -344,7 +345,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     override fun onContextItemSelected(item: MenuItem?): Boolean {
         val targetView = touchedView
-        if(targetView == null || targetView !is DefinitionTextView){
+        if(targetView == null || targetView !is DefinitionView){
             return super.onContextItemSelected(item)
         }
 
@@ -357,6 +358,16 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             R.id.copyHeadword -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.primaryClip = ClipData.newPlainText("kapvorto", targetView.headword.toString())
+                return true
+            }
+            R.id.searchPIV -> {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://vortaro.net/#${targetView.headword}"))
+                startActivity(intent)
+                return true
+            }
+            R.id.searchKomputeko -> {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://komputeko.net/index_eo.php?vorto=${targetView.headword}"))
+                startActivity(intent)
                 return true
             }
             else -> return super.onContextItemSelected(item)
@@ -374,7 +385,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = getTranslations(databaseHelper, definitionId)
         val langNames = databaseHelper.getLanguagesHash()
         databaseHelper.close()
-        val textView = getDefinitionTextView(definitionResult, translationsByLang, langNames, false)
+        val textView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
         textView.setOnTouchListener(this)
 
         val layout = LinearLayout(this)
@@ -394,25 +405,29 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = getTranslations(databaseHelper, results.map{ it.id })
 
         return results.map { res ->
-            val textView = getDefinitionTextView(res, showTranslationWord = false)
+            val textView = getDefinitionView(res, showTranslationWord = false)
             textView.setOnTouchListener(this)
             textView
-        } + listOf(getDefinitionTextView(null, translationsByLang, langNames, true))
+        } + listOf(getDefinitionView(null, translationsByLang, langNames, true))
     }
 
-    private fun getDefinitionTextView(definitionResult: SearchResult?,
-                                      translationsByLang: LinkedHashMap<String, List<TranslationResult>> = LinkedHashMap(),
-                                      langNames: HashMap<String, String> = HashMap(),
-                                      showTranslationWord: Boolean): DefinitionTextView {
-        val textView = DefinitionTextView(this)
-        textView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
-        textView.onArticleTranslationClick = { position ->
+    private fun getDefinitionView(definitionResult: SearchResult?,
+                                  translationsByLang: LinkedHashMap<String, List<TranslationResult>> = LinkedHashMap(),
+                                  langNames: HashMap<String, String> = HashMap(),
+                                  showTranslationWord: Boolean): DefinitionView {
+        val definitionView = DefinitionView(this)
+        definitionView.onClickFako = { fako -> DialogBuilder.showDisciplineDialog(this, fako) }
+        definitionView.onArticleTranslationClick = { position ->
             val view = definitionLinearLayout?.getChildAt(position)
             view?.parent?.requestChildFocus(view, view)
         }
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
-        textView.setResult(definitionResult, translationsByLang, langNames, true, showTranslationWord)
-        return textView
+        definitionView.onClickMoreOptions = { view ->
+            touchedView = view
+            showContextMenu(view)
+        }
+        definitionView.setResult(definitionResult, translationsByLang, langNames, true, showTranslationWord)
+        definitionView.setTextSize(TypedValue.COMPLEX_UNIT_SP, getTextSize())
+        return definitionView
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, definitionId: Int): LinkedHashMap<String, List<TranslationResult>> {

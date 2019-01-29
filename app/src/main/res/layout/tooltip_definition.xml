@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="100dp">
 
-        <com.esperantajvortaroj.app.DefinitionTextView
+        <com.esperantajvortaroj.app.DefinitionView
             android:id="@+id/tooltipDefinition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

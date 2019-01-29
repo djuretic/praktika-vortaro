@@ -8,4 +8,12 @@
     <item
         android:id="@+id/copyDefinition"
         android:title="@string/copy_definition" />
+    <item
+        android:id="@+id/searchPIV"
+        android:title="Serĉi en PIV"
+        />
+    <item
+        android:id="@+id/searchKomputeko"
+        android:title="Serĉi en Komputeko"
+        />
 </menu>
