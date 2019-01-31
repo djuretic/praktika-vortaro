@@ -20,6 +20,7 @@ class DefinitionView : RelativeLayout {
     var onClickMoreOptions: (view: DefinitionView) -> Unit = {}
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
+    var showMoreOptions: Boolean = true
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) :  super(context, attrs)
@@ -49,7 +50,13 @@ class DefinitionView : RelativeLayout {
                 showBaseWordInTranslation, context, onArticleTranslationClick)
         textView.text = content
 
-        moreOptionsImageView.setOnClickListener { view -> onClickMoreOptions(this) }
+        if (showMoreOptions) {
+            moreOptionsImageView.setOnClickListener { view -> onClickMoreOptions(this) }
+        } else {
+            moreOptionsImageView.visibility = GONE
+        }
+
+
 
         return content
     }

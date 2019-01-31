@@ -421,6 +421,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             val view = definitionLinearLayout?.getChildAt(position)
             view?.parent?.requestChildFocus(view, view)
         }
+        definitionView.showMoreOptions = definitionResult != null
         definitionView.onClickMoreOptions = { view ->
             touchedView = view
             showContextMenu(view)
