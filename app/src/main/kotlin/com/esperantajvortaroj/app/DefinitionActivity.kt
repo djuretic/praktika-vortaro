@@ -385,12 +385,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = getTranslations(databaseHelper, definitionId)
         val langNames = databaseHelper.getLanguagesHash()
         databaseHelper.close()
-        val textView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
-        textView.setOnTouchListener(this)
+        val definitionView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
+        definitionView.setOnTouchListenerOnTextView(this)
 
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
-        layout.addView(textView)
+        layout.addView(definitionView)
         return DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle)
     }
 
@@ -405,9 +405,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val translationsByLang = getTranslations(databaseHelper, results.map{ it.id })
 
         return results.map { res ->
-            val textView = getDefinitionView(res, showTranslationWord = false)
-            textView.setOnTouchListener(this)
-            textView
+            val definitionView = getDefinitionView(res, showTranslationWord = false)
+            definitionView.setOnTouchListenerOnTextView(this)
+            definitionView
         } + listOf(getDefinitionView(null, translationsByLang, langNames, true))
     }
 

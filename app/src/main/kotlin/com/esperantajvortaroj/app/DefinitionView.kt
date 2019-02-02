@@ -10,6 +10,7 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.RelativeLayout
 import com.esperantajvortaroj.app.db.TranslationResult
 import kotlinx.android.synthetic.main.item_definition.view.*
@@ -68,4 +69,10 @@ class DefinitionView : RelativeLayout {
         layoutParams.width = size
         layoutParams.height = size
     }
+
+    fun setOnTouchListenerOnTextView(l: View.OnTouchListener) {
+        definitionTextView.setOnTouchListener(l)
+    }
+
+
 }
