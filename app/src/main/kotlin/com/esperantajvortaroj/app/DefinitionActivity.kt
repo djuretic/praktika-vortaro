@@ -182,9 +182,10 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val textSize = getTextSize() - 2
 
         val layout = layoutInflater.inflate(R.layout.tooltip_definition, null)
-        val textView = layout.findViewById<DefinitionView>(R.id.tooltipDefinition)
-        textView.setResult(result, LinkedHashMap(), HashMap(), showLinks = false)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+        val definitionView = layout.findViewById<DefinitionView>(R.id.tooltipDefinition)
+        definitionView.showMoreOptions = false
+        definitionView.setResult(result, LinkedHashMap(), HashMap(), showLinks = false)
+        definitionView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
 
         val clickView = layout.findViewById<TextView>(R.id.tooltipBottomActions)
         clickView.movementMethod = LinkMovementMethod.getInstance()
