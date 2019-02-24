@@ -5,29 +5,30 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import com.esperantajvortaroj.app.db.AppDatabase
 import com.esperantajvortaroj.app.db.SearchHistory
-import com.esperantajvortaroj.app.db.SearchHistoryDao
 
 class SearchHistoryViewModel(application: Application) : AndroidViewModel(application) {
-    val searchHistoryDao: SearchHistoryDao = AppDatabase.getInstance(application).searchHistoryDao()
+    private val repository : SearchHistoryRepository
     val allHistory: LiveData<List<SearchHistory>>
 
     init {
-        allHistory = searchHistoryDao.getAll()
+        val searchHistoryDao = AppDatabase.getInstance(application).searchHistoryDao()
+        repository = SearchHistoryRepository(searchHistoryDao)
+        allHistory = repository.allHistory
     }
 
     fun insert(searchHistory: SearchHistory) {
-        searchHistoryDao.insertOne(searchHistory)
+        repository.insertOne(searchHistory)
     }
 
     fun deleteOlderEntries() {
-        searchHistoryDao.deleteOldestEntries()
+        repository.deleteOlderEntries()
     }
 
     fun updateLast(word: String) {
-        searchHistoryDao.updateLast(word)
+        repository.updateLast(word)
     }
 
     fun deleteOne(entry: SearchHistory) {
-        searchHistoryDao.deleteOne(entry)
+        repository.deleteOne(entry)
     }
 }
