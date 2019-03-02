@@ -6,6 +6,9 @@ import android.text.TextUtils
 import android.text.style.UnderlineSpan
 import android.view.View
 import com.esperantajvortaroj.app.db.TranslationResult
+import android.text.Html
+import android.os.Build
+import android.text.Spanned
 
 val mapping = hashMapOf(
     'c' to 'ĉ',
@@ -16,6 +19,14 @@ val mapping = hashMapOf(
     'u' to 'ŭ')
 
 object Utils {
+    fun fromHtml(html: String): Spanned {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(html)
+        }
+    }
+
     fun addHats(text: String): String{
         if(text.length <= 1){
             return text

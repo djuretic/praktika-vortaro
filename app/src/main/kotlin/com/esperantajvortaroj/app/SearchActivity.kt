@@ -343,13 +343,13 @@ class SearchActivity : AppCompatActivity() {
     private fun showAboutDialog(){
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
-        val message = SpannableString("""@ 2018-2019 Dušan Juretić
-            |
-            |Datumbazo: Reta Vortaro - http://www.reta-vortaro.de/revo
-            |
-            |Inspirita de Prevo - https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo
-        """.trimMargin())
-        Linkify.addLinks(message, Linkify.ALL)
+        val message = Utils.fromHtml("""
+            <p>© 2018-2019 Dušan Juretić</p>
+            <p>Datumbazo: <a href="http://www.reta-vortaro.de/revo">Reta Vortaro</a></p>
+            <p>Inspirita de <a href="https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo">PReVo</a></p>
+        """)
+        val spannableString = SpannableString(message)
+        Linkify.addLinks(spannableString, Linkify.ALL)
 
         val dialog = builder.setMessage(message).setTitle("Pri $title")
                 .setPositiveButton(R.string.close_dialog, null)
