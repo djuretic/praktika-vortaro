@@ -8,9 +8,9 @@ import android.content.Intent
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.annotation.WorkerThread
 import android.support.constraint.ConstraintSet
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GestureDetectorCompat
@@ -24,11 +24,13 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.TranslationResult
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
 import kotlinx.android.synthetic.main.activity_definition.*
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var entriesList: ArrayList<Int> = arrayListOf()
@@ -130,9 +132,37 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         if(word == null){
             progressBar.visibility = View.GONE
         } else {
-            SearchWordTask(this).execute(word)
+            doAsync {
+                val searchResult = searchWord(word)
+                uiThread {
+                    if(searchResult == null){
+                        toast("Vorto '$word' ne trovita")
+                    } else {
+                        showTooltip(searchResult)
+                    }
+                    hideProgressBar()
+                }
+
+            }
         }
         return true
+    }
+
+    @WorkerThread
+    fun searchWord(word: String): SearchResult? {
+        val words = Utils.getPossibleBaseWords(word)
+        val databaseHelper = DatabaseHelper(this)
+        try{
+            for(possibleWord in words){
+                val results = databaseHelper.searchWords(possibleWord, true)
+                if(results.isNotEmpty()){
+                    return results[0]
+                }
+            }
+        } finally {
+            databaseHelper.close()
+        }
+        return null
     }
 
     fun showContextMenu(view: View?){
@@ -143,39 +173,6 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     fun hideProgressBar(){
         progressBar.visibility = View.GONE
-    }
-
-    private class SearchWordTask(val context: DefinitionActivity) : AsyncTask<String, Void, SearchResult?>() {
-        var baseWord: String? = null
-
-        override fun doInBackground(vararg params: String?): SearchResult? {
-            if(params.isEmpty()) return null
-            val word = params[0] ?: return null
-            baseWord = word
-
-            val words = Utils.getPossibleBaseWords(word)
-            val databaseHelper = DatabaseHelper(context)
-            try{
-                for(possibleWord in words){
-                    val results = databaseHelper.searchWords(possibleWord, true)
-                    if(results.isNotEmpty()){
-                        return results[0]
-                    }
-                }
-            } finally {
-                databaseHelper.close()
-            }
-            return null
-        }
-
-        override fun onPostExecute(result: SearchResult?) {
-            if(result == null){
-                Toast.makeText(context, "Vorto '$baseWord' ne trovita", Toast.LENGTH_SHORT).show()
-            } else {
-                context.showTooltip(result)
-            }
-            context.hideProgressBar()
-        }
     }
 
     private fun showTooltip(result: SearchResult) {

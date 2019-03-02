@@ -7,7 +7,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
@@ -23,6 +22,7 @@ import com.esperantajvortaroj.app.db.SearchHistory
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 
 class SearchActivity : AppCompatActivity() {
@@ -358,54 +358,6 @@ class SearchActivity : AppCompatActivity() {
         dialog.findViewById<TextView>(android.R.id.message).movementMethod = LinkMovementMethod.getInstance()
     }
 
-    private class SearchTask(val context: Context, val adapter: SearchResultAdapter, val language: String)
-        : AsyncTask<String, Void, SearchResultStatus>(){
-
-        override fun doInBackground(vararg params: String?): SearchResultStatus {
-            val result = SearchResultStatus(ArrayList(), language, null)
-            if(params.isEmpty()) return result
-            val searchString = params[0] ?: return result
-
-            val databaseHelper = DatabaseHelper(context)
-            try{
-                result.results = doSearch(databaseHelper, searchString, language)
-                // try with other languages
-                if(result.results.isEmpty()){
-                    val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
-                    val mutableLangPrefs = LinkedHashSet<String>(langPrefs)
-                    if(language != "eo")
-                        mutableLangPrefs.add("eo")
-                    else
-                        mutableLangPrefs.remove(language)
-                    for(lang in mutableLangPrefs){
-                        result.results = doSearch(databaseHelper, searchString, lang)
-                        if(result.results.isNotEmpty()) {
-                            result.usedLang = lang
-                            return result
-                        }
-                    }
-                }
-            } finally {
-                databaseHelper.close()
-            }
-
-            return result
-        }
-
-        fun doSearch(databaseHelper: DatabaseHelper, searchString: String, lang: String): ArrayList<SearchResult>{
-            if(lang == "eo"){
-                return databaseHelper.searchWords(searchString)
-            } else {
-                return databaseHelper.searchTranslations(searchString, lang)
-            }
-        }
-
-        override fun onPostExecute(results: SearchResultStatus?) {
-            if(results == null) return
-            adapter.receiveDataSet(results)
-        }
-    }
-
     private class SearchResultAdapter(val context: Context): BaseAdapter() {
         private var results = ArrayList<SearchResult>()
         private var searchString: String? = null
@@ -420,9 +372,47 @@ class SearchActivity : AppCompatActivity() {
                     activity.updateHistory(searchString, isUpdate)
                 }
 
-                SearchTask(context, this, language).execute(searchString)
-            }
+                doAsync {
+                    val result = SearchResultStatus(ArrayList(), language, null)
 
+                    val databaseHelper = DatabaseHelper(context)
+                    try{
+                        result.results = doSearch(databaseHelper, searchString, language)
+                        // try with other languages
+                        if(result.results.isEmpty()){
+                            val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+                            val mutableLangPrefs = LinkedHashSet<String>(langPrefs)
+                            if(language != "eo")
+                                mutableLangPrefs.add("eo")
+                            else
+                                mutableLangPrefs.remove(language)
+                            for(lang in mutableLangPrefs){
+                                result.results = doSearch(databaseHelper, searchString, lang)
+                                if(result.results.isNotEmpty()) {
+                                    result.usedLang = lang
+                                    break
+                                }
+                            }
+                        }
+                    } finally {
+                        databaseHelper.close()
+                    }
+                    if (result != null) {
+                        uiThread {
+                            receiveDataSet(result)
+                        }
+
+                    }
+                }
+            }
+        }
+
+        private fun doSearch(databaseHelper: DatabaseHelper, searchString: String, lang: String): ArrayList<SearchResult>{
+            if(lang == "eo"){
+                return databaseHelper.searchWords(searchString)
+            } else {
+                return databaseHelper.searchTranslations(searchString, lang)
+            }
         }
 
         fun receiveDataSet(receivedResults: SearchResultStatus) {
