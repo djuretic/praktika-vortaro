@@ -20,6 +20,10 @@ class DatabaseHelper : SQLiteAssetHelper {
                 helper.close()
             }
         }
+
+        fun databasePath(context: Context): String {
+            return context.getApplicationInfo().dataDir + "/databases/${DB_NAME}"
+        }
     }
 
     constructor(context: Context) : super(context, DB_NAME, null, DB_VERSION) {
