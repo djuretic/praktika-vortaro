@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.DatabaseUtils
 import android.text.TextUtils
 import com.esperantajvortaroj.app.SearchResult
+import com.esperantajvortaroj.app.Utils
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
 import java.util.ArrayList
 
@@ -31,14 +32,7 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
     fun searchWords(searchString: String, exact: Boolean = false) : ArrayList<SearchResult> {
-        var sanitizedString = searchString.replace("%", "")
-        if(!exact){
-            if(sanitizedString.contains('*')){
-               sanitizedString = sanitizedString.replace("*", "%")
-            } else {
-                sanitizedString = "$sanitizedString%"
-            }
-        }
+        var sanitizedString = Utils.sanitizeLikeQuery(searchString, exact)
         val db = readableDatabase
         val cursor = db.rawQuery("""
             SELECT d.id, d.article_id, w.word, d.definition, d.format
@@ -64,12 +58,7 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
     fun searchTranslations(searchString: String, language: String): ArrayList<SearchResult> {
-        var sanitizedString = searchString
-        if(searchString.contains('*')){
-            sanitizedString = sanitizedString.replace("*", "%")
-        } else {
-            sanitizedString = "$sanitizedString%"
-        }
+        var sanitizedString = Utils.sanitizeLikeQuery(searchString, exact = false)
         val db = readableDatabase
         val cursor = db.rawQuery("""
             SELECT definition_id, word, translation

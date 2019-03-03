@@ -38,6 +38,7 @@ class SearchActivity : AppCompatActivity() {
     private var resetSearch = false
     private var lastSearchQuery: String? = null
     private lateinit var searchHistoryViewModel: SearchHistoryViewModel
+    private lateinit var espdicViewModel: EspdicViewModel
 
     companion object {
         const val RESET_SEARCH = "reset_search"
@@ -80,6 +81,7 @@ class SearchActivity : AppCompatActivity() {
         searchHistoryViewModel.allHistory.observe(this, Observer { history ->
             history?.let { searchHistoryAdapter?.receiveDataSet(history) }
         })
+        espdicViewModel = ViewModelProviders.of(this).get(EspdicViewModel::class.java)
 
         versionChecks()
     }
@@ -177,7 +179,7 @@ class SearchActivity : AppCompatActivity() {
                     }
                     searchAdapter?.filter(text, activeLanguage,
                             saveHistory = !isFromSearchHistory && !lastQueryIsMoreComplete,
-                            isUpdate = lastQueryIsPrefix)
+                            isUpdate = lastQueryIsPrefix, roomViewModel = espdicViewModel)
                     isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     lastSearchQuery = query
@@ -362,7 +364,7 @@ class SearchActivity : AppCompatActivity() {
         private var results = ArrayList<SearchResult>()
         private var searchString: String? = null
 
-         fun filter(searchString: String, language: String, saveHistory: Boolean, isUpdate: Boolean){
+         fun filter(searchString: String, language: String, saveHistory: Boolean, isUpdate: Boolean, roomViewModel: EspdicViewModel?){
              this.searchString = searchString
             if(searchString == ""){
                 results.clear()
@@ -375,9 +377,17 @@ class SearchActivity : AppCompatActivity() {
                 doAsync {
                     val result = SearchResultStatus(ArrayList(), language, null)
 
+                    if (roomViewModel != null) {
+                        val espdicResults = roomViewModel.search(Utils.sanitizeLikeQuery(searchString, exact = false), language)
+                        if (language == "eo") {
+                            result.results = ArrayList(espdicResults.map { it -> SearchResult(it.id, 0, it.eo, it.en, null) })
+                        } else {
+                            result.results = ArrayList(espdicResults.map { it -> SearchResult(it.id, 0, it.en, it.eo, null) })
+                        }
+                    }
                     val databaseHelper = DatabaseHelper(context)
                     try{
-                        result.results = doSearch(databaseHelper, searchString, language)
+                        result.results.addAll(doSearch(databaseHelper, searchString, language))
                         // try with other languages
                         if(result.results.isEmpty()){
                             val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
@@ -387,7 +397,7 @@ class SearchActivity : AppCompatActivity() {
                             else
                                 mutableLangPrefs.remove(language)
                             for(lang in mutableLangPrefs){
-                                result.results = doSearch(databaseHelper, searchString, lang)
+                                result.results.addAll(doSearch(databaseHelper, searchString, lang))
                                 if(result.results.isNotEmpty()) {
                                     result.usedLang = lang
                                     break
@@ -398,6 +408,7 @@ class SearchActivity : AppCompatActivity() {
                         databaseHelper.close()
                     }
                     if (result != null) {
+                        result.results.sortBy { it.word }
                         uiThread {
                             receiveDataSet(result)
                         }

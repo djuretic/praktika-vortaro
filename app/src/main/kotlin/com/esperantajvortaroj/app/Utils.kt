@@ -27,6 +27,18 @@ object Utils {
         }
     }
 
+    fun sanitizeLikeQuery(searchString: String, exact: Boolean) : String {
+        var sanitizedString = searchString.replace("%", "")
+        if(!exact){
+            if(sanitizedString.contains('*')){
+                sanitizedString = sanitizedString.replace("*", "%")
+            } else {
+                sanitizedString = "$sanitizedString%"
+            }
+        }
+        return sanitizedString
+    }
+
     fun addHats(text: String): String{
         if(text.length <= 1){
             return text
