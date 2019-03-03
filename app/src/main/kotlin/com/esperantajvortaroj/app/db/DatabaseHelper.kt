@@ -3,6 +3,7 @@ package com.esperantajvortaroj.app.db
 import android.content.Context
 import android.database.DatabaseUtils
 import android.text.TextUtils
+import com.esperantajvortaroj.app.Dictionary
 import com.esperantajvortaroj.app.SearchResult
 import com.esperantajvortaroj.app.Utils
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper
@@ -49,7 +50,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val id = cursor.getInt(cursor.getColumnIndex("id"))
             val articleId = cursor.getInt(cursor.getColumnIndex("article_id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
-            result.add(SearchResult(id, articleId, word, definition, format))
+            result.add(SearchResult(Dictionary.REVO, id, articleId, word, definition, format))
             cursor.moveToNext()
         }
         cursor.close()
@@ -73,7 +74,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val word = cursor.getString(cursor.getColumnIndex("translation"))
             val id = cursor.getInt(cursor.getColumnIndex("definition_id"))
             val format = StringFormat.empty()
-            result.add(SearchResult(id, null, word, definition, format))
+            result.add(SearchResult(Dictionary.REVO, id, null, word, definition, format))
             cursor.moveToNext()
         }
         cursor.close()
@@ -93,7 +94,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val id = cursor.getInt(cursor.getColumnIndex("id"))
             val articleId = cursor.getInt(cursor.getColumnIndex("article_id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
-            result = SearchResult(id, articleId, word, definition, format)
+            result = SearchResult(Dictionary.REVO, id, articleId, word, definition, format)
         }
         cursor.close()
         db.close()
@@ -112,7 +113,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val word = cursor.getString(cursor.getColumnIndex("words"))
             val id = cursor.getInt(cursor.getColumnIndex("id"))
             val format = parseFormat(cursor.getString(cursor.getColumnIndex("format")))
-            results.add(SearchResult(id, articleId, word, definition, format))
+            results.add(SearchResult(Dictionary.REVO, id, articleId, word, definition, format))
             cursor.moveToNext()
         }
         cursor.close()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,20 +10,37 @@
         android:id="@+id/mainWord"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:text="Word"
         android:textColor="@android:color/black"
-        android:textStyle="bold"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/definition"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_below="@id/mainWord"
+        android:layout_alignParentLeft="true"
         android:ellipsize="end"
         android:maxLines="2"
         android:text="Definition"
-        android:textColor="@android:color/black"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
-</LinearLayout>
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/sourceDictionary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:gravity="right"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/mainWord"
+        android:text="Dict"
+        android:textStyle="bold"
+        android:textColor="@android:color/darker_gray"/>
+</RelativeLayout>

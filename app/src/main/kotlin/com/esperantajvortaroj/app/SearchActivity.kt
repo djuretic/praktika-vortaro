@@ -380,9 +380,9 @@ class SearchActivity : AppCompatActivity() {
                     if (roomViewModel != null) {
                         val espdicResults = roomViewModel.search(Utils.sanitizeLikeQuery(searchString, exact = false), language)
                         if (language == "eo") {
-                            result.results = ArrayList(espdicResults.map { it -> SearchResult(it.id, 0, it.eo, it.en, null) })
+                            result.results = ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.eo, it.en, null) })
                         } else {
-                            result.results = ArrayList(espdicResults.map { it -> SearchResult(it.id, 0, it.en, it.eo, null) })
+                            result.results = ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.en, it.eo, null) })
                         }
                     }
                     val databaseHelper = DatabaseHelper(context)
@@ -459,6 +459,8 @@ class SearchActivity : AppCompatActivity() {
             mainWord.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
             val definition = resultRow.findViewById<TextView>(R.id.definition)
             definition.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
+            val sourceDictionary = resultRow.findViewById<TextView>(R.id.sourceDictionary)
+            sourceDictionary.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
             val foundEntry = getItem(position)
             var entryId = 0
             var articleId = 0
@@ -467,6 +469,7 @@ class SearchActivity : AppCompatActivity() {
                 entryId = foundEntry.id
                 articleId = foundEntry.articleId ?: 0
                 definition.text = foundEntry.formattedDefinition(null)
+                sourceDictionary.text = foundEntry.dictionary.humanName
             }
 
             resultRow.setOnClickListener(object : View.OnClickListener {
