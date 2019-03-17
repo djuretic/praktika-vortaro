@@ -19,6 +19,8 @@ import android.view.*
 import android.widget.*
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
+import com.esperantajvortaroj.app.dict.EspdicDict
+import com.esperantajvortaroj.app.dict.RevoDict
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
@@ -375,40 +377,22 @@ class SearchActivity : AppCompatActivity() {
                 }
 
                 doAsync {
-                    val result = SearchResultStatus(ArrayList(), language, null)
+                    val result = RevoDict().search(context, searchString, language, viewModel = null)
 
                     if (roomViewModel != null) {
+                        val espdicResult = EspdicDict().search(context, searchString, language, roomViewModel)
+                        result.results.addAll(espdicResult.results)
+                    }
+                    /*if (roomViewModel != null) {
                         val espdicResults = roomViewModel.search(Utils.sanitizeLikeQuery(searchString, exact = false), language)
                         if (language == "eo") {
-                            result.results = ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.eo, it.en, null) })
+                            result.results.addAll(ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.eo, it.en, null) }))
                         } else {
-                            result.results = ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.en, it.eo, null) })
+                            result.results.addAll(ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.en, it.eo, null) }))
                         }
                     }
-                    val databaseHelper = DatabaseHelper(context)
-                    try{
-                        result.results.addAll(doSearch(databaseHelper, searchString, language))
-                        // try with other languages
-                        if(result.results.isEmpty()){
-                            val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
-                            val mutableLangPrefs = LinkedHashSet<String>(langPrefs)
-                            if(language != "eo")
-                                mutableLangPrefs.add("eo")
-                            else
-                                mutableLangPrefs.remove(language)
-                            for(lang in mutableLangPrefs){
-                                result.results.addAll(doSearch(databaseHelper, searchString, lang))
-                                if(result.results.isNotEmpty()) {
-                                    result.usedLang = lang
-                                    break
-                                }
-                            }
-                        }
-                    } finally {
-                        databaseHelper.close()
-                    }
+*/
                     if (result != null) {
-                        result.results.sortBy { it.word }
                         uiThread {
                             receiveDataSet(result)
                         }
