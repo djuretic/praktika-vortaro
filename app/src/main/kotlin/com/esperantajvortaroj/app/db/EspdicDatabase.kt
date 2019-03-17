@@ -13,6 +13,7 @@ abstract class EspdicDatabase : RoomDatabase() {
 
     companion object : SingletonHolder<EspdicDatabase, Context>({
         val sdDir = Environment.getExternalStorageDirectory()
-        Room.databaseBuilder(it, EspdicDatabase::class.java, "$sdDir/Download/espdic.db").build()
+        val path = "$sdDir/Download/espdic.db"
+        Room.databaseBuilder(it, EspdicDatabase::class.java, path).build()
     })
 }

@@ -1,11 +1,14 @@
 package com.esperantajvortaroj.app.dict
 
+import android.arch.lifecycle.AndroidViewModel
 import android.content.Context
 import com.esperantajvortaroj.app.*
-import com.esperantajvortaroj.app.db.Espdic
 
-class EspdicDict : DictInterface<Espdic> {
-    override fun search(context: Context, searchString: String, language: String, viewModel: SearchableViewModel<Espdic>?): SearchResultStatus {
+class EspdicDict : DictInterface {
+    override fun search(context: Context, searchString: String, language: String, viewModel: AndroidViewModel?): SearchResultStatus {
+        if (viewModel !is EspdicViewModel) {
+            throw Exception("Dictionary cast error")
+        }
         val result = SearchResultStatus(ArrayList(), language, null)
         if (viewModel == null) {
             return result

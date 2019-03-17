@@ -1,6 +1,7 @@
 package com.esperantajvortaroj.app
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.ViewModelProviders
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -33,10 +34,11 @@ import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
-    private var entriesList: ArrayList<Int> = arrayListOf()
+    private var entriesList: ArrayList<DefinitionEntry> = arrayListOf()
     private var entryPosition = 0
     private var definitionId = 0
     private var articleId = 0
+    private var dictionaryId = Dictionary.NONE
 
     private var definitionLinearLayout: LinearLayout? = null
     private var touchedView: View? = null
@@ -45,6 +47,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var tooltipVisible = false
 
     companion object {
+        const val DICTIONARY_ID = "dictionary_id"
         const val DEFINITION_ID = "definition_id"
         const val ARTICLE_ID = "article_id"
         const val ENTRY_POSITION = "entry_position"
@@ -65,15 +68,21 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             override fun onSingleTapUp(e: MotionEvent?) = onSingleTap(e)
         })
 
+        val dictionaryIdRaw = intent.getSerializableExtra(DICTIONARY_ID)
+        if (dictionaryIdRaw == null) {
+            dictionaryId = Dictionary.NONE
+        } else {
+            dictionaryId = dictionaryIdRaw as Dictionary
+        }
         definitionId = intent.getIntExtra(DEFINITION_ID, 0)
         articleId = intent.getIntExtra(ARTICLE_ID, 0)
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
-        val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
+        val entriesList = intent.extras.getParcelableArrayList<DefinitionEntry>(ENTRIES_LIST)
         this.entryPosition = entryPosition
         this.entriesList = entriesList ?: arrayListOf()
 
         if(definitionId > 0){
-            displayDefinition(definitionId)
+            displayDefinition(DefinitionEntry(definitionId, dictionaryId))
         } else {
             displayArticle(articleId)
         }
@@ -219,8 +228,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         tooltip.show()
     }
 
-    private fun displayDefinition(definitionId: Int){
-        val wordInfo = loadDefinition(definitionId)
+    private fun displayDefinition(definitionEntry: DefinitionEntry){
+        val wordInfo = loadDefinition(definitionEntry)
         val wordView = wordInfo.layout
         val articleId = wordInfo.articleId
 
@@ -372,24 +381,43 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun loadDefinition(definitionId: Int): DefinitionData {
-        val databaseHelper = DatabaseHelper(this)
-        val definitionResult = databaseHelper.definitionById(definitionId)
-        var hasArticle = false
-        if(definitionResult?.articleId != null) {
-           hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
+    private fun loadDefinition(definitionEntry: DefinitionEntry): DefinitionData {
+        val definitionId = definitionEntry.entryId
+        return when (definitionEntry.dictionary) {
+            Dictionary.REVO -> {
+                val databaseHelper = DatabaseHelper(this)
+                val definitionResult = databaseHelper.definitionById(definitionId)
+                var hasArticle = false
+                if(definitionResult?.articleId != null) {
+                    hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
+                }
+
+                val translationsByLang = getTranslations(databaseHelper, definitionId)
+                val langNames = databaseHelper.getLanguagesHash()
+                databaseHelper.close()
+                val definitionView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
+                definitionView.setOnTouchListenerOnTextView(this)
+
+                val layout = LinearLayout(this)
+                layout.orientation = LinearLayout.VERTICAL
+                layout.addView(definitionView)
+                return DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle)
+            }
+            Dictionary.ESPDIC -> {
+                val viewModel = ViewModelProviders.of(this).get(EspdicViewModel::class.java)
+                var definitionView: DefinitionView? = null
+                doAsync {
+                    val entry = viewModel.definitionById(definitionId)
+                    val definitionResult = SearchResult(Dictionary.ESPDIC, entry.id, 0, entry.eo, entry.en, null)
+                    definitionView = getDefinitionView(definitionResult, linkedMapOf(), hashMapOf(), false)
+                }
+                val layout = LinearLayout(this)
+                layout.orientation = LinearLayout.VERTICAL
+                layout.addView(definitionView)
+                return DefinitionData(layout, 0, hasArticle = false)
+            }
+            else -> DefinitionData(LinearLayout(this), 0, hasArticle = false)
         }
-
-        val translationsByLang = getTranslations(databaseHelper, definitionId)
-        val langNames = databaseHelper.getLanguagesHash()
-        databaseHelper.close()
-        val definitionView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
-        definitionView.setOnTouchListenerOnTextView(this)
-
-        val layout = LinearLayout(this)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.addView(definitionView)
-        return DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle)
     }
 
     private fun loadArticle(articleId: Int): List<View> {

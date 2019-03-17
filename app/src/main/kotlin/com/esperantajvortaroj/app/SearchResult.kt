@@ -12,7 +12,7 @@ import android.view.View
 import com.esperantajvortaroj.app.db.StringFormat
 
 enum class Dictionary(val id: Int, val humanName: String) {
-    REVO(1, "ReVo"), ESPDIC(2, "ESPDIC")
+    NONE(0, ""), REVO(1, "ReVo"), ESPDIC(2, "ESPDIC")
 }
 
 data class SearchResult(

@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
@@ -21,9 +22,12 @@ import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
 import com.esperantajvortaroj.app.dict.EspdicDict
 import com.esperantajvortaroj.app.dict.RevoDict
+import kotlinx.android.parcel.Parcelize
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
 
@@ -383,15 +387,7 @@ class SearchActivity : AppCompatActivity() {
                         val espdicResult = EspdicDict().search(context, searchString, language, roomViewModel)
                         result.results.addAll(espdicResult.results)
                     }
-                    /*if (roomViewModel != null) {
-                        val espdicResults = roomViewModel.search(Utils.sanitizeLikeQuery(searchString, exact = false), language)
-                        if (language == "eo") {
-                            result.results.addAll(ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.eo, it.en, null) }))
-                        } else {
-                            result.results.addAll(ArrayList(espdicResults.map { it -> SearchResult(Dictionary.ESPDIC, it.id, 0, it.en, it.eo, null) }))
-                        }
-                    }
-*/
+
                     if (result != null) {
                         uiThread {
                             receiveDataSet(result)
@@ -399,14 +395,6 @@ class SearchActivity : AppCompatActivity() {
 
                     }
                 }
-            }
-        }
-
-        private fun doSearch(databaseHelper: DatabaseHelper, searchString: String, lang: String): ArrayList<SearchResult>{
-            if(lang == "eo"){
-                return databaseHelper.searchWords(searchString)
-            } else {
-                return databaseHelper.searchTranslations(searchString, lang)
             }
         }
 
@@ -448,7 +436,9 @@ class SearchActivity : AppCompatActivity() {
             val foundEntry = getItem(position)
             var entryId = 0
             var articleId = 0
+            var dictionary = Dictionary.REVO
             if(foundEntry is SearchResult){
+                dictionary = foundEntry.dictionary
                 mainWord.text = foundEntry.word
                 entryId = foundEntry.id
                 articleId = foundEntry.articleId ?: 0
@@ -460,14 +450,15 @@ class SearchActivity : AppCompatActivity() {
                 override fun onClick(v: View?) {
                     val intent = Intent(context, DefinitionActivity::class.java)
                     if(entryId > 0) {
+                        intent.putExtra(DefinitionActivity.DICTIONARY_ID, dictionary)
                         intent.putExtra(DefinitionActivity.DEFINITION_ID, entryId)
                         intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
                         intent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
 
                         val bundle = Bundle()
-                        bundle.putIntegerArrayList(
+                        bundle.putParcelableArrayList(
                                 DefinitionActivity.ENTRIES_LIST,
-                                ArrayList(results.map { x -> x.id }))
+                                ArrayList(results.map { x -> DefinitionEntry(x.id, x.dictionary) }))
                         intent.putExtras(bundle)
                         context.startActivity(intent)
                     }
@@ -492,3 +483,6 @@ class SearchActivity : AppCompatActivity() {
 }
 
 data class SearchResultStatus(var results: ArrayList<SearchResult>, val originalLang: String, var usedLang: String?)
+
+@Parcelize
+data class DefinitionEntry(val entryId: Int, val dictionary: Dictionary) : Parcelable

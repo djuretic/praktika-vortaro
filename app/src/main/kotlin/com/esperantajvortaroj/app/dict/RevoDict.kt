@@ -1,11 +1,12 @@
 package com.esperantajvortaroj.app.dict
 
+import android.arch.lifecycle.AndroidViewModel
 import android.content.Context
 import com.esperantajvortaroj.app.*
 import com.esperantajvortaroj.app.db.DatabaseHelper
 
-class RevoDict : DictInterface<Object> {
-    override fun search(context: Context, searchString: String, language: String, viewModel: SearchableViewModel<Object>?): SearchResultStatus {
+class RevoDict : DictInterface {
+    override fun search(context: Context, searchString: String, language: String, viewModel: AndroidViewModel?): SearchResultStatus {
         val result = SearchResultStatus(ArrayList(), language, null)
         val databaseHelper = DatabaseHelper(context)
         try{

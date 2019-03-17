@@ -10,4 +10,7 @@ interface EspdicDao {
 
     @Query("SELECT * FROM Espdic WHERE en LIKE :word ORDER BY id DESC LIMIT 50")
     fun getEn(word: String): List<Espdic>
+
+    @Query("SELECT * FROM Espdic WHERE id = :id")
+    fun getById(id: Int): Espdic
 }
