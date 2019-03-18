@@ -1,5 +1,6 @@
 package com.esperantajvortaroj.app
 
+import android.Manifest
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -7,9 +8,12 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Parcelable
 import android.preference.PreferenceManager
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.text.SpannableString
@@ -45,6 +49,8 @@ class SearchActivity : AppCompatActivity() {
     private var lastSearchQuery: String? = null
     private lateinit var searchHistoryViewModel: SearchHistoryViewModel
     private lateinit var espdicViewModel: EspdicViewModel
+    private var hasReadStoragePermission = false
+    private val MY_PERMISSION_REQ_WRITE_EXTERNAL_STORAGE = 1
 
     companion object {
         const val RESET_SEARCH = "reset_search"
@@ -90,6 +96,15 @@ class SearchActivity : AppCompatActivity() {
         espdicViewModel = ViewModelProviders.of(this).get(EspdicViewModel::class.java)
 
         versionChecks()
+
+        hasReadStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        if (!hasReadStoragePermission) {
+            // TODO implement onRequestPermissionsResult
+            ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    MY_PERMISSION_REQ_WRITE_EXTERNAL_STORAGE)
+        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {

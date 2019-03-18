@@ -57,7 +57,6 @@ dependencies {
     implementation 'com.github.douglasjunior:android-simple-tooltip:0.2.2'
     def room_version = "1.1.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
-    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
     kapt "android.arch.persistence.room:compiler:$room_version"
     def lifecycle_version = "1.1.1"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
