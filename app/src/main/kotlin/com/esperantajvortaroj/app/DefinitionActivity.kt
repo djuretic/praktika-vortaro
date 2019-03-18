@@ -229,23 +229,25 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun displayDefinition(definitionEntry: DefinitionEntry){
-        val wordInfo = loadDefinition(definitionEntry)
-        val wordView = wordInfo.layout
-        val articleId = wordInfo.articleId
+        loadDefinition(definitionEntry) { wordInfo ->
+            val wordView = wordInfo.layout
+            val articleId = wordInfo.articleId
 
-        val layout = LinearLayout(this)
-        definitionLinearLayout = layout
-        layout.orientation = LinearLayout.VERTICAL
-        layout.addView(wordView)
+            val layout = LinearLayout(this)
+            definitionLinearLayout = layout
+            layout.orientation = LinearLayout.VERTICAL
+            layout.addView(wordView)
 
-        if(wordInfo.hasArticle){
-            layout.addView(linkToArticleView(articleId))
+            if(wordInfo.hasArticle){
+                layout.addView(linkToArticleView(articleId))
+            }
+
+            with(definitionScrollView){
+                removeAllViews()
+                addView(layout)
+            }
         }
 
-        with(definitionScrollView){
-            removeAllViews()
-            addView(layout)
-        }
     }
 
     private fun displayArticle(articleId: Int){
@@ -381,27 +383,33 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         }
     }
 
-    private fun loadDefinition(definitionEntry: DefinitionEntry): DefinitionData {
+    private fun loadDefinition(definitionEntry: DefinitionEntry, callback: (DefinitionData) -> Unit): Unit {
         val definitionId = definitionEntry.entryId
-        return when (definitionEntry.dictionary) {
+        when (definitionEntry.dictionary) {
             Dictionary.REVO -> {
-                val databaseHelper = DatabaseHelper(this)
-                val definitionResult = databaseHelper.definitionById(definitionId)
-                var hasArticle = false
-                if(definitionResult?.articleId != null) {
-                    hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
+                doAsync {
+                    val databaseHelper = DatabaseHelper(this@DefinitionActivity)
+                    val definitionResult = databaseHelper.definitionById(definitionId)
+                    var hasArticle = false
+                    if(definitionResult?.articleId != null) {
+                        hasArticle =   databaseHelper.getArticleCountDefinitions(definitionResult.articleId) > 1
+                    }
+
+                    val translationsByLang = getTranslations(databaseHelper, definitionId)
+                    val langNames = databaseHelper.getLanguagesHash()
+                    databaseHelper.close()
+
+                    val definitionView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
+                    definitionView.setOnTouchListenerOnTextView(this@DefinitionActivity)
+
+                    val layout = LinearLayout(this@DefinitionActivity)
+                    layout.orientation = LinearLayout.VERTICAL
+                    layout.addView(definitionView)
+                    uiThread {
+                        callback(DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle))
+                    }
                 }
 
-                val translationsByLang = getTranslations(databaseHelper, definitionId)
-                val langNames = databaseHelper.getLanguagesHash()
-                databaseHelper.close()
-                val definitionView = getDefinitionView(definitionResult, translationsByLang, langNames, false)
-                definitionView.setOnTouchListenerOnTextView(this)
-
-                val layout = LinearLayout(this)
-                layout.orientation = LinearLayout.VERTICAL
-                layout.addView(definitionView)
-                return DefinitionData(layout, definitionResult?.articleId ?: 0, hasArticle)
             }
             Dictionary.ESPDIC -> {
                 val viewModel = ViewModelProviders.of(this).get(EspdicViewModel::class.java)
@@ -410,13 +418,15 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     val entry = viewModel.definitionById(definitionId)
                     val definitionResult = SearchResult(Dictionary.ESPDIC, entry.id, 0, entry.eo, entry.en, null)
                     definitionView = getDefinitionView(definitionResult, linkedMapOf(), hashMapOf(), false)
+                    val layout = LinearLayout(this@DefinitionActivity)
+                    layout.orientation = LinearLayout.VERTICAL
+                    layout.addView(definitionView)
+                    uiThread {
+                        callback(DefinitionData(layout, 0, hasArticle = false))
+                    }
                 }
-                val layout = LinearLayout(this)
-                layout.orientation = LinearLayout.VERTICAL
-                layout.addView(definitionView)
-                return DefinitionData(layout, 0, hasArticle = false)
             }
-            else -> DefinitionData(LinearLayout(this), 0, hasArticle = false)
+            else -> callback(DefinitionData(LinearLayout(this), 0, hasArticle = false))
         }
     }
 
