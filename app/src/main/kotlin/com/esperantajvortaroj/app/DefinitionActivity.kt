@@ -213,6 +213,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             override fun onClick(p0: View?) {
                 val intent = Intent(context, DefinitionActivity::class.java)
                 if(result.id > 0) {
+                    intent.putExtra(DefinitionActivity.DICTIONARY_ID, Dictionary.REVO)
                     intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
                     intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
                     intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
