@@ -427,6 +427,21 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                     }
                 }
             }
+            Dictionary.AULEX -> {
+                val viewModel = ViewModelProviders.of(this).get(AulexViewModel::class.java)
+                var definitionView: DefinitionView? = null
+                doAsync {
+                    val entry = viewModel.definitionById(definitionId)
+                    val definitionResult = SearchResult(Dictionary.AULEX, entry.id, 0, entry.eo, entry.es, null)
+                    definitionView = getDefinitionView(definitionResult, linkedMapOf(), hashMapOf(), false)
+                    val layout = LinearLayout(this@DefinitionActivity)
+                    layout.orientation = LinearLayout.VERTICAL
+                    layout.addView(definitionView)
+                    uiThread {
+                        callback(DefinitionData(layout, 0, hasArticle = false))
+                    }
+                }
+            }
             else -> callback(DefinitionData(LinearLayout(this), 0, hasArticle = false))
         }
     }

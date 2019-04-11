@@ -24,14 +24,13 @@ import android.view.*
 import android.widget.*
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
+import com.esperantajvortaroj.app.dict.AulexDict
 import com.esperantajvortaroj.app.dict.EspdicDict
 import com.esperantajvortaroj.app.dict.RevoDict
 import kotlinx.android.parcel.Parcelize
 
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.intentFor
-import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 
 
@@ -49,6 +48,7 @@ class SearchActivity : AppCompatActivity() {
     private var lastSearchQuery: String? = null
     private lateinit var searchHistoryViewModel: SearchHistoryViewModel
     private lateinit var espdicViewModel: EspdicViewModel
+    private lateinit var aulexViewModel: AulexViewModel
     private var hasReadStoragePermission = false
     private val MY_PERMISSION_REQ_WRITE_EXTERNAL_STORAGE = 1
 
@@ -94,6 +94,7 @@ class SearchActivity : AppCompatActivity() {
             history?.let { searchHistoryAdapter?.receiveDataSet(history) }
         })
         espdicViewModel = ViewModelProviders.of(this).get(EspdicViewModel::class.java)
+        aulexViewModel = ViewModelProviders.of(this).get(AulexViewModel::class.java)
 
         versionChecks()
 
@@ -200,7 +201,8 @@ class SearchActivity : AppCompatActivity() {
                     }
                     searchAdapter?.filter(text, activeLanguage,
                             saveHistory = !isFromSearchHistory && !lastQueryIsMoreComplete,
-                            isUpdate = lastQueryIsPrefix, roomViewModel = espdicViewModel)
+                            isUpdate = lastQueryIsPrefix, espdicViewModel = espdicViewModel,
+                            aulexViewModel = aulexViewModel)
                     isSearching = true
                     updateBottomPart(true, searchAdapter?.count ?: 0)
                     lastSearchQuery = query
@@ -385,7 +387,7 @@ class SearchActivity : AppCompatActivity() {
         private var results = ArrayList<SearchResult>()
         private var searchString: String? = null
 
-         fun filter(searchString: String, language: String, saveHistory: Boolean, isUpdate: Boolean, roomViewModel: EspdicViewModel?){
+         fun filter(searchString: String, language: String, saveHistory: Boolean, isUpdate: Boolean, espdicViewModel: EspdicViewModel?, aulexViewModel: AulexViewModel?){
              this.searchString = searchString
             if(searchString == ""){
                 results.clear()
@@ -398,9 +400,13 @@ class SearchActivity : AppCompatActivity() {
                 doAsync {
                     val result = RevoDict().search(context, searchString, language, viewModel = null)
 
-                    if (roomViewModel != null) {
-                        val espdicResult = EspdicDict().search(context, searchString, language, roomViewModel)
+                    if (espdicViewModel != null) {
+                        val espdicResult = EspdicDict().search(context, searchString, language, espdicViewModel)
                         result.results.addAll(espdicResult.results)
+                    }
+                    if (aulexViewModel != null) {
+                        val aulexResult = AulexDict().search(context, searchString, language, aulexViewModel)
+                        result.results.addAll(aulexResult.results)
                     }
 
                     if (result != null) {
