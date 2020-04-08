@@ -30,8 +30,13 @@ android {
     buildToolsVersion '27.0.3'
 }
 
+
 preBuild.doFirst {
-    assert file("./src/main/assets/databases/vortaro.db").size() > 0
+    def f = new File('./app/src/main/assets/databases/vortaro.db')
+    if (!f.exists()) {
+        new URL('https://github.com/djuretic/praktika-vortaro-dicts/releases/download/0.12/vortaro.db').withInputStream{ i -> f.withOutputStream{ it << i }}
+    }
+    assert f.size() > 0
 }
 
 afterEvaluate {
