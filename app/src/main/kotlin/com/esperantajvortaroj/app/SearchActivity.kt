@@ -341,11 +341,12 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showAboutDialog(){
+        val revoVersion = DatabaseHelper.getRevoVersion(this)
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
         val message = Utils.fromHtml("""
-            <p>© 2018-2019 Dušan Juretić</p>
-            <p>Datumbazo: <a href="http://www.reta-vortaro.de/revo">Reta Vortaro</a></p>
+            <p>© 2018-2020 Dušan Juretić</p>
+            <p>Datumbazo: <a href="http://www.reta-vortaro.de/revo">Reta Vortaro</a><br/>Versio: ${revoVersion}</p>
             <p>Inspirita de <a href="https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo">PReVo</a></p>
         """)
         val spannableString = SpannableString(message)

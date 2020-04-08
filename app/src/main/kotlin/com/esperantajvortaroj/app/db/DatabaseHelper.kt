@@ -10,12 +10,21 @@ import java.util.ArrayList
 class DatabaseHelper : SQLiteAssetHelper {
     companion object {
         val DB_NAME = "vortaro.db"
-        val DB_VERSION = 14
+        val DB_VERSION = 15
 
         fun getLanguagesHash(context: Context): HashMap<String, String> {
             val helper = DatabaseHelper(context)
             try{
                 return helper.getLanguagesHash()
+            }  finally {
+                helper.close()
+            }
+        }
+
+        fun getRevoVersion(context: Context) : String {
+            val helper = DatabaseHelper(context)
+            try{
+                return helper.getRevoVersion()
             }  finally {
                 helper.close()
             }
@@ -234,6 +243,19 @@ class DatabaseHelper : SQLiteAssetHelper {
         }
 
         return StringFormat(italic, bold, ekz, fako, tld)
+    }
+
+    fun getRevoVersion(): String {
+        val cursor = readableDatabase.query(
+                "version", arrayOf("id"), "", emptyArray(), null, null, null
+        )
+        var result = ""
+        if(cursor.count == 1){
+            cursor.moveToFirst()
+            result = cursor.getString(cursor.getColumnIndex("id"))
+        }
+        cursor.close()
+        return result
     }
 
     fun getDiscipline(code: String): String {
