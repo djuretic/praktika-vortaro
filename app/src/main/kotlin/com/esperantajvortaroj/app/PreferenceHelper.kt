@@ -27,4 +27,20 @@ object PreferenceHelper {
         edit.putStringSet(key, value)
         edit.apply()
     }
+
+    fun setActiveLanguage(context: Context, activeLanguage: String) {
+        putString(context, SettingsActivity.ACTIVE_LANGUAGE, activeLanguage)
+    }
+
+    fun getActiveLanguage(context: Context, default: String): String {
+        return getString(context, SettingsActivity.ACTIVE_LANGUAGE, default)
+    }
+
+    fun setLanguagesPreference(context: Context, langPrefs: HashSet<String>) {
+        putStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE, langPrefs)
+    }
+
+    fun getLanguagesPreference(context: Context): Set<String> {
+        return getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+    }
 }

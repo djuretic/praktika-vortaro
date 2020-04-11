@@ -430,7 +430,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, definitionId: Int): LinkedHashMap<String, List<TranslationResult>> {
-        val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+        // TODO: Showing all translations mode
+        val langPrefs = PreferenceHelper.getLanguagesPreference(this)
 
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {
@@ -443,7 +444,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun getTranslations(databaseHelper: DatabaseHelper, definitionIds: List<Int>): LinkedHashMap<String, List<TranslationResult>> {
-        val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+        val langPrefs = PreferenceHelper.getLanguagesPreference(this)
 
         val translationsByLang = LinkedHashMap<String, List<TranslationResult>>()
         for (lang in langPrefs) {

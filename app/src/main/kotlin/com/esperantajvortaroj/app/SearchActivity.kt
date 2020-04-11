@@ -53,7 +53,7 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-        activeLanguage = PreferenceHelper.getString(this, SettingsActivity.ACTIVE_LANGUAGE, ESPERANTO)
+        activeLanguage = PreferenceHelper.getActiveLanguage(this, ESPERANTO)
 
         searchAdapter = SearchResultAdapter(this)
         searchResults.adapter = searchAdapter
@@ -248,7 +248,7 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.change_search_language -> {
-                val langPrefs = PreferenceHelper.getStringSet(this, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+                val langPrefs = PreferenceHelper.getLanguagesPreference(this)
 
                 if(activeLanguage == ESPERANTO && !langPrefs.isEmpty()){
                     activeLanguage = langPrefs.elementAt(0)
@@ -265,7 +265,7 @@ class SearchActivity : AppCompatActivity() {
                 }
                 updateSearchQueryHint()
 
-                PreferenceHelper.putString(this, SettingsActivity.ACTIVE_LANGUAGE, activeLanguage)
+                PreferenceHelper.setActiveLanguage(this, activeLanguage)
 
                 item.title = activeLanguage
                 val searchView = this.searchView
@@ -381,7 +381,7 @@ class SearchActivity : AppCompatActivity() {
                         result.results = doSearch(databaseHelper, searchString, language)
                         // try with other languages
                         if(result.results.isEmpty()){
-                            val langPrefs = PreferenceHelper.getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+                            val langPrefs = PreferenceHelper.getLanguagesPreference(context)
                             val mutableLangPrefs = LinkedHashSet<String>(langPrefs)
                             if(language != "eo")
                                 mutableLangPrefs.add("eo")
