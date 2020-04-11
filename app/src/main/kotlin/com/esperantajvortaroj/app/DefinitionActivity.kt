@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.annotation.WorkerThread
 import android.support.constraint.ConstraintSet
 import android.support.v4.content.ContextCompat
@@ -257,8 +256,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     private fun getTextSize(): Float{
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        return sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE).toFloat()
+        return PreferenceHelper.getFontSize(this).toFloat()
     }
 
     private fun linkToArticleView(articleId: Int): TextView {

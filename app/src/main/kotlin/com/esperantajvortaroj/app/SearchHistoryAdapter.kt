@@ -1,7 +1,6 @@
 package com.esperantajvortaroj.app
 
 import android.content.Context
-import android.preference.PreferenceManager
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -21,8 +20,7 @@ class SearchHistoryAdapter(val context: Context) : BaseAdapter() {
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
+        val fontSize = PreferenceHelper.getFontSize(context)
         val historyEntry = getItem(position)
         val resultRow = convertView ?: SearchHistoryView(context)
         if (resultRow is SearchHistoryView) {

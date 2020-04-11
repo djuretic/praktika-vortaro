@@ -5,42 +5,68 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 
 object PreferenceHelper {
-    fun defaultSharedPreferences(context: Context): SharedPreferences
+    private fun defaultSharedPreferences(context: Context): SharedPreferences
             = PreferenceManager.getDefaultSharedPreferences(context)
 
-    fun getString(context: Context, key: String, default: String): String{
+    private fun getInt(context: Context, key: String, default: Int): Int {
+        return defaultSharedPreferences(context).getInt(key, default)
+    }
+
+    private fun getString(context: Context, key: String, default: String): String{
         return defaultSharedPreferences(context).getString(key, default)
     }
 
-    fun getStringSet(context: Context, key: String): Set<String> {
+    private fun getStringSet(context: Context, key: String): Set<String> {
         return defaultSharedPreferences(context).getStringSet(key, emptySet())
     }
 
-    fun putString(context: Context, key: String, value: String){
+    private fun putInt(context: Context, key: String, value: Int) {
+        val edit = defaultSharedPreferences(context).edit()
+        edit.putInt(key, value)
+        edit.apply()
+    }
+
+    private fun putString(context: Context, key: String, value: String){
         val edit = defaultSharedPreferences(context).edit()
         edit.putString(key, value)
         edit.apply()
     }
 
-    fun putStringSet(context: Context, key: String, value: HashSet<String>) {
+    private fun putStringSet(context: Context, key: String, value: HashSet<String>) {
         val edit = defaultSharedPreferences(context).edit()
         edit.putStringSet(key, value)
         edit.apply()
     }
 
-    fun setActiveLanguage(context: Context, activeLanguage: String) {
-        putString(context, SettingsActivity.ACTIVE_LANGUAGE, activeLanguage)
+    fun setVersionCode(context: Context, value: Int) {
+        putInt(context, SettingsActivity.VERSION_CODE, value)
+    }
+
+    fun getVersionCode(context: Context): Int {
+        return getInt(context, SettingsActivity.VERSION_CODE, 0)
+    }
+
+    fun setActiveLanguage(context: Context, value: String) {
+        putString(context, SettingsActivity.ACTIVE_LANGUAGE, value)
     }
 
     fun getActiveLanguage(context: Context, default: String): String {
         return getString(context, SettingsActivity.ACTIVE_LANGUAGE, default)
     }
 
-    fun setLanguagesPreference(context: Context, langPrefs: HashSet<String>) {
-        putStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE, langPrefs)
+    fun setLanguagesPreference(context: Context, value: HashSet<String>) {
+        putStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE, value)
     }
 
     fun getLanguagesPreference(context: Context): Set<String> {
         return getStringSet(context, SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+    }
+
+    fun setFontSize(context: Context, value: Int) {
+        putInt(context, SettingsActivity.FONT_SIZE, value)
+    }
+
+    fun getFontSize(context: Context): Int {
+        return getInt(context, SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
     }
 }

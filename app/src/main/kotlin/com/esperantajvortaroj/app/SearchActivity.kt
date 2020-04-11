@@ -135,17 +135,13 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun versionChecks() {
-        val sharedPref = PreferenceHelper.defaultSharedPreferences(this)
-        val versionCode = sharedPref.getInt(SettingsActivity.VERSION_CODE, 0)
+        val versionCode = PreferenceHelper.getVersionCode(this)
         if (versionCode == 0){
             // first run
             startLanguageActivity()
         }
         if (versionCode != BuildConfig.VERSION_CODE) {
-            with(sharedPref.edit()) {
-                putInt(SettingsActivity.VERSION_CODE, BuildConfig.VERSION_CODE)
-                apply()
-            }
+            PreferenceHelper.setVersionCode(this, BuildConfig.VERSION_CODE)
         }
     }
 
@@ -295,8 +291,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showFontSizeDialog() {
-        val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
+        val fontSize = PreferenceHelper.getFontSize(this)
 
         val picker = NumberPicker(this)
         picker.minValue = 5
@@ -315,9 +310,7 @@ class SearchActivity : AppCompatActivity() {
         builder.setTitle("Elektu tiparan grandon")
         builder.setPositiveButton(R.string.close_dialog) { dialog, which ->
             val newFontSize = picker.value
-            val editor = sharedPrefs.edit()
-            editor.putInt(SettingsActivity.FONT_SIZE, newFontSize)
-            editor.apply()
+            PreferenceHelper.setFontSize(this, newFontSize)
             dialog?.dismiss()
             searchResults.invalidateViews()
         }
@@ -441,9 +434,8 @@ class SearchActivity : AppCompatActivity() {
             val resultRow = if (convertView == null)
                 layoutInflater.inflate(R.layout.item_search_entry, parent, false)
             else { convertView }
-
-            val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val fontSize = sharedPrefs.getInt(SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
+            
+            val fontSize = PreferenceHelper.getFontSize(context)
 
             val mainWord = resultRow.findViewById<TextView>(R.id.mainWord)
             mainWord.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize.toFloat())
