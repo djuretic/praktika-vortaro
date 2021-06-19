@@ -72,6 +72,10 @@ object Utils {
     }
 
     fun getPossibleBaseWords(word: CharSequence): List<String> {
+        if(word.contains("→")){
+            return getPossibleBaseWords(word.toString().replace("→", ""))
+        }
+
         val words = arrayListOf(word.toString())
         if(word.length <= 3){
             if(word == "ajn") return words
@@ -89,7 +93,27 @@ object Utils {
             words.add(word.substring(0 until word.length - 1))
         }
 
-        val verbEndings = arrayListOf("as", "is", "os", "us", "anta", "inta", "onta", "ante", "ata", "ita", "ota", "u")
+        if(word.endsWith("e")){
+            val radix = word.substring(0 until word.length - 1)
+            words.add("${radix}o")
+            words.add("${radix}a")
+            words.add("${radix}i")
+        }
+
+        val verbEndings = arrayListOf(
+                "as", "is", "os", "us",
+                "anta", "inta", "onta", "ante",
+                "ado",
+                "anto", "into", "onto",
+                "ata", "ita", "ota",
+                "u",
+                "antaj", "intaj", "ontaj",
+                "antajn", "intajn", "ontajn",
+                "ataj", "itaj", "otaj",
+                "atajn", "itajn", "otajn",
+                "antoj", "intoj", "ontoj",
+                "antojn", "intojn", "ontojn"
+        )
         for(ending in verbEndings){
             if(word.endsWith(ending) && word != ending){
                 words.add(word.substring(0 until word.length - ending.length)+ "i")

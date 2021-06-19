@@ -37,9 +37,28 @@ class UtilsTest {
     }
 
     @Test
+    fun testGetPossibleBaseWordsNouns() {
+        Assert.assertEquals(arrayListOf("migranto", "migri"), Utils.getPossibleBaseWords("migranto"))
+        Assert.assertEquals(arrayListOf("migrado", "migri"), Utils.getPossibleBaseWords("migrado"))
+    }
+
+    @Test
+    fun testGetPossibleBaseWordsAdverbs() {
+        Assert.assertEquals(arrayListOf("vole", "volo", "vola", "voli"), Utils.getPossibleBaseWords("vole"))
+    }
+
+    @Test
     fun testGetPossibleBaseWordsVerbs(){
         Assert.assertEquals(arrayListOf("vidas", "vidi"), Utils.getPossibleBaseWords("vidas"))
         Assert.assertEquals(arrayListOf("vidanta", "vidi"), Utils.getPossibleBaseWords("vidanta"))
+        Assert.assertEquals(arrayListOf("vidantaj", "vidanta", "vidi"), Utils.getPossibleBaseWords("vidantaj"))
+        Assert.assertEquals(arrayListOf("vidantajn", "vidantaj", "vidanta", "vidi"), Utils.getPossibleBaseWords("vidantajn"))
         Assert.assertEquals(arrayListOf("vidu", "vidi"), Utils.getPossibleBaseWords("vidu"))
+    }
+
+    @Test
+    fun testRemoveArrow(){
+        Assert.assertEquals(arrayListOf("tero"), Utils.getPossibleBaseWords("tero→"))
+        Assert.assertEquals(arrayListOf("tero"), Utils.getPossibleBaseWords("→tero"))
     }
 }
