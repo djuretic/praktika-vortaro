@@ -26,7 +26,7 @@ data class SearchResult(
             if(context != null) {
                 for (pair in format.fako) {
                     def.setSpan(object : StyledClickableSpan(context) {
-                        override fun onClick(view: View?) {
+                        override fun onClick(view: View) {
                             fakoCallback(def.substring(pair.first..pair.second))
                         }
                     }, pair.first, pair.second, 0)

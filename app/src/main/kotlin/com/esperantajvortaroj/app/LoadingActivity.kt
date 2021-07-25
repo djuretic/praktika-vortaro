@@ -2,7 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread

@@ -1,7 +1,7 @@
 package com.esperantajvortaroj.app
 
-import android.arch.lifecycle.LiveData
-import android.support.annotation.WorkerThread
+import androidx.lifecycle.LiveData
+import androidx.annotation.WorkerThread
 import com.esperantajvortaroj.app.db.SearchHistory
 import com.esperantajvortaroj.app.db.SearchHistoryDao
 

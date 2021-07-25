@@ -9,11 +9,11 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.support.annotation.WorkerThread
-import android.support.constraint.ConstraintSet
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.WorkerThread
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
@@ -67,7 +67,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         definitionId = intent.getIntExtra(DEFINITION_ID, 0)
         articleId = intent.getIntExtra(ARTICLE_ID, 0)
         val entryPosition = intent.getIntExtra(ENTRY_POSITION, 0)
-        val entriesList = intent.extras.getIntegerArrayList(ENTRIES_LIST)
+        val entriesList = intent.extras?.getIntegerArrayList(ENTRIES_LIST)
         this.entryPosition = entryPosition
         this.entriesList = entriesList ?: arrayListOf()
 
@@ -200,7 +200,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                 .modal(true)
                 .build()
         showLink.setSpan(object: StyledClickableSpan(this) {
-            override fun onClick(p0: View?) {
+            override fun onClick(p0: View) {
                 val intent = Intent(context, DefinitionActivity::class.java)
                 if(result.id > 0) {
                     intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
@@ -264,7 +264,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val text = SpannableString("\nMontri artikolon \n")
         text.setSpan(StyleSpan(Typeface.BOLD), 0, text.length, 0)
         text.setSpan(object: StyledClickableSpan(this) {
-            override fun onClick(p0: View?) {
+            override fun onClick(p0: View) {
                 val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
                 intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
                 startActivity(intent)
@@ -348,12 +348,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         when(item?.itemId){
             R.id.copyDefinition -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.primaryClip = ClipData.newPlainText("difino", targetView.definition.toString())
+                clipboard.setPrimaryClip(ClipData.newPlainText("difino", targetView.definition.toString()))
                 return true
             }
             R.id.copyHeadword -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                clipboard.primaryClip = ClipData.newPlainText("kapvorto", targetView.headword.toString())
+                clipboard.setPrimaryClip(ClipData.newPlainText("kapvorto", targetView.headword.toString()))
                 return true
             }
             R.id.searchPIV -> {

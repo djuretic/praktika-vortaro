@@ -2,7 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 object PreferenceHelper {
     private fun defaultSharedPreferences(context: Context): SharedPreferences
