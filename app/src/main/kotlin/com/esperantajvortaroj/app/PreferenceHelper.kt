@@ -13,11 +13,11 @@ object PreferenceHelper {
     }
 
     private fun getString(context: Context, key: String, default: String): String{
-        return defaultSharedPreferences(context).getString(key, default)
+        return defaultSharedPreferences(context).getString(key, default)!!
     }
 
     private fun getStringSet(context: Context, key: String): Set<String> {
-        return defaultSharedPreferences(context).getStringSet(key, emptySet())
+        return defaultSharedPreferences(context).getStringSet(key, emptySet())!!
     }
 
     private fun putInt(context: Context, key: String, value: Int) {

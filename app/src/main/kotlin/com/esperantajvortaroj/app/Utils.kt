@@ -179,7 +179,7 @@ object Utils {
                 val value = groups[key] ?: emptyList()
                 val headword = SpannableString(key)
                 headword.setSpan(object: StyledClickableSpan(context) {
-                    override fun onClick(p0: View?) {
+                    override fun onClick(p0: View) {
                         onArticleTranslationClick(value.first().positionInArticle)
                     }
 

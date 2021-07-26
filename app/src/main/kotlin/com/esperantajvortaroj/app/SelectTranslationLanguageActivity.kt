@@ -80,10 +80,11 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
     class LanguageAdapter(context: Context, items: ArrayList<Language>, var langPrefs: Set<String>)
         : ArrayAdapter<Language>(context, android.R.layout.simple_list_item_multiple_choice, items){
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val textView = super.getView(position, convertView, parent)
             if(parent is ListView && textView is CheckedTextView){
                 val lang = getItem(position)
+                if (lang == null) return textView
                 parent.setItemChecked(position, langPrefs.contains(lang.code))
 
                 val numEntries = String.format("%,d", lang.numEntries)
