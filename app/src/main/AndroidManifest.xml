@@ -25,7 +25,7 @@
                 android:value="com.esperantajvortaroj.app.SearchActivity" />
         </activity>
         <activity android:name="com.esperantajvortaroj.app.SettingsActivity"></activity>
-        <activity android:name="com.esperantajvortaroj.app.SelectTranslationLanguageActivity">
+        <activity android:name="com.esperantajvortaroj.app.SelectTranslationLanguageActivity"
             android:parentActivityName="com.esperantajvortaroj.app.SearchActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data

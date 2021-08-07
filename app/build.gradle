@@ -13,6 +13,8 @@ android {
         versionName "0.20"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
+        buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'

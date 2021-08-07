@@ -300,9 +300,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         tooltipVisible = false
-        when (item?.itemId) {
+        when (item.itemId) {
             R.id.go_back_search -> {
                 val intent = Intent(this, SearchActivity::class.java)
                 intent.putExtra(SearchActivity.RESET_SEARCH, true)
@@ -339,13 +339,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         menuInflater.inflate(R.menu.definition_context_menu, menu)
     }
 
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
+    override fun onContextItemSelected(item: MenuItem): Boolean {
         val targetView = touchedView
         if(targetView == null || targetView !is DefinitionView){
             return super.onContextItemSelected(item)
         }
 
-        when(item?.itemId){
+        when(item.itemId){
             R.id.copyDefinition -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("difino", targetView.definition.toString()))
@@ -357,12 +357,12 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
                 return true
             }
             R.id.searchPIV -> {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://vortaro.net/#${targetView.headword}"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://vortaro.net/#${targetView.headword}"))
                 startActivity(intent)
                 return true
             }
             R.id.searchKomputeko -> {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://komputeko.net/index_eo.php?vorto=${targetView.headword}"))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://komputeko.net/#${targetView.headword}"))
                 startActivity(intent)
                 return true
             }
