@@ -69,4 +69,12 @@ object PreferenceHelper {
     fun getFontSize(context: Context): Int {
         return getInt(context, SettingsActivity.FONT_SIZE, SettingsActivity.DEFAULT_FONT_SIZE)
     }
+
+    fun setNightMode(context: Context, value: Int) {
+        putInt(context, SettingsActivity.NIGHT_MODE, value)
+    }
+
+    fun getNightMode(context: Context, default: Int): Int {
+        return getInt(context, SettingsActivity.NIGHT_MODE, default)
+    }
 }

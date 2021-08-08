@@ -17,6 +17,7 @@ import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AppCompatDelegate
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
 
@@ -51,6 +52,8 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this, AppCompatDelegate.MODE_NIGHT_YES))
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         activeLanguage = PreferenceHelper.getActiveLanguage(this, ESPERANTO)
@@ -278,6 +281,17 @@ class SearchActivity : AppCompatActivity() {
             }
             R.id.font_size_setting -> {
                 showFontSizeDialog()
+                return true
+            }
+            R.id.night_mode_setting -> {
+                // TODO show all options to user
+                val newMode = when(PreferenceHelper.getNightMode(this, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)) {
+                    AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
+                    AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.MODE_NIGHT_YES
+                    else -> AppCompatDelegate.MODE_NIGHT_YES
+                }
+                AppCompatDelegate.setDefaultNightMode(newMode)
+                PreferenceHelper.setNightMode(this, newMode)
                 return true
             }
             R.id.about_the_app -> {

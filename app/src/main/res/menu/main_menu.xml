@@ -18,6 +18,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/night_mode_setting"
+        android:title="Nokta reĝimo"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/font_size_setting"
         android:title="Tipara grando"
         app:showAsAction="never" />

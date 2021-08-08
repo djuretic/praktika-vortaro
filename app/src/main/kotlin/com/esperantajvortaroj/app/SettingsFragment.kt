@@ -1,17 +1,18 @@
 package com.esperantajvortaroj.app
 
 import android.os.Bundle
-import android.preference.MultiSelectListPreference
-import android.preference.PreferenceFragment
+import androidx.preference.MultiSelectListPreference
+import androidx.preference.PreferenceFragmentCompat
 import com.esperantajvortaroj.app.db.DatabaseHelper
 
-class SettingsFragment : PreferenceFragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class SettingsFragment : PreferenceFragmentCompat() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.preferences)
-        val langPref = findPreference(SettingsActivity.KEY_LANGUAGES_PREFERENCE)
-        if(langPref is MultiSelectListPreference){
-            val databaseHelper = DatabaseHelper(activity)
+        val langPref = findPreference<MultiSelectListPreference>(SettingsActivity.KEY_LANGUAGES_PREFERENCE)
+        val appContext = context
+        if(langPref != null && appContext != null){
+            val databaseHelper = DatabaseHelper(appContext)
             val allLangs = databaseHelper.getLanguages()
             val langNames = allLangs.map { lng -> lng.name }
             val langCodes = allLangs.map { lng -> lng.code }
