@@ -340,10 +340,10 @@ class SearchActivity : AppCompatActivity() {
         }
         builder.setPositiveButton("Fermi") { dialog, which ->
             PreferenceHelper.setNightMode(this, nightMode)
-            // TODO does not work to refresh
             AppCompatDelegate.setDefaultNightMode(nightMode)
             delegate.applyDayNight()
             dialog.dismiss()
+            recreate()
         }
         builder.show()
     }
