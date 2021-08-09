@@ -23,7 +23,6 @@ class SearchHistoryView : RelativeLayout {
         view.entryWord.text = searchHistory.word
         word = searchHistory.word
         view.entryWord.textSize = fontSize
-        view.entryWord.setTextColor(Color.BLACK)
         view.setPadding(16, 32, 32, 16)
         view.deleteImageView.setOnClickListener { onDelete(this) }
 

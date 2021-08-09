@@ -36,7 +36,6 @@ class DefinitionView : RelativeLayout {
 
         var content : CharSequence = ""
         val textView = view.definitionTextView
-        textView.setTextColor(Color.BLACK)
 
         //textView.setTextIsSelectable(true)
         textView.movementMethod = LinkMovementMethod.getInstance()

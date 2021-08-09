@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Word"
-        android:textColor="@android:color/black"
+        android:textColor="?android:attr/textColorPrimary"
         android:textStyle="bold"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"/>
@@ -23,7 +23,7 @@
         android:ellipsize="end"
         android:maxLines="2"
         android:text="Definition"
-        android:textColor="@android:color/black"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" />
 </LinearLayout>
