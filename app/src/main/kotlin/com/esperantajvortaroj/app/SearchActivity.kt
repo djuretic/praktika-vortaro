@@ -1,12 +1,9 @@
 package com.esperantajvortaroj.app
 
 import android.app.AlertDialog
+import android.content.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
@@ -53,7 +50,7 @@ class SearchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this, AppCompatDelegate.MODE_NIGHT_YES))
+        AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this))
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         activeLanguage = PreferenceHelper.getActiveLanguage(this, ESPERANTO)
@@ -284,14 +281,7 @@ class SearchActivity : AppCompatActivity() {
                 return true
             }
             R.id.night_mode_setting -> {
-                // TODO show all options to user
-                val newMode = when(PreferenceHelper.getNightMode(this, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)) {
-                    AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
-                    AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.MODE_NIGHT_YES
-                    else -> AppCompatDelegate.MODE_NIGHT_YES
-                }
-                AppCompatDelegate.setDefaultNightMode(newMode)
-                PreferenceHelper.setNightMode(this, newMode)
+                showNightModeDialog()
                 return true
             }
             R.id.about_the_app -> {
@@ -327,6 +317,33 @@ class SearchActivity : AppCompatActivity() {
             PreferenceHelper.setFontSize(this, newFontSize)
             dialog?.dismiss()
             searchResults.invalidateViews()
+        }
+        builder.show()
+    }
+
+    private fun showNightModeDialog() {
+        var nightMode = PreferenceHelper.getNightMode(this)
+        val layout = FrameLayout(this)
+
+        val items = arrayOf("Aŭtomata", "Malhela", "Hela")
+        val modes = arrayOf(
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+                AppCompatDelegate.MODE_NIGHT_YES,
+                AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(layout)
+        builder.setTitle(R.string.dark_mode)
+        builder.setSingleChoiceItems(items, modes.indexOf(nightMode)) { dialog: DialogInterface, i: Int ->
+            nightMode = modes[i]
+        }
+        builder.setPositiveButton("Fermi") { dialog, which ->
+            PreferenceHelper.setNightMode(this, nightMode)
+            // TODO does not work to refresh
+            AppCompatDelegate.setDefaultNightMode(nightMode)
+            delegate.applyDayNight()
+            dialog.dismiss()
         }
         builder.show()
     }

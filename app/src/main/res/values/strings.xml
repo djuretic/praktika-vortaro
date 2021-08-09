@@ -13,4 +13,5 @@
     <string name="copy_definition">Kopii difinon</string>
     <string name="explanation_select_translation_language">Elektu la lingvojn en kiuj vi deziras vidi la tradukojn:</string>
     <string name="close_translation_language_activity">Konfirmi</string>
+    <string name="dark_mode">Malhela reĝimo</string>
 </resources>

@@ -19,7 +19,7 @@
 
     <item
         android:id="@+id/night_mode_setting"
-        android:title="Nokta reĝimo"
+        android:title="@string/dark_mode"
         app:showAsAction="never" />
 
     <item

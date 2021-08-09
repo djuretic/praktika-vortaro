@@ -2,6 +2,7 @@ package com.esperantajvortaroj.app
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 
 object PreferenceHelper {
@@ -74,7 +75,7 @@ object PreferenceHelper {
         putInt(context, SettingsActivity.NIGHT_MODE, value)
     }
 
-    fun getNightMode(context: Context, default: Int): Int {
-        return getInt(context, SettingsActivity.NIGHT_MODE, default)
+    fun getNightMode(context: Context): Int {
+        return getInt(context, SettingsActivity.NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     }
 }

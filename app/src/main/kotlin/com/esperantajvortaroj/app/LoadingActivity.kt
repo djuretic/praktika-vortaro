@@ -13,7 +13,7 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loading)
 
-        AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this, AppCompatDelegate.MODE_NIGHT_YES))
+        AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this))
 
         val context = this
         doAsync {
