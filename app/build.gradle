@@ -9,8 +9,8 @@ android {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 20
-        versionName "0.20"
+        versionCode 21
+        versionName "0.21"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
