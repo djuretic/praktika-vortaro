@@ -332,7 +332,7 @@ class SearchActivity : AppCompatActivity() {
                 AppCompatDelegate.MODE_NIGHT_NO
         )
 
-        val builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this, R.style.CustomAlert)
         builder.setView(layout)
         builder.setTitle(R.string.dark_mode)
         builder.setSingleChoiceItems(items, modes.indexOf(nightMode)) { dialog: DialogInterface, i: Int ->
