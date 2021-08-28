@@ -4,11 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 21
         versionName "0.21"
         vectorDrawables.useSupportLibrary = true

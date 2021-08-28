@@ -68,8 +68,8 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == R.id.close_translation_language){
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.close_translation_language){
             onBackPressed()
             return true
         }

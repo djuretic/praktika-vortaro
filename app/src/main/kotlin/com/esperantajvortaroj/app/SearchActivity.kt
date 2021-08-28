@@ -89,14 +89,14 @@ class SearchActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.history_context_menu, menu)
     }
 
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
-        val info = item?.menuInfo as AdapterView.AdapterContextMenuInfo
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
         val targetView = info.targetView
         if(targetView !is SearchHistoryView){
             return super.onContextItemSelected(item)
         }
 
-        when(item?.itemId) {
+        when(item.itemId) {
             R.id.copyHistoryEntry -> {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("difino", targetView.word.toString()))
@@ -236,8 +236,8 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId){
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
             R.id.action_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 this.startActivity(intent)
