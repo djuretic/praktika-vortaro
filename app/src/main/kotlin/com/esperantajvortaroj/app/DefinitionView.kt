@@ -1,7 +1,6 @@
 package com.esperantajvortaroj.app
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.TextUtils
@@ -10,7 +9,6 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.RelativeLayout
 import com.esperantajvortaroj.app.db.TranslationResult
 import kotlinx.android.synthetic.main.item_definition.view.*
@@ -51,7 +49,7 @@ class DefinitionView : RelativeLayout {
         textView.text = content
 
         if (showMoreOptions) {
-            moreOptionsImageView.setOnClickListener { view -> onClickMoreOptions(this) }
+            moreOptionsImageView.setOnClickListener { onClickMoreOptions(this) }
         } else {
             moreOptionsImageView.visibility = GONE
         }
@@ -64,12 +62,12 @@ class DefinitionView : RelativeLayout {
     fun setTextSize(unit: Int, size: Float) {
         definitionTextView.setTextSize(unit, size)
         val layoutParams = moreOptionsImageView.layoutParams
-        val size = TypedValue.applyDimension(unit, size, resources.displayMetrics).toInt()
-        layoutParams.width = size
-        layoutParams.height = size
+        val newSize = TypedValue.applyDimension(unit, size, resources.displayMetrics).toInt()
+        layoutParams.width = newSize
+        layoutParams.height = newSize
     }
 
-    fun setOnTouchListenerOnTextView(l: View.OnTouchListener) {
+    fun setOnTouchListenerOnTextView(l: OnTouchListener) {
         definitionTextView.setOnTouchListener(l)
     }
 

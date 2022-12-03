@@ -66,7 +66,7 @@ class SearchActivity : AppCompatActivity() {
         }
         searchHistoryList.adapter = searchHistoryAdapter
         registerForContextMenu(searchHistoryList)
-        searchHistoryList.setOnItemClickListener { parent, view, position, id ->
+        searchHistoryList.setOnItemClickListener { _, view, _, _ ->
             if (view is SearchHistoryView) {
                 isFromSearchHistory = true
                 searchView?.setQuery(view.word.toString(), true)
@@ -246,18 +246,17 @@ class SearchActivity : AppCompatActivity() {
             R.id.change_search_language -> {
                 val langPrefs = PreferenceHelper.getLanguagesPreference(this)
 
-                if(activeLanguage == ESPERANTO && !langPrefs.isEmpty()){
-                    activeLanguage = langPrefs.elementAt(0)
+                activeLanguage = if(activeLanguage == ESPERANTO && langPrefs.isNotEmpty()){
+                    langPrefs.elementAt(0)
                 } else if (activeLanguage != ESPERANTO){
                     val currentIndex = langPrefs.indexOf(activeLanguage)
                     if(currentIndex < 0 || currentIndex >= langPrefs.size - 1){
-                        activeLanguage = ESPERANTO
+                        ESPERANTO
                     } else {
-                        activeLanguage = langPrefs.elementAt(currentIndex+1)
+                        langPrefs.elementAt(currentIndex+1)
                     }
-                }
-                else {
-                    activeLanguage = ESPERANTO
+                } else {
+                    ESPERANTO
                 }
                 updateSearchQueryHint()
 
@@ -312,7 +311,7 @@ class SearchActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setView(layout)
         builder.setTitle("Elektu tiparan grandon")
-        builder.setPositiveButton(R.string.close_dialog) { dialog, which ->
+        builder.setPositiveButton(R.string.close_dialog) { dialog, _ ->
             val newFontSize = picker.value
             PreferenceHelper.setFontSize(this, newFontSize)
             dialog?.dismiss()
@@ -335,10 +334,10 @@ class SearchActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this, R.style.CustomAlert)
         builder.setView(layout)
         builder.setTitle(R.string.dark_mode)
-        builder.setSingleChoiceItems(items, modes.indexOf(nightMode)) { dialog: DialogInterface, i: Int ->
+        builder.setSingleChoiceItems(items, modes.indexOf(nightMode)) { _: DialogInterface, i: Int ->
             nightMode = modes[i]
         }
-        builder.setPositiveButton("Fermi") { dialog, which ->
+        builder.setPositiveButton("Fermi") { dialog, _ ->
             PreferenceHelper.setNightMode(this, nightMode)
             AppCompatDelegate.setDefaultNightMode(nightMode)
             delegate.applyDayNight()
@@ -369,7 +368,7 @@ class SearchActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
         val message = Utils.fromHtml("""
-            <p>© 2018-2021 Dušan Juretić</p>
+            <p>© 2018-2022 Dušan Juretić</p>
             <p>Datumbazo: <a href="http://www.reta-vortaro.de/revo">Reta Vortaro</a><br/>Versio: ${revoVersion}</p>
             <p>Inspirita de <a href="https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo">PReVo</a></p>
         """)
@@ -401,7 +400,7 @@ class SearchActivity : AppCompatActivity() {
                     val result = SearchResultStatus(ArrayList(), language, null)
 
                     val databaseHelper = DatabaseHelper(context)
-                    try{
+                    databaseHelper.use { databaseHelper ->
                         result.results = doSearch(databaseHelper, searchString, language)
                         // try with other languages
                         if(result.results.isEmpty()){
@@ -419,8 +418,6 @@ class SearchActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                    } finally {
-                        databaseHelper.close()
                     }
                     if (result != null) {
                         uiThread {
@@ -433,16 +430,16 @@ class SearchActivity : AppCompatActivity() {
         }
 
         private fun doSearch(databaseHelper: DatabaseHelper, searchString: String, lang: String): ArrayList<SearchResult>{
-            if(lang == "eo"){
-                return databaseHelper.searchWords(searchString)
+            return if(lang == "eo"){
+                databaseHelper.searchWords(searchString)
             } else {
-                return databaseHelper.searchTranslations(searchString, lang)
+                databaseHelper.searchTranslations(searchString, lang)
             }
         }
 
         fun receiveDataSet(receivedResults: SearchResultStatus) {
             results = receivedResults.results
-            if(results.count() > 0)
+            if(results.isNotEmpty())
                 notifyDataSetChanged()
             else
                 notifyDataSetInvalidated()
@@ -450,7 +447,7 @@ class SearchActivity : AppCompatActivity() {
             val activity = context as SearchActivity
             activity.isSearching = false
             activity.updateBottomPart(
-                    searchString != null && !searchString.isEmpty(),
+                    searchString != null && searchString.isNotEmpty(),
                     results.count(), receivedResults.originalLang, receivedResults.usedLang)
         }
 
@@ -462,9 +459,8 @@ class SearchActivity : AppCompatActivity() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val layoutInflater = LayoutInflater.from(context)
-            val resultRow = if (convertView == null)
-                layoutInflater.inflate(R.layout.item_search_entry, parent, false)
-            else { convertView }
+            val resultRow =
+                convertView ?: layoutInflater.inflate(R.layout.item_search_entry, parent, false)
             
             val fontSize = PreferenceHelper.getFontSize(context)
 
@@ -482,24 +478,22 @@ class SearchActivity : AppCompatActivity() {
                 definition.text = foundEntry.formattedDefinition(null)
             }
 
-            resultRow.setOnClickListener(object : View.OnClickListener {
-                override fun onClick(v: View?) {
-                    val intent = Intent(context, DefinitionActivity::class.java)
-                    if(entryId > 0) {
-                        intent.putExtra(DefinitionActivity.DEFINITION_ID, entryId)
-                        intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
-                        intent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
+            resultRow.setOnClickListener {
+                val intent = Intent(context, DefinitionActivity::class.java)
+                if (entryId > 0) {
+                    intent.putExtra(DefinitionActivity.DEFINITION_ID, entryId)
+                    intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
+                    intent.putExtra(DefinitionActivity.ENTRY_POSITION, position)
 
-                        val bundle = Bundle()
-                        bundle.putIntegerArrayList(
-                                DefinitionActivity.ENTRIES_LIST,
-                                ArrayList(results.map { x -> x.id }))
-                        intent.putExtras(bundle)
-                        context.startActivity(intent)
-                    }
-
+                    val bundle = Bundle()
+                    bundle.putIntegerArrayList(
+                        DefinitionActivity.ENTRIES_LIST,
+                        ArrayList(results.map { x -> x.id })
+                    )
+                    intent.putExtras(bundle)
+                    context.startActivity(intent)
                 }
-            })
+            }
 
             return resultRow
         }

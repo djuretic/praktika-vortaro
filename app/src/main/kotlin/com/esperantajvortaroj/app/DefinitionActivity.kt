@@ -151,15 +151,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     fun searchWord(word: String): SearchResult? {
         val words = Utils.getPossibleBaseWords(word)
         val databaseHelper = DatabaseHelper(this)
-        try{
+        databaseHelper.use { helper ->
             for(possibleWord in words){
-                val results = databaseHelper.searchWords(possibleWord, true)
+                val results = helper.searchWords(possibleWord, true)
                 if(results.isNotEmpty()){
                     return results[0]
                 }
             }
-        } finally {
-            databaseHelper.close()
         }
         return null
     }
@@ -170,7 +168,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         unregisterForContextMenu(view)
     }
 
-    fun hideProgressBar(){
+    private fun hideProgressBar(){
         progressBar.visibility = View.GONE
     }
 
@@ -203,9 +201,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             override fun onClick(p0: View) {
                 val intent = Intent(context, DefinitionActivity::class.java)
                 if(result.id > 0) {
-                    intent.putExtra(DefinitionActivity.DEFINITION_ID, result.id)
-                    intent.putExtra(DefinitionActivity.ARTICLE_ID, result.articleId)
-                    intent.putExtra(DefinitionActivity.ENTRY_POSITION, 0)
+                    intent.putExtra(DEFINITION_ID, result.id)
+                    intent.putExtra(ARTICLE_ID, result.articleId)
+                    intent.putExtra(ENTRY_POSITION, 0)
                     context.startActivity(intent)
                     tooltip.dismiss()
                     tooltipVisible = false
@@ -266,7 +264,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         text.setSpan(object: StyledClickableSpan(this) {
             override fun onClick(p0: View) {
                 val intent = Intent(this@DefinitionActivity, DefinitionActivity::class.java)
-                intent.putExtra(DefinitionActivity.ARTICLE_ID, articleId)
+                intent.putExtra(ARTICLE_ID, articleId)
                 startActivity(intent)
             }
 
@@ -435,7 +433,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         for (lang in langPrefs) {
             val translations = databaseHelper.translationsByDefinitionId(definitionId, lang)
             if (translations.isNotEmpty()) {
-                translationsByLang.put(lang, translations)
+                translationsByLang[lang] = translations
             }
         }
         return translationsByLang
@@ -448,7 +446,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         for (lang in langPrefs) {
             val translations = databaseHelper.translationsByDefinitionIds(definitionIds, lang)
             if (translations.isNotEmpty()) {
-                translationsByLang.put(lang, translations)
+                translationsByLang[lang] = translations
             }
         }
         return translationsByLang

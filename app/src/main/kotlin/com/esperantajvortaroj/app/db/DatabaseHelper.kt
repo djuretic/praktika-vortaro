@@ -9,8 +9,8 @@ import java.util.ArrayList
 
 class DatabaseHelper : SQLiteAssetHelper {
     companion object {
-        val DB_NAME = "vortaro.db"
-        val DB_VERSION = 16
+        const val DB_NAME = "vortaro.db"
+        const val DB_VERSION = 16
 
         fun getLanguagesHash(context: Context): HashMap<String, String> {
             val helper = DatabaseHelper(context)
