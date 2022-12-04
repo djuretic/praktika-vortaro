@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.WorkerThread
 import androidx.constraintlayout.widget.ConstraintSet
@@ -89,7 +90,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent): Boolean {
-        if(motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN){
+        if(motionEvent.action == MotionEvent.ACTION_DOWN){
             touchedView = view
         }
 
@@ -119,8 +120,13 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         constraintSet.applyTo(binding.constraintLayout)
 
         val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        tapTooDown = motionEvent.rawY >= displayMetrics.heightPixels*2/3
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val metrics = getSystemService(WindowManager::class.java).currentWindowMetrics
+            tapTooDown = motionEvent.rawY >= metrics.bounds.height()*2/3
+        } else {
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            tapTooDown = motionEvent.rawY >= displayMetrics.heightPixels*2/3
+        }
 
         // don't interfere with ClickableSpan
         val clickableSpans = (view.text as SpannableString).getSpans(offset, offset, ClickableSpan::class.java)
