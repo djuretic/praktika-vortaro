@@ -20,14 +20,18 @@ class DefinitionView @JvmOverloads constructor(context: Context, attrs: Attribut
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
     var showMoreOptions: Boolean = true
-    private val binding = ItemDefinitionBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding: ItemDefinitionBinding
+
+    init {
+        binding = ItemDefinitionBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     fun setResult(definitionResult: SearchResult?,
                   translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
                   langNames: HashMap<String, String>,
                   showLinks:Boolean = true,
                   showBaseWordInTranslation: Boolean = false): CharSequence{
-        this.removeAllViewsInLayout()
+        //this.removeAllViewsInLayout()
 
         var content : CharSequence = ""
         val textView = binding.definitionTextView

@@ -134,11 +134,11 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         if(word == null){
             binding.progressBar.visibility = View.GONE
         } else {
-            GlobalScope.async (Dispatchers.Default) {
+            GlobalScope.launch (Dispatchers.Default) {
                 val searchResult = searchWord(word)
                 withContext(Dispatchers.Main) {
                     if(searchResult == null){
-                        Toast.makeText(applicationContext, "Vorto '$word' ne trovita", Toast.LENGTH_SHORT)
+                        Toast.makeText(applicationContext, "Vorto '$word' ne trovita", Toast.LENGTH_SHORT).show()
                     } else {
                         showTooltip(searchResult)
                     }

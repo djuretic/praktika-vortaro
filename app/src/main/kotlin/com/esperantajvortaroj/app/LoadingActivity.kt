@@ -5,10 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.esperantajvortaroj.app.db.DatabaseHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class LoadingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +15,7 @@ class LoadingActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this))
 
         val context = this
-        GlobalScope.async(Dispatchers.Default) {
+        GlobalScope.launch(Dispatchers.Default) {
             DatabaseHelper.getLanguagesHash(context)
             withContext(Dispatchers.Main) {
                 val intent = Intent(context, SearchActivity::class.java)

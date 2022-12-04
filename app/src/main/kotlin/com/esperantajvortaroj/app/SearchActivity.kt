@@ -17,10 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.esperantajvortaroj.app.databinding.ActivityMainBinding
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class SearchActivity : AppCompatActivity() {
     private var searchAdapter : SearchResultAdapter? = null
@@ -114,7 +111,7 @@ class SearchActivity : AppCompatActivity() {
     private fun deleteHistoryEntry(targetView: SearchHistoryView) {
         val entry = targetView.historyEntry
         if (entry != null) {
-            GlobalScope.async(Dispatchers.Default) {
+            GlobalScope.launch(Dispatchers.Default) {
                 searchHistoryViewModel.deleteOne(entry)
             }
         }
@@ -397,7 +394,7 @@ class SearchActivity : AppCompatActivity() {
                     activity.updateHistory(searchString, isUpdate)
                 }
 
-                GlobalScope.async(Dispatchers.Default) {
+                GlobalScope.launch(Dispatchers.Default) {
                     val result = SearchResultStatus(ArrayList(), language, null)
 
                     val databaseHelper = DatabaseHelper(context)
@@ -420,11 +417,9 @@ class SearchActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    if (result != null) {
-                        withContext(Dispatchers.Main) {
-                            receiveDataSet(result)
-                        }
 
+                    withContext(Dispatchers.Main) {
+                        receiveDataSet(result)
                     }
                 }
             }
@@ -501,7 +496,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateHistory(searchString: String, update: Boolean) {
-        GlobalScope.async(Dispatchers.Default) {
+        GlobalScope.launch(Dispatchers.Default) {
             if (update) {
                 searchHistoryViewModel.updateLast(searchString)
             } else {
