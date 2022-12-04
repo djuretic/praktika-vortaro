@@ -88,7 +88,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
     }
 
-    override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
+    override fun onTouch(view: View?, motionEvent: MotionEvent): Boolean {
         if(motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN){
             touchedView = view
         }
