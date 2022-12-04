@@ -9,6 +9,9 @@ import com.esperantajvortaroj.app.db.TranslationResult
 import android.text.Html
 import android.os.Build
 import android.text.Spanned
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 
 val mapping = hashMapOf(
     'c' to 'ĉ',
@@ -31,13 +34,13 @@ object Utils {
         if(text.length <= 1){
             return text
         }
-        val baseText = text.toLowerCase()
+        val baseText = text.lowercase(Locale.getDefault())
         var pos = 0
         var res = ""
         while (pos < baseText.length - 1){
             val char = baseText[pos]
             if(mapping.containsKey(char) && baseText[pos+1] == 'x'){
-                res += mapping.get(char)
+                res += mapping[char]
                 pos += 2
             } else {
                 res += char

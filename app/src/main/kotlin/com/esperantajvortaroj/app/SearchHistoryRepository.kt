@@ -6,11 +6,7 @@ import com.esperantajvortaroj.app.db.SearchHistory
 import com.esperantajvortaroj.app.db.SearchHistoryDao
 
 class SearchHistoryRepository(private val searchHistoryDao : SearchHistoryDao) {
-    val allHistory: LiveData<List<SearchHistory>>
-
-    init {
-        allHistory = searchHistoryDao.getAll()
-    }
+    val allHistory: LiveData<List<SearchHistory>> = searchHistoryDao.getAll()
 
     @WorkerThread
     fun insertOne(searchHistory: SearchHistory) {

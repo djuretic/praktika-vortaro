@@ -10,19 +10,17 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
+import com.esperantajvortaroj.app.databinding.ItemDefinitionBinding
 import com.esperantajvortaroj.app.db.TranslationResult
-import kotlinx.android.synthetic.main.item_definition.view.*
 
-class DefinitionView : RelativeLayout {
+class DefinitionView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) : RelativeLayout(context, attrs, defStyle) {
     var onClickFako: (fako: String) -> Unit = {}
     var onArticleTranslationClick: (position: Int) -> Unit = {}
     var onClickMoreOptions: (view: DefinitionView) -> Unit = {}
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
     var showMoreOptions: Boolean = true
-
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet) :  super(context, attrs)
+    private val binding = ItemDefinitionBinding.inflate(LayoutInflater.from(context), this, true)
 
     fun setResult(definitionResult: SearchResult?,
                   translationsByLang: LinkedHashMap<String, List<TranslationResult>>,
@@ -30,10 +28,9 @@ class DefinitionView : RelativeLayout {
                   showLinks:Boolean = true,
                   showBaseWordInTranslation: Boolean = false): CharSequence{
         this.removeAllViewsInLayout()
-        val view = LayoutInflater.from(context).inflate(R.layout.item_definition, this, true)
 
         var content : CharSequence = ""
-        val textView = view.definitionTextView
+        val textView = binding.definitionTextView
 
         //textView.setTextIsSelectable(true)
         textView.movementMethod = LinkMovementMethod.getInstance()
@@ -49,26 +46,23 @@ class DefinitionView : RelativeLayout {
         textView.text = content
 
         if (showMoreOptions) {
-            moreOptionsImageView.setOnClickListener { onClickMoreOptions(this) }
+            binding.moreOptionsImageView.setOnClickListener { onClickMoreOptions(this) }
         } else {
-            moreOptionsImageView.visibility = GONE
+            binding.moreOptionsImageView.visibility = GONE
         }
-
-
-
         return content
     }
 
     fun setTextSize(unit: Int, size: Float) {
-        definitionTextView.setTextSize(unit, size)
-        val layoutParams = moreOptionsImageView.layoutParams
+        binding.definitionTextView.setTextSize(unit, size)
+        val layoutParams = binding.moreOptionsImageView.layoutParams
         val newSize = TypedValue.applyDimension(unit, size, resources.displayMetrics).toInt()
         layoutParams.width = newSize
         layoutParams.height = newSize
     }
 
     fun setOnTouchListenerOnTextView(l: OnTouchListener) {
-        definitionTextView.setOnTouchListener(l)
+        binding.definitionTextView.setOnTouchListener(l)
     }
 
 
