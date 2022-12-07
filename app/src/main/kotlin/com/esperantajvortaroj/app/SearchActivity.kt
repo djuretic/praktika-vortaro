@@ -398,7 +398,9 @@ class SearchActivity : AppCompatActivity() {
                     val result = SearchResultStatus(ArrayList(), language, null)
 
                     val databaseHelper = DatabaseHelper(context)
-                    databaseHelper.use { databaseHelper ->
+                    // at least in API 26, using databaseHelper.use gives this error:
+                    // DatabaseHelper cannot be cast to java.lang.AutoCloseable
+                    try {
                         result.results = doSearch(databaseHelper, searchString, language)
                         // try with other languages
                         if(result.results.isEmpty()){
@@ -416,6 +418,8 @@ class SearchActivity : AppCompatActivity() {
                                 }
                             }
                         }
+                    } finally {
+                        databaseHelper.close()
                     }
 
                     withContext(Dispatchers.Main) {

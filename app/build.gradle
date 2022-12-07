@@ -8,8 +8,8 @@ android {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
         targetSdkVersion 32
-        versionCode 22
-        versionName "0.22"
+        versionCode 24
+        versionName "0.24"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
@@ -38,7 +38,7 @@ android {
 preBuild.doFirst {
     def f = new File('./app/src/main/assets/databases/vortaro.db')
     if (!f.exists()) {
-        new URL('https://github.com/djuretic/praktika-vortaro-dicts/releases/download/0.12/vortaro.db').withInputStream{ i -> f.withOutputStream{ it << i }}
+        new URL('https://github.com/djuretic/praktika-vortaro-dicts/releases/download/0.14/vortaro.db').withInputStream{ i -> f.withOutputStream{ it << i }}
     }
     assert f.size() > 0
 }

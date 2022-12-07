@@ -160,13 +160,17 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     fun searchWord(word: String): SearchResult? {
         val words = Utils.getPossibleBaseWords(word)
         val databaseHelper = DatabaseHelper(this)
-        databaseHelper.use { helper ->
+        // at least in API 26, using databaseHelper.use gives this error:
+        // DatabaseHelper cannot be cast to java.lang.AutoCloseable
+        try {
             for(possibleWord in words){
-                val results = helper.searchWords(possibleWord, true)
+                val results = databaseHelper.searchWords(possibleWord, true)
                 if(results.isNotEmpty()){
                     return results[0]
                 }
             }
+        } finally {
+            databaseHelper.close()
         }
         return null
     }

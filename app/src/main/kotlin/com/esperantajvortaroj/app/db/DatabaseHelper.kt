@@ -1,5 +1,6 @@
 package com.esperantajvortaroj.app.db
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.DatabaseUtils
 import android.text.TextUtils
@@ -10,28 +11,32 @@ import java.util.ArrayList
 class DatabaseHelper : SQLiteAssetHelper {
     companion object {
         const val DB_NAME = "vortaro.db"
-        const val DB_VERSION = 16
+        const val DB_VERSION = 17
 
         fun getLanguagesHash(context: Context): HashMap<String, String> {
             val helper = DatabaseHelper(context)
-            try{
+            // at least in API 26, using helper.use gives this error:
+            // DatabaseHelper cannot be cast to java.lang.AutoCloseable
+            try {
                 return helper.getLanguagesHash()
-            }  finally {
+            } finally {
                 helper.close()
             }
         }
 
         fun getRevoVersion(context: Context) : String {
             val helper = DatabaseHelper(context)
-            try{
+            // at least in API 26, using helper.use gives this error:
+            // DatabaseHelper cannot be cast to java.lang.AutoCloseable
+            try {
                 return helper.getRevoVersion()
-            }  finally {
+            } finally {
                 helper.close()
             }
         }
 
         fun databasePath(context: Context): String {
-            return context.getApplicationInfo().dataDir + "/databases/${DB_NAME}"
+            return context.applicationInfo.dataDir + "/databases/${DB_NAME}"
         }
     }
 
@@ -39,6 +44,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         setForcedUpgrade()
     }
 
+    @SuppressLint("Range")
     fun searchWords(searchString: String, exact: Boolean = false) : ArrayList<SearchResult> {
         var sanitizedString = searchString.replace("%", "")
         if(!exact){
@@ -72,6 +78,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    @SuppressLint("Range")
     fun searchTranslations(searchString: String, language: String): ArrayList<SearchResult> {
         var sanitizedString = searchString
         if(searchString.contains('*')){
@@ -101,6 +108,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    @SuppressLint("Range")
     fun definitionById(definitionId: Int): SearchResult?{
         var result: SearchResult? = null
         val db = readableDatabase
@@ -120,6 +128,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    @SuppressLint("Range")
     fun articleById(articleId: Int): ArrayList<SearchResult> {
         //TODO same order as in inside the article
         val db = readableDatabase
@@ -141,6 +150,7 @@ class DatabaseHelper : SQLiteAssetHelper {
     }
 
 
+    @SuppressLint("Range")
     fun translationsByDefinitionId(definitionId: Int, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
         val cursor = readableDatabase.query("translations_$lng", arrayOf("word", "translation", "snc_index"),
@@ -158,6 +168,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return results
     }
 
+    @SuppressLint("Range")
     fun translationsByDefinitionIds(definitionIds: List<Int>, lng: String): List<TranslationResult> {
         val results = mutableListOf<TranslationResult>()
         val cursor = readableDatabase.query(
@@ -179,6 +190,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return results
     }
 
+    @SuppressLint("Range")
     fun getLanguages(): ArrayList<Language>{
         val cursor = readableDatabase.query(
                 "languages", arrayOf("code", "name", "num_entries"),
@@ -197,6 +209,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    @SuppressLint("Range")
     fun getLanguagesHash(): HashMap<String, String>{
         val cursor = readableDatabase.query(
                 "languages", arrayOf("code", "name"),
@@ -208,7 +221,7 @@ class DatabaseHelper : SQLiteAssetHelper {
             val code = cursor.getString(cursor.getColumnIndex("code"))
             val name = cursor.getString(cursor.getColumnIndex("name"))
 
-            result.put(code, name)
+            result[code] = name
             cursor.moveToNext()
         }
         cursor.close()
@@ -245,6 +258,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return StringFormat(italic, bold, ekz, fako, tld)
     }
 
+    @SuppressLint("Range")
     fun getRevoVersion(): String {
         val cursor = readableDatabase.query(
                 "version", arrayOf("id"), "", emptyArray(), null, null, null
@@ -258,6 +272,7 @@ class DatabaseHelper : SQLiteAssetHelper {
         return result
     }
 
+    @SuppressLint("Range")
     fun getDiscipline(code: String): String {
         val cursor = readableDatabase.query(
                 "disciplines", arrayOf("name"), "code = ?", arrayOf(code.trim()),
