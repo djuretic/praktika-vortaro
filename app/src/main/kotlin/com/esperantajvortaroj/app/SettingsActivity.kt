@@ -8,7 +8,9 @@ class SettingsActivity : AppCompatActivity() {
         /* Show Revo's translations in these languages */
         const val KEY_LANGUAGES_PREFERENCE = "languages_preference"
         const val ACTIVE_LANGUAGE = "active_language"
+        @Deprecated("Use VERSION_CODE_LONG instead")
         const val VERSION_CODE = "version_code"
+        const val VERSION_CODE_LONG = "version_code_long"
         const val FONT_SIZE = "font_size"
         const val NIGHT_MODE = "night_mode"
         const val DEFAULT_FONT_SIZE = 18

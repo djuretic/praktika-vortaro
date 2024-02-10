@@ -4,11 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 34
     defaultConfig {
         applicationId 'com.esperantajvortaroj.app'
         minSdkVersion 15
-        targetSdkVersion 30
+        targetSdkVersion 34
         versionCode 22
         versionName "0.22"
         vectorDrawables.useSupportLibrary = true
@@ -20,11 +20,17 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     buildTypes {
+        debug {
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+        }
         release {
             minifyEnabled true
             shrinkResources true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
         }
     }
     productFlavors {
@@ -66,6 +72,9 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.0.0'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
-    def anko_version = "0.10.8"
-    implementation "org.jetbrains.anko:anko-commons:$anko_version"
+}
+
+kapt {
+    // prevent error "java.lang.reflect.InvocationTargetException (no error message)" on build
+    correctErrorTypes true
 }

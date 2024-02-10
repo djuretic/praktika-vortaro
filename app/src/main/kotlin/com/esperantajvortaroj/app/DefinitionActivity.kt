@@ -23,13 +23,15 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.TranslationResult
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
 import kotlinx.android.synthetic.main.activity_definition.*
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.uiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var entriesList: ArrayList<Int> = arrayListOf()
@@ -60,8 +62,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
         gestureDetector = GestureDetectorCompat(this, object: GestureDetector.SimpleOnGestureListener() {
-            override fun onLongPress(e: MotionEvent?) = showContextMenu(touchedView)
-            override fun onSingleTapUp(e: MotionEvent?) = onSingleTap(e)
+            override fun onLongPress(e: MotionEvent) = showContextMenu(touchedView)
+            override fun onSingleTapUp(e: MotionEvent) = onSingleTap(e)
         })
 
         definitionId = intent.getIntExtra(DEFINITION_ID, 0)
@@ -131,17 +133,16 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         if(word == null){
             progressBar.visibility = View.GONE
         } else {
-            doAsync {
+            lifecycleScope.launch(Dispatchers.IO) {
                 val searchResult = searchWord(word)
-                uiThread {
+                withContext(Dispatchers.Main) {
                     if(searchResult == null){
-                        toast("Vorto '$word' ne trovita")
+                        Toast.makeText(this@DefinitionActivity, "Vorto '$word' ne trovita", Toast.LENGTH_SHORT).show()
                     } else {
                         showTooltip(searchResult)
                     }
                     hideProgressBar()
                 }
-
             }
         }
         return true
@@ -294,8 +295,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
             prevButton.isEnabled = entryPosition != 0
             nextButton.isEnabled = entryPosition < entriesList.size - 1
-            prevButton.icon.alpha = if(prevButton.isEnabled) 255 else 130
-            nextButton.icon.alpha = if(nextButton.isEnabled) 255 else 130
+            prevButton.icon?.alpha = if(prevButton.isEnabled) 255 else 130
+            nextButton.icon?.alpha = if(nextButton.isEnabled) 255 else 130
         }
         return true
     }

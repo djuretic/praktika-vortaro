@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import com.esperantajvortaroj.app.db.DatabaseHelper
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoadingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,9 +18,9 @@ class LoadingActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(PreferenceHelper.getNightMode(this))
 
         val context = this
-        doAsync {
+        lifecycleScope.launch(Dispatchers.IO) {
             DatabaseHelper.getLanguagesHash(context)
-            uiThread {
+            withContext(Dispatchers.Main) {
                 val intent = Intent(context, SearchActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
                 context.startActivity(intent)

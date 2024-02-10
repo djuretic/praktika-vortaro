@@ -13,6 +13,10 @@ object PreferenceHelper {
         return defaultSharedPreferences(context).getInt(key, default)
     }
 
+    private fun getLong(context: Context, key: String, default: Long): Long {
+        return defaultSharedPreferences(context).getLong(key, default)
+    }
+
     private fun getString(context: Context, key: String, default: String): String{
         return defaultSharedPreferences(context).getString(key, default)!!
     }
@@ -24,6 +28,12 @@ object PreferenceHelper {
     private fun putInt(context: Context, key: String, value: Int) {
         val edit = defaultSharedPreferences(context).edit()
         edit.putInt(key, value)
+        edit.apply()
+    }
+
+    private fun putLong(context: Context, key: String, value: Long) {
+        val edit = defaultSharedPreferences(context).edit()
+        edit.putLong(key, value)
         edit.apply()
     }
 
@@ -39,12 +49,20 @@ object PreferenceHelper {
         edit.apply()
     }
 
-    fun setVersionCode(context: Context, value: Int) {
-        putInt(context, SettingsActivity.VERSION_CODE, value)
+    fun setVersionCode(context: Context, value: Long) {
+        putLong(context, SettingsActivity.VERSION_CODE_LONG, value)
     }
 
-    fun getVersionCode(context: Context): Int {
-        return getInt(context, SettingsActivity.VERSION_CODE, 0)
+    fun getVersionCode(context: Context): Long {
+        val defaultPreferences = defaultSharedPreferences(context)
+        if (defaultPreferences.contains(SettingsActivity.VERSION_CODE)) {
+            val edit = defaultPreferences.edit()
+            edit.putLong(SettingsActivity.VERSION_CODE_LONG, getInt(context, SettingsActivity.VERSION_CODE, 0).toLong())
+            edit.apply()
+            edit.remove(SettingsActivity.VERSION_CODE)
+            edit.apply()
+        }
+        return getLong(context, SettingsActivity.VERSION_CODE_LONG, 0)
     }
 
     fun setActiveLanguage(context: Context, value: String) {

@@ -15,12 +15,14 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
 
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class SearchActivity : AppCompatActivity() {
@@ -113,7 +115,7 @@ class SearchActivity : AppCompatActivity() {
     private fun deleteHistoryEntry(targetView: SearchHistoryView) {
         val entry = targetView.historyEntry
         if (entry != null) {
-            doAsync {
+            lifecycleScope.launch(Dispatchers.IO) {
                 searchHistoryViewModel.deleteOne(entry)
             }
         }
@@ -136,7 +138,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun versionChecks() {
         val versionCode = PreferenceHelper.getVersionCode(this)
-        if (versionCode == 0){
+        if (versionCode == 0L){
             // first run
             startLanguageActivity()
         }
@@ -186,14 +188,15 @@ class SearchActivity : AppCompatActivity() {
             updateSearchQueryHint()
 
             searchItem.expandActionView()
+
             searchItem.setOnActionExpandListener(object: MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                override fun onMenuItemActionCollapse(p0: MenuItem): Boolean {
                     // avoid collapse of the searchView
                     finish()
                     return false
                 }
 
-                override fun onMenuItemActionExpand(p0: MenuItem?) = true
+                override fun onMenuItemActionExpand(p0: MenuItem) = true
             })
         }
         return true
@@ -397,7 +400,7 @@ class SearchActivity : AppCompatActivity() {
                     activity.updateHistory(searchString, isUpdate)
                 }
 
-                doAsync {
+                context.lifecycleScope.launch(Dispatchers.IO) {
                     val result = SearchResultStatus(ArrayList(), language, null)
 
                     val databaseHelper = DatabaseHelper(context)
@@ -423,7 +426,7 @@ class SearchActivity : AppCompatActivity() {
                         databaseHelper.close()
                     }
                     if (result != null) {
-                        uiThread {
+                        withContext(Dispatchers.Main) {
                             receiveDataSet(result)
                         }
 
@@ -506,7 +509,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateHistory(searchString: String, update: Boolean) {
-        doAsync {
+        lifecycleScope.launch(Dispatchers.IO) {
             if (update) {
                 searchHistoryViewModel.updateLast(searchString)
             } else {
