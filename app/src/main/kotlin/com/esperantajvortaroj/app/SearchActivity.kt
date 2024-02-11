@@ -16,10 +16,9 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
+import com.esperantajvortaroj.app.databinding.ActivityMainBinding
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.SearchHistory
-
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +37,7 @@ class SearchActivity : AppCompatActivity() {
     private var resetSearch = false
     private var lastSearchQuery: String? = null
     private lateinit var searchHistoryViewModel: SearchHistoryViewModel
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         const val RESET_SEARCH = "reset_search"
@@ -46,7 +46,8 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(appToolbar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setSupportActionBar(binding.appToolbar)
 
         supportActionBar?.setDisplayShowHomeEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
@@ -58,7 +59,7 @@ class SearchActivity : AppCompatActivity() {
         activeLanguage = PreferenceHelper.getActiveLanguage(this, ESPERANTO)
 
         searchAdapter = SearchResultAdapter(this)
-        searchResults.adapter = searchAdapter
+        binding.searchResults.adapter = searchAdapter
 
         searchHistoryAdapter = SearchHistoryAdapter(this)
         searchHistoryAdapter?.setOnDelete { view ->
@@ -66,9 +67,9 @@ class SearchActivity : AppCompatActivity() {
                 deleteHistoryEntry(view)
             }
         }
-        searchHistoryList.adapter = searchHistoryAdapter
-        registerForContextMenu(searchHistoryList)
-        searchHistoryList.setOnItemClickListener { parent, view, position, id ->
+        binding.searchHistoryList.adapter = searchHistoryAdapter
+        registerForContextMenu(binding.searchHistoryList)
+        binding.searchHistoryList.setOnItemClickListener { parent, view, position, id ->
             if (view is SearchHistoryView) {
                 isFromSearchHistory = true
                 searchView?.setQuery(view.word.toString(), true)
@@ -203,39 +204,39 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun updateBottomPart(enteredText: Boolean, resultsCount: Int, originalLang: String? = null, usedLang: String? = null) {
-        searchResults.setSelection(0)
+        binding.searchResults.setSelection(0)
         if(isSearching){
-            progressBarSearch.visibility = View.VISIBLE
-            noResultsFound.visibility = View.GONE
-            searchResults.visibility = View.GONE
-            searchHistoryList.visibility = View.GONE
+            binding.progressBarSearch.visibility = View.VISIBLE
+            binding.noResultsFound.visibility = View.GONE
+            binding.searchResults.visibility = View.GONE
+            binding.searchHistoryList.visibility = View.GONE
             return
         }
-        progressBarSearch.visibility = View.GONE
+        binding.progressBarSearch.visibility = View.GONE
         if(!enteredText){
-            noResultsFound.visibility = View.GONE
-            searchResults.visibility = View.GONE
-            searchHistoryList.visibility = View.VISIBLE
+            binding.noResultsFound.visibility = View.GONE
+            binding.searchResults.visibility = View.GONE
+            binding.searchHistoryList.visibility = View.VISIBLE
         } else if(resultsCount == 0) {
-            noResultsFound.text = resources.getString(R.string.no_results_found)
-            noResultsFound.visibility = View.VISIBLE
-            searchResults.visibility = View.GONE
-            searchHistoryList.visibility = View.GONE
+            binding.noResultsFound.text = resources.getString(R.string.no_results_found)
+            binding.noResultsFound.visibility = View.VISIBLE
+            binding.searchResults.visibility = View.GONE
+            binding.searchHistoryList.visibility = View.GONE
         } else {
             if(usedLang == null){
-                noResultsFound.text = resources.getString(R.string.no_results_found)
-                noResultsFound.visibility = View.GONE
+                binding.noResultsFound.text = resources.getString(R.string.no_results_found)
+                binding.noResultsFound.visibility = View.GONE
             } else {
                 val langHash = DatabaseHelper.getLanguagesHash(this)
-                noResultsFound.text = resources.getString(
+                binding.noResultsFound.text = resources.getString(
                         R.string.results_found_in_another_language,
                         Utils.languageName(langHash, originalLang),
                         Utils.languageName(langHash, usedLang))
-                noResultsFound.visibility = View.VISIBLE
+                binding.noResultsFound.visibility = View.VISIBLE
             }
 
-            searchResults.visibility = View.VISIBLE
-            searchHistoryList.visibility = View.GONE
+            binding.searchResults.visibility = View.VISIBLE
+            binding.searchHistoryList.visibility = View.GONE
         }
     }
 
@@ -319,7 +320,7 @@ class SearchActivity : AppCompatActivity() {
             val newFontSize = picker.value
             PreferenceHelper.setFontSize(this, newFontSize)
             dialog?.dismiss()
-            searchResults.invalidateViews()
+            binding.searchResults.invalidateViews()
         }
         builder.show()
     }

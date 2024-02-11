@@ -15,17 +15,18 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
 import android.widget.ListView
+import com.esperantajvortaroj.app.databinding.ActivityTranslationLanguageBinding
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.Language
-import kotlinx.android.synthetic.main.activity_translation_language.*
 
 
 class SelectTranslationLanguageActivity : AppCompatActivity() {
+    private lateinit var binding : ActivityTranslationLanguageBinding
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_translation_language)
-        setSupportActionBar(appToolbar)
+        setSupportActionBar(binding.appToolbar)
         supportActionBar?.title = resources.getString(R.string.title_select_translation_language)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(false)
@@ -33,7 +34,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
 
         val allLangs = DatabaseHelper(this).getLanguages()
 
-        val listView = languagesListView
+        val listView = binding.languagesListView
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         listView.itemsCanFocus = true
 

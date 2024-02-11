@@ -25,10 +25,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.esperantajvortaroj.app.databinding.ActivityDefinitionBinding
 import com.esperantajvortaroj.app.db.DatabaseHelper
 import com.esperantajvortaroj.app.db.TranslationResult
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip
-import kotlinx.android.synthetic.main.activity_definition.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,6 +45,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     private var tapTooDown = false
     private var tooltipVisible = false
 
+    private lateinit var binding: ActivityDefinitionBinding
+
     companion object {
         const val DEFINITION_ID = "definition_id"
         const val ARTICLE_ID = "article_id"
@@ -56,8 +58,9 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_definition)
-        progressBar.visibility = View.GONE
-        setSupportActionBar(appToolbar)
+        binding = ActivityDefinitionBinding.inflate(layoutInflater)
+        binding.progressBar.visibility = View.GONE
+        setSupportActionBar(binding.appToolbar)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
@@ -106,16 +109,16 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
         val offset = layout.getOffsetForHorizontal(line, motionEvent.x)
 
         val scrollViewRect = Rect()
-        definitionScrollView.getGlobalVisibleRect(scrollViewRect)
+        binding.definitionScrollView.getGlobalVisibleRect(scrollViewRect)
 
         val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
+        constraintSet.clone(binding.constraintLayout)
         constraintSet.connect(R.id.dummyView, ConstraintSet.TOP, R.id.appToolbar, ConstraintSet.BOTTOM, motionEvent.rawY.toInt() - scrollViewRect.top)
         // api >= 17
         constraintSet.connect(R.id.dummyView, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, motionEvent.rawX.toInt() - scrollViewRect.left)
         // api < 17
         constraintSet.connect(R.id.dummyView, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, motionEvent.rawX.toInt() - scrollViewRect.left)
-        constraintSet.applyTo(constraintLayout)
+        constraintSet.applyTo(binding.constraintLayout)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -127,11 +130,11 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             return false
         }
 
-        progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
 
         val word = Utils.getWholeWord(view.text, offset)
         if(word == null){
-            progressBar.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
         } else {
             lifecycleScope.launch(Dispatchers.IO) {
                 val searchResult = searchWord(word)
@@ -172,7 +175,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     fun hideProgressBar(){
-        progressBar.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
     }
 
     private fun showTooltip(result: SearchResult) {
@@ -191,7 +194,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
 
         val tooltipBgColor = ContextCompat.getColor(this, R.color.colorTooltip)
         val tooltip = SimpleTooltip.Builder(this)
-                .anchorView(dummyView)
+                .anchorView(binding.dummyView)
                 .backgroundColor(tooltipBgColor)
                 .arrowColor(tooltipBgColor)
                 .contentView(layout, 0)
@@ -233,7 +236,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             layout.addView(linkToArticleView(articleId))
         }
 
-        with(definitionScrollView){
+        with(binding.definitionScrollView){
             removeAllViews()
             addView(layout)
         }
@@ -250,7 +253,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             }
         }
 
-        with(definitionScrollView){
+        with(binding.definitionScrollView){
             removeAllViews()
             addView(layout)
         }
