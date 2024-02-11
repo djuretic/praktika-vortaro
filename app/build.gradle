@@ -1,7 +1,10 @@
+plugins {
+    id 'com.google.devtools.ksp'
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 34
@@ -67,14 +70,10 @@ dependencies {
     implementation 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     implementation 'com.github.douglasjunior:android-simple-tooltip:0.2.2'
 
-    implementation 'androidx.room:room-runtime:2.0.0'
-    annotationProcessor 'androidx.room:room-compiler:2.0.0'
-    kapt 'androidx.room:room-compiler:2.0.0'
+    def room_version = "2.6.1"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
-}
-
-kapt {
-    // prevent error "java.lang.reflect.InvocationTargetException (no error message)" on build
-    correctErrorTypes true
 }
