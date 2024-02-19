@@ -57,8 +57,8 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_definition)
         binding = ActivityDefinitionBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         binding.progressBar.visibility = View.GONE
         setSupportActionBar(binding.appToolbar)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(true)
@@ -95,7 +95,7 @@ class DefinitionActivity : AppCompatActivity(), View.OnTouchListener {
             touchedView = view
         }
 
-        return gestureDetector?.onTouchEvent(motionEvent) ?: false
+        return motionEvent?.let { gestureDetector?.onTouchEvent(it) } ?: false
     }
 
     fun onSingleTap(motionEvent: MotionEvent?): Boolean{

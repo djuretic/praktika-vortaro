@@ -26,7 +26,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTranslationLanguageBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_translation_language)
+        setContentView(binding.root)
         setSupportActionBar(binding.appToolbar)
         supportActionBar?.title = resources.getString(R.string.title_select_translation_language)
         supportActionBar?.setDefaultDisplayHomeAsUpEnabled(false)
