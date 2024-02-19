@@ -25,6 +25,7 @@ class SelectTranslationLanguageActivity : AppCompatActivity() {
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityTranslationLanguageBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_translation_language)
         setSupportActionBar(binding.appToolbar)
         supportActionBar?.title = resources.getString(R.string.title_select_translation_language)

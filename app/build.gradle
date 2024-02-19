@@ -1,10 +1,8 @@
 plugins {
-    id 'com.google.devtools.ksp'
+    id 'com.android.application'
+    id 'kotlin-android'
+    id "org.jetbrains.kotlin.kapt"
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 34
@@ -19,8 +17,18 @@ android {
         buildConfigField("int", "VERSION_CODE", "${defaultConfig.versionCode}")
         buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+    }
+    buildFeatures {
+        viewBinding true
     }
     buildTypes {
         debug {
@@ -38,7 +46,7 @@ android {
     }
     productFlavors {
     }
-    buildToolsVersion '29.0.2'
+    namespace 'com.esperantajvortaroj.app'
 }
 
 
@@ -73,7 +81,8 @@ dependencies {
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-    ksp "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    //ksp "androidx.room:room-compiler:$room_version"
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
 }

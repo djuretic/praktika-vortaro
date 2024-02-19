@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.esperantajvortaroj.app"
     android:installLocation="auto">
 
     <application
@@ -16,7 +15,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.esperantajvortaroj.app.SearchActivity" android:exported="false"></activity>
+        <activity android:name="com.esperantajvortaroj.app.SearchActivity" android:exported="false" />
         <activity android:name="com.esperantajvortaroj.app.DefinitionActivity"
             android:parentActivityName="com.esperantajvortaroj.app.SearchActivity"
             android:exported="false">
@@ -25,7 +24,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.esperantajvortaroj.app.SearchActivity" />
         </activity>
-        <activity android:name="com.esperantajvortaroj.app.SettingsActivity" android:exported="false"></activity>
+        <activity android:name="com.esperantajvortaroj.app.SettingsActivity" android:exported="false" />
         <activity android:name="com.esperantajvortaroj.app.SelectTranslationLanguageActivity"
             android:parentActivityName="com.esperantajvortaroj.app.SearchActivity"
             android:exported="false">
