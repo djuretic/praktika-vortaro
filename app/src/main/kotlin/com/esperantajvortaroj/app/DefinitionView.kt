@@ -12,8 +12,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
+import com.esperantajvortaroj.app.databinding.ItemDefinitionBinding
 import com.esperantajvortaroj.app.db.TranslationResult
-import kotlinx.android.synthetic.main.item_definition.view.*
 
 class DefinitionView : RelativeLayout {
     var onClickFako: (fako: String) -> Unit = {}
@@ -22,6 +22,12 @@ class DefinitionView : RelativeLayout {
     var headword: SpannableString = SpannableString("")
     var definition: SpannableString = SpannableString("")
     var showMoreOptions: Boolean = true
+    private var binding: ItemDefinitionBinding
+
+    init {
+        val inflater = LayoutInflater.from(context)
+        binding = ItemDefinitionBinding.inflate(inflater, this, true)
+    }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) :  super(context, attrs)
@@ -32,10 +38,10 @@ class DefinitionView : RelativeLayout {
                   showLinks:Boolean = true,
                   showBaseWordInTranslation: Boolean = false): CharSequence{
         this.removeAllViewsInLayout()
-        val view = LayoutInflater.from(context).inflate(R.layout.item_definition, this, true)
+        // val view = LayoutInflater.from(context).inflate(R.layout.item_definition, this, true)
 
         var content : CharSequence = ""
-        val textView = view.definitionTextView
+        val textView = binding.definitionTextView
 
         //textView.setTextIsSelectable(true)
         textView.movementMethod = LinkMovementMethod.getInstance()
@@ -51,26 +57,24 @@ class DefinitionView : RelativeLayout {
         textView.text = content
 
         if (showMoreOptions) {
-            moreOptionsImageView.setOnClickListener { view -> onClickMoreOptions(this) }
+            binding.moreOptionsImageView.setOnClickListener { view -> onClickMoreOptions(this) }
         } else {
-            moreOptionsImageView.visibility = GONE
+            binding.moreOptionsImageView.visibility = GONE
         }
-
-
 
         return content
     }
 
     fun setTextSize(unit: Int, size: Float) {
-        definitionTextView.setTextSize(unit, size)
-        val layoutParams = moreOptionsImageView.layoutParams
+        binding.definitionTextView.setTextSize(unit, size)
+        val layoutParams = binding.moreOptionsImageView.layoutParams
         val size = TypedValue.applyDimension(unit, size, resources.displayMetrics).toInt()
         layoutParams.width = size
         layoutParams.height = size
     }
 
     fun setOnTouchListenerOnTextView(l: View.OnTouchListener) {
-        definitionTextView.setOnTouchListener(l)
+        binding.definitionTextView.setOnTouchListener(l)
     }
 
 
