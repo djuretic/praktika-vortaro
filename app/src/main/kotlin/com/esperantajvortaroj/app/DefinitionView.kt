@@ -38,7 +38,7 @@ class DefinitionView : RelativeLayout {
                   showLinks:Boolean = true,
                   showBaseWordInTranslation: Boolean = false): CharSequence{
         this.removeAllViewsInLayout()
-        // val view = LayoutInflater.from(context).inflate(R.layout.item_definition, this, true)
+        this.addView(binding.root)
 
         var content : CharSequence = ""
         val textView = binding.definitionTextView

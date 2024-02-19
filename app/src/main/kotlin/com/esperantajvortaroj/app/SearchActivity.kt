@@ -373,7 +373,7 @@ class SearchActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         val title = resources.getString(R.string.app_name)
         val message = Utils.fromHtml("""
-            <p>© 2018-2021 Dušan Juretić</p>
+            <p>© 2018-2024 Dušan Juretić</p>
             <p>Datumbazo: <a href="http://www.reta-vortaro.de/revo">Reta Vortaro</a><br/>Versio: ${revoVersion}</p>
             <p>Inspirita de <a href="https://play.google.com/store/apps/details?id=uk.co.busydoingnothing.prevo">PReVo</a></p>
         """)

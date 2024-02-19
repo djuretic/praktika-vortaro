@@ -25,7 +25,7 @@ class SearchHistoryView : RelativeLayout {
     fun initView(context: Context, searchHistory: SearchHistory, fontSize: Float, onDelete: (View) -> Unit) {
         historyEntry = searchHistory
         this.removeAllViewsInLayout()
-        //val view = LayoutInflater.from(context).inflate(R.layout.item_search_history_entry, this, true)
+        this.addView(binding.root)
         binding.entryWord.text = searchHistory.word
         word = searchHistory.word
         binding.entryWord.textSize = fontSize
