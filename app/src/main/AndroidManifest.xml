@@ -9,25 +9,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.esperantajvortaroj.app.LoadingActivity" android:exported="true">
+        <activity
+            android:name=".LoadingActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.esperantajvortaroj.app.SearchActivity" android:exported="false" />
-        <activity android:name="com.esperantajvortaroj.app.DefinitionActivity"
-            android:parentActivityName="com.esperantajvortaroj.app.SearchActivity"
-            android:exported="false">
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DefinitionActivity"
+            android:exported="false"
+            android:parentActivityName=".SearchActivity">
+
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.esperantajvortaroj.app.SearchActivity" />
         </activity>
-        <activity android:name="com.esperantajvortaroj.app.SettingsActivity" android:exported="false" />
-        <activity android:name="com.esperantajvortaroj.app.SelectTranslationLanguageActivity"
-            android:parentActivityName="com.esperantajvortaroj.app.SearchActivity"
-            android:exported="false">
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SelectTranslationLanguageActivity"
+            android:exported="false"
+            android:parentActivityName=".SearchActivity">
+
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

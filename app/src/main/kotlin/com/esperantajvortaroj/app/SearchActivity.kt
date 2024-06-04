@@ -122,9 +122,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        resetSearch = intent?.getBooleanExtra(RESET_SEARCH, false) ?: false
+        resetSearch = intent.getBooleanExtra(RESET_SEARCH, false) ?: false
     }
 
     override fun onPostResume() {
