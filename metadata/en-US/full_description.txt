@@ -1,0 +1,1 @@
+Praktika Vortaro is an Esperanto dictionary, based on Reta Vortaro. It works offline, without Internet access.
