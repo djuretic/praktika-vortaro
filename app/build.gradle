@@ -51,7 +51,7 @@ android {
 
 
 preBuild.doFirst {
-    def f = new File('./app/src/main/assets/databases/vortaro.db')
+    def f = new File("${projectDir}/src/main/assets/databases/vortaro.db")
     if (!f.exists()) {
         f.parentFile.mkdirs()
         new URL('https://github.com/djuretic/praktika-vortaro-dicts/releases/download/0.19/vortaro.db').withInputStream{ i -> f.withOutputStream{ it << i }}
