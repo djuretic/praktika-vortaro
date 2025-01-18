@@ -5,9 +5,9 @@ This is the repository of the Android application Praktika Vortaro.
 ## Screenshots
 
 <p float="left">
-<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Search word" style="zoom:20%;" />
-<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Definition" style="zoom:20%;" />
-<img src="metadata/en-US/images/phoneScreenshots/3.png" alt="Word definition popup" style="zoom:20%;" />
+<img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Search word" width="250" />
+<img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Definition" width="250" />
+<img src="metadata/en-US/images/phoneScreenshots/3.png" alt="Word definition popup" width="250" />
 </p>
 
 
